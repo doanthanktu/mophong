@@ -1,0 +1,23 @@
+HTTrack3.49-2+htsswf+htsjava launched on Sat, 16 Dec 2023 22:16:47 at https://visualgo.net/en/dfsbfs +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar
+(winhttrack -qwC2%Ps2u1%s%uN0%I0p3DaK0H0%kf2A25000%f#f -F "Mozilla/4.5 (compatible; HTTrack 3.0x; Windows 98)" -%F "<!-- Mirrored from %s%s by HTTrack Website Copier/3.x [XR&CO'2014], %s -->" -%l "en, *" https://visualgo.net/en/dfsbfs -O1 "C:\My Web Sites\end" +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+22:17:27	Error: 	"Not Found" (404) at link https://visualgo.net/en/url (from https://visualgo.net/en/dfsbfs)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/heap (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/bst (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/list?mode=Queue (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/sssp (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/graphds (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/dfsbfs/?slide=5-4 (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/dfsbfs/?slide=7-7 (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/recursion (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/matching (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:01	Error: 	"Not Found" (404) at link https://visualgo.net/en/dfsbfs/url (from https://visualgo.net/en/dfsbfs/?slide=5-4)
+22:18:15	Error: 	"Not Found" (404) at link https://pbs.twimg.com/profile_images/2618373647/image.jpg (from https://visualgo.net/en/sorting)
+
+HTTrack Website Copier/3.49-2 mirror complete in 1 minutes 28 seconds : 202 links scanned, 189 files written (35665955 bytes overall) [10655809 bytes received at 121088 bytes/sec], 31640186 bytes transferred using HTTP compression in 141 files, ratio 20%, 34.0 requests per connection
+(12 errors, 0 warnings, 0 messages)

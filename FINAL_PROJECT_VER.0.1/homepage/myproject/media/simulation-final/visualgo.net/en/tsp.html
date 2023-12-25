@@ -1,0 +1,3308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from visualgo.net/en/tsp by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 16 Dec 2023 15:18:01 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Traveling Salesperson Problem: TSP is a problem that tries to find a tour of minimum cost that visits every city once. In this visualization, it is assumed that the underlying graph is a complete graph with (near-)metric distance (meaning the distance function satisfies the triangle inequality) by taking the distance of two points and round it to the nearest integer.">
+<meta name="keywords" content="approximation, greedy, DP">
+ 
+<meta name="csrf-token" content="dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+<meta property="og:image" content="../img/png/tsp.png">
+<title>Metric No-Repeat Traveling Salesperson Problem - VisuAlgo</title>
+<link rel="icon" href="../img/favicon.png" type="image/x-icon">
+<link rel="shortcut icon" href="../img/favicon.png" type="image/x-icon">
+<link rel="apple-touch-icon" href="../img/favicon.png">
+<link rel="apple-touch-icon" sizes="72x72" href="../img/favicon.png">
+<link rel="apple-touch-icon" sizes="114x114" href="../img/favicon.png">
+<link rel="stylesheet" href="../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="../fonts/silkscreen/stylesheet.css">
+<link rel="stylesheet" type="text/css" href="../css/common-1.0.2.css">
+<link rel="stylesheet" href="../css/viz-1.0.4.css">
+<link rel="stylesheet" href="../css/visual.css">
+<link rel="stylesheet" href="../css/drawgraph-1.0.2.css">
+<style>
+      #e-lecture {
+        top: 45px;
+        right: 130px;
+        width: 400px;
+        display: block;
+        background: none;
+        /*overflow: normal;*/
+        white-space: normal;
+        text-align: right;
+        color: black; font-weight: bold; font-size: 20px;
+        z-index: 8001;
+      }
+      #e-lecture-timeline {
+        top: 80px;
+        right: 130px;
+        display: flex;
+        position: absolute;
+        z-index: 10000;
+      }
+      .e-lecture-timeline-slide {
+        height: 5px;
+        width: 2px;
+        background: black;
+        float: left;
+      }
+      .e-lecture-timeline-checkpoint {
+        height: 20px;
+        width: 3px;
+        margin-left: 2px;
+        margin-top: -7.5px;
+        background: black;
+        float: left;
+      }
+
+      #e-lecture-f1map {
+        top: 102.5px;
+        right: 130px;
+        display: flex;
+        position: absolute;
+        z-index: 10000;
+      }
+
+      .e-lecture-f1map-sector {
+        flex-grow: 1;
+        background: black;
+        float: left;
+        height: 5px;
+        margin-right: 1px;
+      }
+
+      .e-lecture-f1map-sector:last-child {
+        margin-right: 0px;
+      }
+
+      .electure-prev, .electure-next { /* force update, copied from viz.css */
+        position: absolute;
+        /* bottom: -12px; */
+        top: -20px;
+        /*bottom: '';*/
+        padding: 3px 8px;
+        background: #999;
+        color: white;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+
+      .electure-read-status {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        font-size: 14px;
+        cursor: default;
+        color: #00FF7F;
+        display: none;
+      }
+
+      .electure-prev {
+        left: -10px;
+        /* right: 30px; */
+      }
+      .electure-next {
+        right: -10px;
+        color: white;
+      }
+      .electure-print, .electure-end {
+        position: fixed;
+        top: 45px;
+        height: 20px;
+        width: 17px;
+        right: 80px;
+        padding: 3px 8px;
+        background: #999;
+        color: white;
+        cursor: pointer;
+        border-radius: 2px;
+        text-align: center;
+      }
+      .electure-end {
+        right: 45px; /* beside the X */
+      }
+
+      #change-lang-popup {
+        position: fixed;
+        background: green;
+        left: 40px;
+        top: 50px;
+        width: 250px;
+        height: 125px;
+        border: transparent;
+        border-radius: 10px;
+        padding: 10px 20px;
+        z-index: 9000;
+      }
+
+      #change-lang-popup p {
+        font-size: medium;
+        color: white;
+        line-height: 2;
+        font-family: "PT Sans", sans-serif;
+      }
+
+      #change-lang-popup-btn {
+        text-decoration: underline;
+        margin-left: 50px;
+      }
+
+      #change-lang-popup-btn:hover {
+        cursor: pointer;
+      }
+
+      #rotateDeviceOverlay {
+        z-index: 10000;
+        width: 90%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        padding-right: 5%;
+        padding-left: 5%;
+        overflow: hidden;
+      }
+
+      #mobile-playback-overlay {
+        z-index: 9600;
+        width: 90%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        gap: 100px;
+        background-color: black;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        padding-right: 5%;
+        padding-left: 5%;
+        opacity: 0.3;
+        overflow: hidden;
+      }
+      .mobile-playback-item {
+        min-width: 2.5%;
+        max-width: 35px;
+      }
+      .mobile-playback-item img {
+        width: 100%
+      }
+      .mobile-playback-label {
+        opacity: 0;
+        color: white;
+        font-size: 25px;
+        font-weight: bold;
+        min-width: 1.5%;
+        max-width: 25px;
+        transition: opacity 0.25s ease-out;
+        -webkit-backface-visibility: hidden;
+      }
+      #mobile-playback-rewind-label {
+        margin-right: -70px;
+      }
+      #mobile-playback-forward-label {
+        margin-left: -70px;
+      }
+      #viz-speed-value {
+          font-size: 15px;
+          width: 10%;
+      }
+
+      #scale {
+        position: fixed;
+        left: 5px;
+      }
+    </style>
+<style>
+/* copied here from common.css (perhaps need to use version numbering) until caches worldwide settles */
+#reload-mobile-popup, #message-popup { /* #gdpr-popup, */
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 320px;
+  bottom: 62px;
+  height: 300px;
+  background-color: #0275d8;
+  border-radius: 15px;
+  padding: 30px 40px;
+  z-index: 9500;
+}
+#reload-mobile-popup {
+  background-color: green;
+  height: 200px;
+}
+#message-popup {
+  z-index: 9000;
+  width: 40%;
+  height: 130px;
+  background-color: #d9534f;
+}
+
+#reload-mobile-popup p, #message-popup p { /* #gdpr-popup p, */
+  font-size: large;
+  color: white;
+  line-height: 2;
+  font-family: "PT Sans", sans-serif;
+}
+
+#reload-mobile-popup .inner-button, #message-popup .inner-button { /* #gdpr-popup .gdpr-button, */
+  border: white solid 2px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: x-large;
+  padding: 2px 8px;
+  color: white;
+  width: 90px;
+  text-align: center;
+  position: absolute;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#gdpr-accept, #reload-mobile-button, #dismiss-message-btn {
+  bottom: 30px;
+  right: 40px;
+}
+
+#gdpr-reject, #cancel-reload-mobile-button {
+  bottom: 30px;
+  right: 170px;
+}
+    </style>
+</head>
+<body>
+<div id="body-container" style="display: flex; flex-direction: column; min-height: 100vh;">
+<style>
+  #topbar {
+    background-color: rgb(0,0,0);
+    font-family: "PT Sans", sans-serif;
+    font-size: 13px;
+    height: 40px;
+
+    padding-left: 40px;
+    padding-right: 40px;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  #topbar a:hover {
+    text-decoration: none;
+  }
+
+  #account-dropdown-btn {
+    color: #198754;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    margin-left: 0.5rem;
+
+    border: 2px solid;
+    border-radius: 0.25rem;
+    height: 24px;
+    line-height: 1.5;
+  }
+
+  #account-dropdown-btn:hover {
+    color: #0a58ca!important;
+    border-color: #198754;
+    text-decoration: none;
+  }
+
+  #login-button {
+    color: #198754;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    margin-left: 0.5rem;
+
+    border: 2px solid;
+    border-radius: 0.25rem;
+
+    height: 24px;
+    line-height: 1.5;
+  }
+
+  #login-button a:hover {
+    color: #0a58ca!important;
+    text-decoration: none;
+  }
+
+  #account-dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    z-index: 1000;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0;
+    font-size: 1rem;
+    color: rgb(0,0,0);
+    text-align: left;
+    list-style: none;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.25rem;
+    top: 45px;
+    right: 40px;
+    line-height: 1.5;
+  }
+
+  .account-dropdown-item {
+    display: block;
+    width: auto;
+    padding: 0.25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: rgb(0,0,0);
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    height: 24px;
+    font-family: SilkscreenNormal, sans-serif;
+  }
+
+  .account-dropdown-item:hover {
+    background-color: #e9ecef;
+    color: #0a58ca;
+    text-decoration: none;
+  }
+</style>
+<nav id="topbar">
+<span style="margin-right: 0.25rem">
+<a href="https://www.comp.nus.edu.sg/~stevenha" style="text-decoration: none; color: white">
+<span class="colour" style="border: 1px solid; border-color: #198754!important; border-radius: .25rem!important">7</span>
+</a>
+<a href="https://visualgo.net/" style="font-family: SilkscreenNormal,sans-serif; font-size: 20px; margin-left: 4px;">
+<span style="color: white">Visu</span><span class="colour">Algo</span><span style="font-size: 40%; color: white">.net</span>
+</a>
+<span style="color: white">/</span>
+<select id="Language" class="select2-dropdown" onchange="changeURL()">
+<option value="en" selected>en</option>
+<option value="zh">zh</option>
+<option value="id">id</option>
+</select>
+<span style="color: white; font-family: monospace">/tsp</span>
+</span>
+<span style="max-height: 30px">
+<span id="title">
+<a id="title-tsp" class="selected-viz">Metric No-Repeat Traveling Salesperson Problem</a>
+</span>
+</span>
+<span style="max-height: 30px; background-color:rgb(0,0,0)!important; color: white; margin-left: auto">
+<div id="mode-menu">
+<div id="mode-button" style="background-color: rgb(0,0,0)!important;" title="exploration">Exploration Mode &#9663;</div>
+<div id="other-modes" style="background-color: rgb(0,0,0)!important; padding-top: 11px">
+<a title="e-Lecture" style="background-color: rgb(0,0,0)!important;">e-Lecture Mode</a>
+</div>
+</div>
+</span>
+<span id="login-button" style="font-family: SilkscreenNormal,sans-serif">
+<a href="https://visualgo.net/login">Login</a>
+</span>
+</nav>
+<ul id="account-dropdown-menu">
+<li><a class="account-dropdown-item" href="https://visualgo.net/profile">Profile</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/training">Training</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/tests">Tests</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/logout">Log Out</a></li>
+</ul>
+<script>
+  function changeURL() {
+    let URL = window.location.href.split('https://visualgo.net/');
+    URL[3] = document.getElementById("Language").value;
+    window.location.assign(URL.join('https://visualgo.net/'));
+  }
+
+  function changeDefaultLanguageAndURL() {
+    let URL = window.location.href.split('https://visualgo.net/');
+    let val = document.getElementById("Language").value;
+    URL[3] = val;
+
+    let data = {
+      '_token': "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+      'lang'  : val
+    }
+    $.post('https://visualgo.net/changeLanguage', data, function (res, status) {
+      if(res['status'] === 'success') {
+        window.location.assign(URL.join('https://visualgo.net/'));
+      } else if (res['status'] === 'failed') {
+        alert(res['message']);
+      } else {
+        alert('An unknown error occurred');
+      }
+    })
+  }
+</script>
+<div id="dark-overlay"></div>
+<div id="main-content-container" style="flex: 1">
+
+<div id="mobile-playback-overlay" class="playing" style="display: none;">
+<span id="mobile-playback-rewind-label" class="mobile-playback-label">-7</span>
+<span id="mobile-playback-rewind" class="mobile-playback-item" onclick="mobilePlaybackRewind()"><img src="../img/prevFrame.png" alt="rewind 7 frames"></span>
+<span id="mobile-playback-pause" class="mobile-playback-item" onclick="mobilePlaybackPauseOrPlay()"><img src="../img/pause.png" alt="pause"></span>
+<span id="mobile-playback-play" class="mobile-playback-item" style="display: none;" onclick="mobilePlaybackPauseOrPlay()"><img src="../img/play.png" alt="play"></span>
+<span id="mobile-playback-forward" class="mobile-playback-item" onclick="mobilePlaybackForward()"><img src="../img/nextFrame.png" alt="forward 7 frames"></span>
+<span id="mobile-playback-forward-label" class="mobile-playback-label">+7</span>
+</div>
+<div id="status" class="panel"><p></p></div>
+<div id="status-hide" class="panel-hide"><img src="../img/arrow_white_right.png" alt=">" title="show/hide status panel" /></div>
+<div id="codetrace" class="panel">
+<p id="code1" style="padding-top: 10px;"></p>
+<p id="code2"></p>
+<p id="code3"></p>
+<p id="code4"></p>
+<p id="code5"></p>
+<p id="code6"></p>
+<p id="code7" style="padding-bottom: 10px;"></p>
+</div>
+<div id="codetrace-hide" class="panel-hide"><img src="../img/arrow_white_right.png" alt=">" title="show/hide codetrace panel" /></div>
+<div id="left-bar"></div>
+<div id="right-bar"></div>
+<div id="media-controls">
+<div id="speed-control"><div id="speed-input"></div><div id="viz-speed-value">1x</div></div>
+<span id="go-to-beginning" class="media-control-button" title="go to beginning" onclick="goToBeginning()"><img src="../img/goToBeginning.png" alt="go to beginning"></span>
+<span id="previous" class="media-control-button" title="step backward" onclick="stepBackward()"><img src="../img/prevFrame.png" alt="previous frame"></span>
+<span id="pause" class="media-control-button" title="pause" onclick="pause()"><img src="../img/pause.png" alt="pause"></span>
+<span id="play" class="media-control-button" title="play" onclick="play()"><img src="../img/play.png" alt="play"></span>
+<span id="next" class="media-control-button" title="step forward" onclick="stepForward()"><img src="../img/nextFrame.png" alt="next frame"></span>
+<span id="go-to-end" class="media-control-button" title="go to end" onclick="goToEnd()"><img src="../img/goToEnd.png" alt="go to end"></span>
+<div id="progress-bar" class="media-control-button"></div>
+</div>
+<div id="viz">
+<p id="info" "></p>
+</div>
+<div id="current-action" class="panel"></div>
+<div id="e-lecture" class="panel"></div> 
+<div id="e-lecture-timeline"></div>
+<div id="e-lecture-f1map">
+<div class="e-lecture-f1map-sector" sectorNo="1"></div>
+<div class="e-lecture-f1map-sector" sectorNo="2"></div>
+<div class="e-lecture-f1map-sector" sectorNo="3"></div>
+</div>
+<div id="overlay" hidden onclick="end_eLecture()"> 
+<div id="electure-dropdown">
+<select class="lecture-dropdown" style="width:100%">
+<option value="1">1. Traveling Salesperson Problem</option>
+<option value="2">2. Visualization</option>
+<option value="3">3. Input</option>
+<option value="4">4. Bruteforce</option>
+<option value="5">5. Dynamic Programming</option>
+<option value="6">6. Approximation</option>
+</select>
+</div>
+<div class="electure-print" title="Print the e-Lecture note" style="z-index=8001;">&#9997;</div>
+<div class="electure-end" title="Close the e-Lecture mode" style="z-index=8001;">&#10008;</div>
+</div>
+<div id="dropdown-temp-holder" hidden></div>
+
+<div id="electure-1" class="electure-dialog" style="top:60px;left:60px;width:500px;">
+<p><b>Traveling Salesperson Problem</b>: TSP is a problem that tries to find a tour of minimum cost that visits every city once. In this visualization, it is assumed that the underlying graph is a complete graph with (near-)metric distance (meaning the distance function satisfies the triangle inequality) by taking the distance of two points and round it to the nearest integer.</p>
+<div class="electure-addition">
+<hr>
+<p><b>Remarks</b>: By default, we show e-Lecture Mode for first time (or non logged-in) visitor.<br>
+If you are an NUS student and a repeat visitor, please <a href="https://visualgo.net/login"><u>login</u></a>.</p>
+</div>
+<div class="electure-next" data-nextid="2" title="Go to the next slide 2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-2" class="electure-dialog" style="top:300px;left:50%;margin-left:-250px;width:500px;">
+<p>View the visualisation of TSP algorithm here.</p><p>Originally, all edges in the input graph are colored with the <span style="color: rgb(128, 128, 128);">grey</span>.</p><p>Throughout the visualization, traversed edge will be highlighted with <span style="color: rgb(255, 165, 0);">orange</span>.</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 1: Since you are not <a href="https://visualgo.net/login"><u>logged-in</u></a>, you may be a first time visitor (or not an NUS student) who are not aware of the following keyboard shortcuts to navigate this e-Lecture mode: <b>[PageDown]</b>/<b>[PageUp]</b> to go to the next/previous slide, respectively, (and if the drop-down box is highlighted, you can also use <b>[&rarr; or &darr;/&larr; or &uarr;]</b> to do the same),and <b>[Esc]</b> to toggle between this e-Lecture mode and exploration mode.</p>
+</div>
+<div class="electure-prev" data-nextid="1" title="Go to the previous slide 1">&larr;</div>
+<div class="electure-next" data-nextid="3" title="Go to the next slide 3">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-3" class="electure-dialog" style="bottom:230px;left:60px;width:500px;">
+<p>There are two different sources for specifying an input graph:</p><ol><li><b>Draw Graph</b>: You can put several points on the drawing box, but you must not draw any edge to ensure the (near-)metric property of the graph. After you have finished putting the points, the edges will be drawn automatically for you after.</li><li><b>Example Graphs</b>: You can select from the list of graphs to get you started.</li></ol>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 2: We designed this visualization and this e-Lecture mode to look good on 1366x768 resolution <b>or larger</b> (typical modern laptop resolution in 2021). We recommend using Google Chrome to access VisuAlgo. Go to full screen mode (<b>F11</b>) to enjoy this setup. However, you can use zoom-in (<b>Ctrl +</b>) or zoom-out (<b>Ctrl -</b>) to calibrate this.</p>
+</div>
+<div class="electure-prev" data-nextid="2" title="Go to the previous slide 2">&larr;</div>
+<div class="electure-next" data-nextid="4" title="Go to the next slide 4">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4" class="electure-dialog" style="bottom:230px;left:60px;width:500px;">
+<p><b>Bruteforce</b>: It tries all (V-1)! permutation of vertices (not all V! since it does not matter where we start from). It enumerates all possibilities by doing a dfs search with parameters similar to those of <u><a href="https://en.wikipedia.org/wiki/Held–Karp_algorithm" title target="_blank">Held-Karp</a></u> algorithm, that is, the DFS search will return the value of the tour starting from current vertex to all vertices that we have not already visited.</p><p>Time complexity: O(V * (V - 1)!) = O(V!).</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 3: Other than using the typical media UI at the bottom of the page, you can also control the animation playback using keyboard shortcuts (in Exploration Mode): <b>Spacebar</b> to play/pause/replay the animation, <b>&larr;</b>/<b>&rarr;</b> to step the animation backwards/forwards, respectively, and <b>-</b>/<b>+</b> to decrease/increase the animation speed, respectively.</p>
+</div>
+<div class="electure-prev" data-nextid="3" title="Go to the previous slide 3">&larr;</div>
+<div class="electure-next" data-nextid="5" title="Go to the next slide 5">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-5" class="electure-dialog" style="bottom:230px;left:60px;width:500px;">
+<p><b>Dynamic Programming</b>: It uses a widely known algorithm called <a href="https://en.wikipedia.org/wiki/Held–Karp_algorithm" title target="_blank">Held-Karp</a>. In this visualization, it is implemented as a DFS search that is the same with the bruteforce algorithm, but with memoization to cache the answers. This dramatically brings down the run time complexity to O(2^V * V^2).</p><p>Time complexity: O(2^V * V^2).</p><p>Note that for N = 10, this algorithm takes roughly ~(100 * 2^10) = 102K operations while the bruteforce algorithm takes roughly ~(10!) = 3628800 operations, around 30 times faster.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="4" title="Go to the previous slide 4">&larr;</div>
+<div class="electure-next" data-nextid="6" title="Go to the next slide 6">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6" class="electure-dialog" style="bottom:230px;left:60px;width:500px;">
+<p><b>Approximation</b>: There are two approximation algorithms available, a 2-approximation algorithm and a 1.5-approximation algorithm that is also well known as Christofides Algorithm.</p>
+<div class="electure-addition">
+<hr>
+<p>You have reached the last slide. Return to 'Exploration Mode' to start exploring!</p>
+<p>Note that if you notice any bug in this visualization or if you want to request for a new visualization feature, do not hesitate to drop an email to the project leader: Dr Steven Halim via his email address: stevenhalim at gmail dot com.</p>
+</div>
+<div class="electure-prev" data-nextid="5" title="Go to the previous slide 5">&larr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="popup" hidden>
+<div id="popup-content"></div>
+<span id="hide-popup" hidden>X <u>Close</u></span>
+</div>
+<div id="rotateDeviceOverlay" style="display: none;">
+<div id="rotateDeviceText" style="font-size: 45px; font-weight: bold; text-align: center">Please rotate your device to landscape mode for a better user experience</div>
+<div id="widenDeviceText" style="font-size: 45px; font-weight: bold; text-align: center">Please make the window wider for a better user experience</div>
+</div>
+
+<style>
+        .draw {
+            bottom: 200px
+        }
+    </style>
+<style>
+        .examples {
+            bottom: 173px
+        }
+    </style>
+<style>
+        .bruteforce {
+            bottom: 146px
+        }
+    </style>
+<style>
+        .dp {
+            bottom: 119px
+        }
+    </style>
+<style>
+        .approximation {
+            bottom: 92px
+        }
+    </style>
+<style>
+        .bitonic {
+            bottom: 65px
+        }
+    </style>
+<div id="actions" class="panel">
+<p class="execAction" id="draw" onClick="drawGraph()">Edit Graph</p>
+<p id="examples">Example Graphs</p>
+<p class="execAction" id="bruteforce" onClick="bruteforce()">Bruteforce</p>
+<p class="execAction" id="dp" onClick="dp()">Dynamic Programming</p>
+<p id="approximation">Approximation</p>
+<p class="execAction" id="bitonic" onClick="bitonic_tsp()">Bitonic TSP</p>
+</div>
+<div id="actions-hide" class="panel-hide"><span style="color:white; font-size: x-large; display: inline-block;">&gt;</span></div>
+<div id="actions-extras">
+<div class="draw action-menu-pullout">
+<div id="draw-err" class="err" style="float: left;"></div>
+</div>
+<div class="examples action-menu-pullout">
+<div id="example1" class="execAction new-menu-option coloured-menu-option" onClick="example(K4)">
+<p>K4</p>
+</div>
+<div id="example2" class="execAction new-menu-option coloured-menu-option" onClick="example(K5)">
+<p>K5</p>
+</div>
+<div id="example3" class="execAction new-menu-option coloured-menu-option" onClick="example(K8)">
+<p>K8</p>
+</div>
+<div id="examplek" class="execAction new-menu-option coloured-menu-option" onClick="toggleChildExtras(&#039;examples&#039;, &#039;examplek&#039;)">
+<p>K_N</p>
+<div id="examplek-third-tier" class="examplek-third-tier new-menu-option" style="display: none;">
+<div id="examplek-input" style="float: left;">
+n = <input id="v-example-k" type="number" title="Enter an Integer" autocomplete="off" min="2" max="10" value="5"> </div>
+<div id="examplek-go" class="execAction coloured-menu-option" style="float: right;" onClick="example(K_N)">
+<p>Go</p>
+</div>
+</div>
+</div>
+<div id="example5" class="execAction new-menu-option coloured-menu-option" onClick="example(CS4234_TUTORIAL_THREE)">
+<p>CS4234 Tutorial Three</p>
+</div>
+<div id="examples-err" class="err" style="float: left;"></div>
+</div>
+<div class="bruteforce action-menu-pullout">
+<div id="bruteforce-err" class="err" style="float: left;"></div>
+</div>
+<div class="dp action-menu-pullout">
+<div id="dp-err" class="err" style="float: left;"></div>
+</div>
+<div class="approximation action-menu-pullout">
+<div id="two_approximation-go" class="execAction new-menu-option coloured-menu-option" onClick="two_approximation()">
+<p>2-approximation TSP</p>
+</div>
+<div id="one_half_approximation-go" class="execAction new-menu-option coloured-menu-option" onClick="one_half_approximation()">
+<p>1.5-approximation TSP</p>
+</div>
+<div id="approximation-err" class="err" style="float: left;"></div>
+</div>
+<div class="bitonic action-menu-pullout">
+<div id="bitonic-err" class="err" style="float: left;"></div>
+</div>
+</div>
+
+<div id="drawgraph" class="overlays"></div>
+</div>
+
+<div id="bottom-bar">
+<a id="scale" style="display: none;">1.0x</a>
+<a id="trigger-about">About</a>
+<a id="trigger-team">Team</a>
+<a id="trigger-terms">Terms of use</a>
+<a id="trigger-privacy">Privacy Policy</a>
+</div>
+<div id="about" class="overlays">
+<h4>About</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>Initially conceived in 2011 by Associate Professor Steven Halim, VisuAlgo aimed to facilitate a deeper understanding of data structures and algorithms for his students by providing a self-paced, interactive learning platform.</p><p>Featuring numerous advanced algorithms discussed in Dr. Steven Halim&#39;s book, &#39;Competitive Programming&#39; — co-authored with Dr. Felix Halim and Dr. Suhendry Effendy — VisuAlgo remains the exclusive platform for visualizing and animating several of these complex algorithms even after a decade.</p><p>While primarily designed for National University of Singapore (NUS) students enrolled in various data structure and algorithm courses (e.g., CS1010/equivalent, CS2040/equivalent (including IT5003), CS3230, CS3233, and CS4234), VisuAlgo also serves as a valuable resource for inquisitive minds worldwide, promoting online learning.</p><p>Initially, VisuAlgo was not designed for small touch screens like smartphones, as intricate algorithm visualizations required substantial pixel space and click-and-drag interactions. For an optimal user experience, a minimum screen resolution of 1366x768 is recommended. However, since April 2022, a mobile (lite) version of VisuAlgo has been made available, making it possible to use a subset of VisuAlgo features on smartphone screens.</p><p>VisuAlgo remains a work in progress, with the ongoing development of more complex visualizations. At present, the platform features 24 visualization modules.</p><p>Equipped with a built-in question generator and answer verifier, VisuAlgo&#39;s "online quiz system" enables students to test their knowledge of basic data structures and algorithms. Questions are randomly generated based on specific rules, and students&#39; answers are automatically graded upon submission to our grading server. As more CS instructors adopt this online quiz system worldwide, it could effectively eliminate manual basic data structure and algorithm questions from standard Computer Science exams in many universities. By assigning a small (but non-zero) weight to passing the online quiz, CS instructors can significantly enhance their students&#39; mastery of these basic concepts, as they have access to an almost unlimited number of practice questions that can be instantly verified before taking the online quiz. Each VisuAlgo visualization module now includes its own online quiz component.</p><p>VisuAlgo has been translated into three primary languages: English, Chinese, and Indonesian. Additionally, we have authored public notes about VisuAlgo in various languages, including Indonesian, Korean, Vietnamese, and Thai:</p>
+<a href="https://www.facebook.com/notes/steven-halim/httpidvisualgonet-visualisasi-struktur-data-dan-algoritma-dengan-animasi/10153236934439689" target="_blank"><u>id</u></a>,
+<a href="http://blog.naver.com/visualgo_nus" target="_blank"><u>kr</u></a>,
+<a href="https://www.facebook.com/groups/163215593699283/permalink/824003417620494/" target="_blank"><u>vn</u></a>,
+<a href="http://pantip.com/topic/32736343" target="_blank"><u>th</u></a>.
+</div>
+</div>
+<div id="team" class="overlays">
+<h4>Team</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>
+<strong><span style="line-height: 150%;">Project Leader &amp; Advisor (Jul 2011-present)</span></strong><br>
+<a href="https://www.comp.nus.edu.sg/~stevenha/" target="_blank">Associate Professor Steven Halim</a>, School of Computing (SoC), National University of Singapore (NUS)<br>
+<a href="https://www.linkedin.com/in/felixhalim/" target="_blank">Dr Felix Halim</a>, Senior Software Engineer, Google (Mountain View)
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 1</span></strong><br>
+<b>CDTL TEG 1: Jul 2011-Apr 2012</b>: Koh Zi Chun, Victor Loh Bo Huai
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 1</span></strong><br>
+<b>Jul 2012-Dec 2013</b>: Phan Thi Quynh Trang, Peter Phandi, Albert Millardo Tjindradinata, Nguyen Hoang Duy<br>
+<b>Jun 2013-Apr 2014</b> <a href="https://www.rosemarietan.com/" target="_blank">Rose Marie Tan Zhao Yun</a>, Ivan Reinaldo
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 2</span></strong><br>
+<b>CDTL TEG 2: May 2014-Jul 2014</b>: Jonathan Irvin Gunawan, Nathan Azaria, Ian Leow Tze Wei, Nguyen Viet Dung, Nguyen Khac Tung, Steven Kester Yuwono, Cao Shengze, Mohan Jishnu
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 2</span></strong><br>
+<b>Jun 2014-Apr 2015</b>: Erin Teo Yi Ling, Wang Zi<br>
+<b>Jun 2016-Dec 2017</b>: Truong Ngoc Khanh, John Kevin Tjahjadi, Gabriella Michelle, Muhammad Rais Fathin Mudzakir<br>
+<b>Aug 2021-Apr 2023</b>: Liu Guangyuan, Manas Vegi, Sha Long, Vuong Hoang Long, Ting Xiao, Lim Dewen Aloysius<br>
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 3</span></strong><br>
+<b>Optiver: Aug 2023-Oct 2023</b>: Bui Hong Duc, Oleh Naver, Tay Ngan Lin<br>
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 3</span></strong><br>
+<b>Aug 2023-Apr 2024</b>: Xiong Jingya, Radian Krisno, Ng Wee Han<br>
+</p>
+<p>
+List of translators who have contributed &ge; 100 translations can be found at <a href="https://visualgo.net/statistics">statistics</a> page.
+</p>
+<p>
+<strong><span style="line-height: 150%;">Acknowledgements</span></strong><br>
+NUS <a href="https://nus.edu.sg/cdtl" target="_blank"><u>CDTL</u></a> gave Teaching Enhancement Grant to kickstart this project.<div>For Academic Year 2023/24, a generous donation from Optiver will be used to further develop VisuAlgo.</div>
+</p>
+</div>
+</div>
+<div id="termsofuse" class="overlays">
+<h4>Terms of use</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>VisuAlgo is generously offered at no cost to the global Computer Science community. If you appreciate VisuAlgo, we kindly request that you <b>spread the word about its existence to fellow Computer Science students and instructors</b>. You can share VisuAlgo through social media platforms (e.g., Facebook, YouTube, Instagram, TikTok, Twitter, etc), course webpages, blog reviews, emails, and more.</p><p>Data Structures and Algorithms (DSA) students and instructors are welcome to use this website directly for their classes. If you capture screenshots or videos from this site, feel free to use them elsewhere, provided that you cite the URL of this website (<a href="https://visualgo.net/">https://visualgo.net</a>) and/or the list of publications below as references. However, please refrain from downloading VisuAlgo&#39;s client-side files and hosting them on your website, as this constitutes plagiarism. At this time, we do not permit others to fork this project or create VisuAlgo variants. Personal use of an offline copy of the client-side VisuAlgo is acceptable.</p><p>Please note that VisuAlgo&#39;s online quiz component has a substantial server-side element, and it is not easy to save server-side scripts and databases locally. Currently, the general public can access the online quiz system only through the &#39;training mode.&#39; The &#39;test mode&#39; offers a more controlled environment for using randomly generated questions and automatic verification in real examinations at NUS.</p><p><strong><span style="line-height: 200%;">List of Publications</span></strong></p> <p>This work has been presented at the CLI Workshop at the ICPC World Finals 2012 (Poland, Warsaw) and at the IOI Conference at IOI 2012 (Sirmione-Montichiari, Italy). You can click <a href="https://ioinformatics.org/journal/INFOL099.pdf" target="_blank">this link</a> to read our 2012 paper about this system (it was not yet called VisuAlgo back in 2012) and <a href="https://ioinformatics.org/journal/v9_2015_243_245.pdf" target="_blank">this link</a> for the short update in 2015 (to link VisuAlgo name with the previous project).</p><p><strong><span style="line-height: 200%;">Bug Reports or Request for New Features</span></strong></p> <p>VisuAlgo is not a finished project. Associate Professor Steven Halim is still actively improving VisuAlgo. If you are using VisuAlgo and spot a bug in any of our visualization page/online quiz tool or if you want to request for new features, please contact Associate Professor Steven Halim. His contact is the concatenation of his name and add gmail dot com.</p>
+</div>
+</div>
+<div id="privacy-policy" class="overlays">
+<h4>Privacy Policy</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p><b>Version 1.2 (Updated Fri, 18 Aug 2023).</b></p><p>Since Fri, 18 Aug 2023, we no longer use Google Analytics. Thus, all cookies that we use now are solely for the operations of this website. The annoying cookie-consent popup is now turned off even for first-time visitors.</p><p>Since Fri, 07 Jun 2023, thanks to a generous donation by Optiver, anyone in the world can self-create a VisuAlgo account to store a few customization settings (e.g., layout mode, default language, playback speed, etc).</p><p>Additionally, for NUS students, by using a VisuAlgo account (a tuple of NUS official email address, student name as in the class roster, and a password that is encrypted on the server side — no other personal data is stored), you are giving a consent for your course lecturer to keep track of your e-lecture slides reading and online quiz training progresses that is needed to run the course smoothly. Your VisuAlgo account will also be needed for taking NUS official VisuAlgo Online Quizzes and thus passing your account credentials to another person to do the Online Quiz on your behalf constitutes an academic offense. Your user account will be purged after the conclusion of the course unless you choose to keep your account (OPT-IN). Access to the full VisuAlgo database (with encrypted passwords) is limited to Prof Halim himself.</p><p>For other CS lecturers worldwide who have written to Steven, a VisuAlgo account (your (non-NUS) email address, you can use any display name, and encrypted password) is needed to distinguish your online credential versus the rest of the world. Your account will have CS lecturer specific features, namely the ability to see the hidden slides that contain (interesting) answers to the questions presented in the preceding slides before the hidden slides. You can also access Hard setting of the VisuAlgo Online Quizzes. You can freely use the material to enhance your data structures and algorithm classes. Note that there can be other CS lecturer specific features in the future.<br></p><p>For anyone with VisuAlgo account, you can remove your own account by yourself should you wish to no longer be associated with VisuAlgo tool.</p>
+</div>
+</div>
+</div>
+
+
+<script src="../../code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+<script src="../../cdn.jsdelivr.net/npm/bootstrap%405.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="../../unpkg.com/d3-force-boundary%400.0.1/dist/d3-force-boundary.min.js"></script>
+<script>
+  $(function () {
+    // overlays stuffs
+    $('#trigger-about').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#about').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-team').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#team').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-terms').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#termsofuse').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-privacy').click(function () {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#privacy-policy').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    })
+
+    $('.close-overlay').click(function() {
+      $('.overlays').fadeOut(function() {
+        $('#dark-overlay').fadeOut();
+      });
+    });
+
+    $('#dark-overlay').click(function() {
+      $('.overlays').fadeOut();
+      $('#dark-overlay').fadeOut();
+      if (typeof GeometryWidget !== 'undefined') {
+        GeometryWidget.stopLoop();
+      }
+    });
+  })
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1566631-4"></script>
+<script>
+      $.ajaxSetup({
+        headers: {
+          'X-CSRF-TOKEN': "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H"
+        }
+      });
+
+      // handles account dropdown menu
+      $(function () {
+        $('#language-dropdown-btn').click(function (e) {
+          $('#language-dropdown-menu').css('display', 'block');
+          $('#account-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function () {
+          $('#language-dropdown-menu').css('display', 'none')
+        })
+      })
+
+      $(function () {
+        $('#account-dropdown-btn').click(function (e) {
+          $('#account-dropdown-menu').css('display', 'block')
+          $('#language-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function (e) {
+          $('#account-dropdown-menu').css('display', 'none')
+        })
+      })
+
+      // surprise colour!
+      // Referenced to in  home.js and viz.js also
+      var colourArray = ["#52bc69", "#d65775"/*"#ed5a7d"*/, "#2ebbd1", "#d9513c", "#fec515", "#4b65ba", "#ff8a27", "#a7d41e"]; // green, pink, blue, red, yellow, indigo, orange, lime
+
+      function disableScroll() { $('html').css('overflow', 'hidden'); }
+
+      function enableScroll() { $('html').css('overflow', 'visible'); }
+
+      function replaceAll(find, replace, str) { return str.replace(new RegExp(find, 'g'), replace); }
+
+      function getColours() {
+        var generatedColours = new Array();
+        while (generatedColours.length < 4) {
+          var n = (Math.floor(Math.random() * colourArray.length));
+          if ($.inArray(n, generatedColours) == -1)
+            generatedColours.push(n);
+        }
+        return generatedColours;
+      }
+
+      function isOn(value, position) {
+        return (value>>position) & 1 === 1;
+      }
+
+      function customAlert(msg) {
+        $('#custom-alert p').html(msg);
+        var m = -1 * ($('#custom-alert').outerHeight()/2);
+        $('#custom-alert').css('margin-top', m+'px');
+        $('#dark-overlay').fadeIn(function() {
+          $('#custom-alert').fadeIn(function() {
+            setTimeout(function() {
+              $('#custom-alert').fadeOut(function() {
+                $('#dark-overlay').fadeOut();
+              });
+            }, 1000);
+          });
+        });
+      }
+
+      function showLoadingScreen() {
+        $('#loading-overlay').show();
+        $('#loading-message').show();
+      }
+
+      function hideLoadingScreen() {
+        $('#loading-overlay').hide();
+      }
+
+      function commonAction(retval, msg) {
+        if (retval) {
+          $('#current-action').show();
+          $('#current-action').html(mode == "exploration" ? msg : ("e-Lecture Example (auto play until done)<br>" + msg));
+          $('#progress-bar').slider("option", "max", gw.getTotalIteration()-1);
+          triggerRightPanels();
+          isPlaying = true;
+        }
+      }
+
+      function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; ++i) {
+          var pair = vars[i].split('=');
+          if (decodeURIComponent(pair[0]) == variable)
+            return decodeURIComponent(pair[1]);
+        }
+        return "";
+      }
+
+      const MOBILE_WIDTH = 1000;
+      const matchMediaMobile = window.matchMedia(`only screen and (max-width: ${MOBILE_WIDTH}px)`);
+      const matchMediaNarrow = window.matchMedia(`only screen and (max-width: 500px)`);
+      function isMobile() {
+        return matchMediaMobile.matches;
+      }
+      //To fix the issue of a narrow desktop window being asked to rotate, I am now checking for it based on the navigator.userAgent to see if its mobile or not.
+      //This may change in the future if browsers decide to change the naming of userAgent for mobile browsers so may need to keep an eye on this.
+      function isMobileOS() {
+        return /Mobi/i.test(navigator.userAgent) && !/ipad/i.test(navigator.userAgent);
+      }
+      let portraitMatcher = window.matchMedia("(orientation:portrait)");
+      function isPortrait() {
+        return portraitMatcher.matches;
+      }
+
+      var generatedColours = getColours();
+      var surpriseColour = colourArray[generatedColours[0]];
+      var colourTheSecond = colourArray[generatedColours[1]];
+      var colourTheThird = colourArray[generatedColours[2]];
+      var colourTheFourth = colourArray[generatedColours[3]];
+
+      $(function() {
+        $('.links').css('background', surpriseColour);
+        $('.colour').css("color", surpriseColour);
+        $('h4').css("background-color", surpriseColour); // about, contact us etc. button background
+
+        // title
+        $('#title a').click(function() {
+          $('#title a').removeClass('selected-viz');
+          $(this).addClass('selected-viz');
+        });
+      });
+
+/*
+      // GA dropped 26 Jun 2023 and then made official on 18 Aug 2023
+/*
+      // the sunset-ed GA, commented on 26 Jun 2023, and Prof Halim doesn't bother to use anymore
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+*/
+
+      // function setCookie(cname, cvalue, exdays) {
+      //   const d = new Date();
+      //   d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      //   let expires = "expires="+ d.toUTCString();
+      //   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+      // }
+
+//       //         $(function() {
+//           $('#gdpr-accept').click(function () {
+// /*
+//             // added on 26 Jun 2023
+//             window.dataLayer = window.dataLayer || [];
+//             function gtag(){dataLayer.push(arguments);}
+//             gtag('js', new Date());
+
+//             gtag('config', 'UA-1566631-4');
+// */
+// //            ga('create', 'UA-1566631-4', 'auto');
+// //            ga('send', 'pageview');
+//             setCookie('use_google_analytics', 'true', 365)
+//             $('#gdpr-popup').hide()
+//           });
+//           $('#gdpr-reject').click(function () {
+//             setCookie('use_google_analytics', 'false', 365)
+//             $('#gdpr-popup').hide()
+//           });
+//         });
+//       
+      $('#gdpr-privacy-policy').click(function () {
+        if ($(window).width() > 600) {
+          $('#dark-overlay').fadeIn(function() {
+            $('#privacy-policy').fadeIn();
+          });
+        }
+        else
+          alert('Sorry, this dialog is too big. Please load it on bigger screen');
+      })
+    </script>
+
+<script src="../js/jquery-ui.min.js"></script>
+
+<script src="../js/d3.min.js"></script>
+<script src="../js/viz-1.0.10.js"></script>
+
+<script src="../js/graph_library/constant.js"></script>
+<script src="../js/graph_library/drawgraph.js"></script>
+<script src="../js/graph_library/GraphEdgeWidget.js"></script>
+<script src="../js/graph_library/GraphPolygonWidget.js"></script>
+<script src="../js/graph_library/GraphVertexWidget.js"></script>
+<script src="../js/graph_library/GraphWidget.js"></script>
+<script src="../js/graph_library/helperObjects89db.js?refresh22aug9pm"></script> 
+<script src="../js/graph_library/misc.js"></script>
+<script src="../js/graph_library/properties.js"></script>
+<script src="../js/graph_library/Widget.js"></script>
+<script src="../js/graph_library/force_directed_library.js"></script>
+
+<script>
+      $(function () {
+        let defaultPlaybackSpeed = 1;
+                createPlaybackSpeedSlider(defaultPlaybackSpeed);
+
+
+        $('#account-dropdown-btn').click(function (e) {
+          $('#account-dropdown-menu').css('display', 'block')
+          $('#language-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function (e) {
+          $('#account-dropdown-menu').css('display', 'none')
+        });
+        //Mobile Design Related DOM Manipulations
+        if (isMobile()) {
+          $("#status").css({
+            "bottom": "10%",
+            "height": "12%",
+            "max-height": "54px"
+          });
+          $("#current-action").css("bottom", "22%");
+          $('#status-hide').remove();
+          $('#left-bar').remove();
+          $('#right-bar').remove();
+          $("#mode-menu").remove();
+          $("#codetrace").css("z-index", 1);
+          $("#bottom-bar a").hide();
+          $("#bottom-bar").css("height", $("#topbar").css("height"));
+          $(".speed-dropup-btn").show();
+          $("#go-to-beginning").remove();
+          $("#go-to-end").remove();
+          $("#pause").remove();
+          $("#play").remove();
+          $("#previous").remove();
+          $("#next").remove();
+
+          //make progress bar longer
+          $("#progress-bar").css({
+            left: "30%",
+            width: "60%",
+            'margin-left': 0
+          })
+        }
+      })
+
+      let mobilePlaybackOverlayTimeout;
+      $(function() {
+        $("#viz").on("click", () => {
+          if (isMobile()) {
+            if ($("#mobile-playback-overlay").is(":hidden") && isPlaying) {
+              $("#mobile-playback-overlay").fadeIn();
+              hideMobilePlaybackOverlay(6000);
+            } else {
+              $("#mobile-playback-overlay").fadeOut();
+            }
+          }
+        });
+        $("#mobile-playback-overlay").on("click", (event) => {
+          if (event.target === event.currentTarget) //to ensure clicks on the controls dont fade the overlay
+            $("#mobile-playback-overlay").fadeOut();
+          else
+            hideMobilePlaybackOverlay(5000);
+        })
+      });
+      function hideMobilePlaybackOverlay(timeOut) {
+        if (mobilePlaybackOverlayTimeout)
+          clearTimeout(mobilePlaybackOverlayTimeout);
+        mobilePlaybackOverlayTimeout = setTimeout(() => {
+            $("#mobile-playback-overlay").fadeOut();
+        }, timeOut);
+      }
+      function mobilePlaybackPauseOrPlay() {
+        if ($("#mobile-playback-overlay").hasClass("playing")) {
+          pause();
+          hideMobilePlaybackOverlay(5000);
+        } else {
+          play();
+          hideMobilePlaybackOverlay(3000);
+        }
+      }
+      let rewindLabelTimeout, forwardLabelTimeout;
+      function mobilePlaybackRewind() {
+        $("#mobile-playback-rewind-label").css("opacity", 1);
+        if (rewindLabelTimeout)
+          clearTimeout(rewindLabelTimeout);
+        rewindLabelTimeout = setTimeout(() => {
+          $("#mobile-playback-rewind-label").css("opacity", 0);
+        }, 800);
+        stepBackward(7);
+      }
+      function mobilePlaybackForward() {
+        $("#mobile-playback-forward-label").css("opacity", 1);
+        if (forwardLabelTimeout)
+          clearTimeout(forwardLabelTimeout);
+        forwardLabelTimeout = setTimeout(() => {
+          $("#mobile-playback-forward-label").css("opacity", 0);
+        }, 800);
+        stepForward(7);
+      }
+
+      //let eLectureSessionHistory = {};
+      const sectorColors = ['#05a4d0', '#f1c706', '#fa0202'];
+      function setSlideTimelineColor(slideNo) {
+        const sectionNo = slideNo.split('-')[0];
+        $(`[slideNo="${slideNo}"]`).css('background', sectorColors[(parseInt(sectionNo) % 3)]);
+      }
+
+      let currSlideTimer = null; //global so that we can clear the timeout when required
+
+      const lectureIds = [{"id":196,"category":"tsp","order":1,"top":"60px","right":"","bottom":"","left":"60px","marginLeft":"","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-03-27 04:01:41","updated_at":"2022-03-22 05:10:41","section":-1,"code":"","section_order":-1,"value":"1","text":"<p><b>Traveling Salesperson Problem<\/b>: TSP is a problem that tries to find a tour of minimum cost that visits every city once. In this visualization, it is assumed that the underlying graph is a complete graph with (near-)metric distance (meaning the distance function satisfies the triangle inequality) by taking the distance of two points and round it to the nearest integer.<\/p>","title":"Traveling Salesperson Problem"},{"id":197,"category":"tsp","order":2,"top":"300px","right":"","bottom":"","left":"50%","marginLeft":"-250px","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-03-27 04:03:25","updated_at":"2022-03-22 05:10:20","section":-1,"code":"","section_order":-1,"value":"2","text":"<p>View the visualisation of TSP algorithm here.<\/p><p>Originally, all edges in the input graph are colored with the <span style=\"color: rgb(128, 128, 128);\">grey<\/span>.<\/p><p>Throughout the visualization, traversed edge will be highlighted with <span style=\"color: rgb(255, 165, 0);\">orange<\/span>.<\/p>","title":"Visualization"},{"id":198,"category":"tsp","order":3,"top":"","right":"","bottom":"230px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-03-27 04:04:43","updated_at":"2017-03-27 04:06:35","section":-1,"code":"$(\"#draw\").addClass(\"menu-highlighted\");\n$(\"#examples\").click().addClass(\"menu-highlighted\");","section_order":-1,"value":"3","text":"<p>There are two different sources for specifying an input graph:<\/p><ol><li><b>Draw Graph<\/b>: You can put several points on the drawing box, but you must not draw any edge to ensure the (near-)metric property of the graph. After you have finished putting the points, the edges will be drawn automatically for you after.<\/li><li><b>Example Graphs<\/b>: You can select from the list of graphs to get you started.<\/li><\/ol>","title":"Input"},{"id":199,"category":"tsp","order":4,"top":"","right":"","bottom":"230px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-03-27 04:06:38","updated_at":"2022-03-22 05:09:55","section":-1,"code":"closeAll();\n$(\"#bruteforce\").addClass(\"menu-highlighted\");","section_order":-1,"value":"4","text":"<p><b>Bruteforce<\/b>: It tries all (V-1)! permutation of vertices (not all V! since it does not matter where we start from). It enumerates all possibilities by doing a dfs search with parameters similar to those of <u><a href=\"https:\/\/en.wikipedia.org\/wiki\/Held%E2%80%93Karp_algorithm\" title=\"\" target=\"_blank\">Held-Karp<\/a><\/u> algorithm, that is, the DFS search will return the value of the tour starting from current vertex to all vertices that we have not already visited.<\/p><p>Time complexity: O(V * (V - 1)!) = O(V!).<\/p>","title":"Bruteforce"},{"id":200,"category":"tsp","order":5,"top":"","right":"","bottom":"230px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-03-27 04:08:31","updated_at":"2022-03-22 05:09:32","section":-1,"code":"closeAll();\n$(\"#dp\").addClass(\"menu-highlighted\");","section_order":-1,"value":"5","text":"<p><b>Dynamic Programming<\/b>: It uses a widely known algorithm called <a href=\"https:\/\/en.wikipedia.org\/wiki\/Held%E2%80%93Karp_algorithm\" title=\"\" target=\"_blank\">Held-Karp<\/a>. In this visualization, it is implemented as a DFS search that is the same with the bruteforce algorithm, but with memoization to cache the answers. This dramatically brings down the run time complexity to O(2^V * V^2).<\/p><p>Time complexity: O(2^V * V^2).<\/p><p>Note that for N = 10, this algorithm takes roughly ~(100 * 2^10) = 102K operations while the bruteforce algorithm takes roughly ~(10!) = 3628800 operations, around 30 times faster.<\/p>","title":"Dynamic Programming"},{"id":201,"category":"tsp","order":6,"top":"","right":"","bottom":"230px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-03-27 04:15:10","updated_at":"2022-03-22 05:09:27","section":-1,"code":"closeAll();\n$(\"#approximation\").click();","section_order":-1,"value":"6","text":"<p><b>Approximation<\/b>: There are two approximation algorithms available, a 2-approximation algorithm and a 1.5-approximation algorithm that is also well known as Christofides Algorithm.<\/p>","title":"Approximation"}];
+      const numSlides = lectureIds.length;
+      var sectorJunction12Section = 0, sectorJunction12Slide = 0;
+      var sectorJunction23Section = 0, sectorJunction23Slide = 0;
+      var sector1Count = 0, sector2Count = 0, sector3Count = 0;
+      const sectorLength = Math.floor(numSlides / 3);
+      function createELectureTimelineDisplay() {
+        for (let j = 0; j < numSlides; ++j) {
+          const currLecture = lectureIds[j].value;
+          if (currLecture.includes('-')) {
+            $('#e-lecture-timeline').append(
+              $(`<div class="e-lecture-timeline-slide" slideNo=${lectureIds[j].value}></div>`)
+            );
+          } else {
+            $('#e-lecture-timeline').append(
+              $(`<div class="e-lecture-timeline-checkpoint" slideNo=${lectureIds[j].value}></div>`)
+            );
+          }
+        }
+      }
+
+      function setSectorJunctionInfo() {
+          //setting the sector junction slide numbers
+          const j12 = sectorLength !== 0 ? (sectorLength - 1): 0;
+          const j23 = sectorLength !== 0 ? (2 * sectorLength - 1) : 0;
+
+          const sectorJunction12 = lectureIds[j12].value.split('-');
+          sectorJunction12Section = parseInt(sectorJunction12[0]);
+          sectorJunction12Slide = sectorJunction12.length > 1 ? parseInt(sectorJunction12[1]) : sectorJunction12Slide;
+
+          const sectorJunction23 = lectureIds[j23].value.split('-');
+          sectorJunction23Section = parseInt(sectorJunction23[0]);
+          sectorJunction23Slide = sectorJunction23.length > 1 ? parseInt(sectorJunction23[1]) : sectorJunction23Slide;
+      }
+
+      function runSlide(slide) { // Steven's patch on 28 Jan 2022: Properly remove slide 99, 99-1, 99-2, 99-3, integrate with the earlier slides
+        if (slide == '1') {
+          $("#e-lecture").html("slide " + slide + " (" + 16 + "%)");
+          
+        }
+        if (slide == '2') {
+          $("#e-lecture").html("slide " + slide + " (" + 33 + "%)");
+          
+        }
+        if (slide == '3') {
+          $("#e-lecture").html("slide " + slide + " (" + 50 + "%)");
+          $("#draw").addClass("menu-highlighted");
+$("#examples").click().addClass("menu-highlighted");
+        }
+        if (slide == '4') {
+          $("#e-lecture").html("slide " + slide + " (" + 66 + "%)");
+          closeAll();
+$("#bruteforce").addClass("menu-highlighted");
+        }
+        if (slide == '5') {
+          $("#e-lecture").html("slide " + slide + " (" + 83 + "%)");
+          closeAll();
+$("#dp").addClass("menu-highlighted");
+        }
+        if (slide == '6') {
+          $("#e-lecture").html("slide " + slide + " (" + 100 + "%)");
+          closeAll();
+$("#approximation").click();
+        }
+        clearTimeout(currSlideTimer);
+      }
+
+      window.onpopstate = function(event) {
+        var slide = event.state['slide'];
+        openSlide(slide, function() {
+          runSlide(slide);
+        });
+      };
+
+      function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'), sParameterName, i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] === sParam) return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+      };
+      var slideTimeline = {};
+
+      //reads all visited slides in the slideTimeline and gives them their sector color
+      function setVisitedSlideTimelineColors() {
+        for(const [sectionNo, visitedSlides] of Object.entries(slideTimeline)) {
+          const visitedSlides = slideTimeline[sectionNo];
+          for(const visitedSlideNo of visitedSlides) {
+            setSlideTimelineColor(visitedSlideNo);
+          }
+        }
+      }
+
+      //only called on load if there is nothing in session
+      function setTimelineForCompletedSector(sectorNum) {
+        let len = sectorLength;
+        switch (sectorNum) {
+          case 1 : len = sectorLength; break;
+          case 2 : len = 2 * sectorLength; break;
+          default: len = numSlides;
+        }
+        let i = 0;
+        switch (sectorNum) {
+          case 1 : i = 0; break;
+          case 2 : i = sectorLength; break;
+          default: i = 2 * sectorLength;
+        }
+        for (; i < len; i++) {
+          saveELectureTimeline(lectureIds[i].value, true);
+        }
+      }
+
+      function getUserSectorHistory(callback) {
+        $.ajax({
+          type: 'GET',
+          url: "https://visualgo.net/section-info",
+          data: {
+            _token: "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+            topic: "/tsp".substring(1)
+          }
+        }
+        ).done(function (data) {
+            if (data.data[0] === 1) {
+              setF1SectorColor(1);
+              setTimelineForCompletedSector(1);
+            }
+            if (data.data[1] === 1) {
+              setF1SectorColor(2);
+              setTimelineForCompletedSector(2);
+            }
+            if (data.data[2] === 1) {
+              setF1SectorColor(3);
+              setTimelineForCompletedSector(3);
+            }
+            callback();
+        }).fail(function (data) {
+            console.log('get user sector history failed!');
+        });
+      }
+
+      function getELectureTimelineFromSession() {
+        const page = "/tsp".substring(1);
+        const timelineKey = page + '-slide-timeline';
+        const storedTimeline = window.sessionStorage.getItem(timelineKey);
+        if (storedTimeline) {
+          slideTimeline = JSON.parse(storedTimeline);
+        } else {
+          return false;
+        }
+        let slideInfo = [];
+        for (const [sectionNum, slides] of Object.entries(slideTimeline)) {
+          for (const slide of slides) {
+            indicateSlideCompletedUI(slide);
+            slideInfo = slide.split('-');
+            incrementSectorVisits(parseInt(sectionNum), slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0);
+          }
+        }
+        return true;
+      }
+
+      async function initializeELectureTimeline() {
+        setSectorJunctionInfo();
+        if (!getELectureTimelineFromSession())
+          getUserSectorHistory(sectorBasedModeSelection);
+        else
+          sectorBasedModeSelection();
+
+        createELectureTimelineDisplay();
+        setVisitedSlideTimelineColors();
+      }
+
+      function setF1SectorColor(sectorNum) {
+        $(`[sectorNo="${sectorNum}"]`).css('background', sectorColors[(parseInt(sectorNum) % 3)]);
+      }
+
+      function updateSectorInDB(sectorNum) {
+        $.ajax({
+          type: 'POST',
+          url: "https://visualgo.net/section-info",
+          data: {
+            _token: "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+            section: (sectorNum - 1),
+            topic: "/tsp".substring(1)
+          }
+        }
+        ).done(function (data) {
+            //console.log("Saved the sector " + sectorNum + " as done " + JSON.stringify(data));
+        }).fail(function (data) {
+            console.log("Setting sector done failed new attempt! "+ JSON.stringify(data));
+        });
+      }
+
+      //If 87.5% or more of the slides in sector are done
+      function setF1SectorCompleted(sectorNum, isInitializationCall) {
+        setF1SectorColor(sectorNum);
+        //avoid api call on initialization
+        if (!isInitializationCall) {
+          updateSectorInDB(sectorNum);
+          $(`[sectorNo="${sectorNum}"]`).css("animation", "green-pulse 2s 4");
+          setTimeout(() => {
+            $(`[sectorNo="${sectorNum}"]`).css("animation", "");
+          }, 8000);
+        }
+      }
+
+      function incrementSectorVisits(sectionNum, slideNumWithinSection, isInitializationCall) {
+        //updating sector count
+        if (sectionNum < sectorJunction12Section
+          || (sectionNum === sectorJunction12Section && slideNumWithinSection <= sectorJunction12Slide)) {
+          ++sector1Count;
+          if (sector1Count >= Math.ceil(0.875 * sectorLength))
+            setF1SectorCompleted(1, isInitializationCall);
+        } else if (sectionNum < sectorJunction23Section
+          || (sectionNum === sectorJunction23Section && slideNumWithinSection <= sectorJunction23Slide)) {
+          ++sector2Count;
+          if (sector2Count >= Math.ceil(0.875 * sectorLength))
+            setF1SectorCompleted(2, isInitializationCall);
+        } else {
+          ++sector3Count;
+          if (sector3Count >= Math.ceil(0.875 * (numSlides - 2 * sectorLength)))
+            setF1SectorCompleted(3, isInitializationCall);
+        }
+      }
+
+      function saveELectureTimeline(slideNo, isInitialization) {
+        const slideInfo = slideNo.split('-');
+        const sectionNo = slideInfo[0];
+        const slideNumWithinSection = slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0;
+        if (slideTimeline[sectionNo]) {
+          if (!slideTimeline[sectionNo].includes(slideNo)) {
+            slideTimeline[sectionNo].push(slideNo);
+            const sectionNum = parseInt(sectionNo);
+            incrementSectorVisits(sectionNum, slideNumWithinSection, isInitialization);
+          }
+        } else {
+          slideTimeline[sectionNo] = [];
+          slideTimeline[sectionNo].push(slideNo);
+          const sectionNum = parseInt(sectionNo);
+          incrementSectorVisits(sectionNum, slideNumWithinSection, isInitialization);
+        }
+        setSlideTimelineColor(slideNo);
+        indicateSlideCompletedUI(slideNo);
+      }
+
+      function saveELectureTimelineToSession() {
+        const page = "/tsp".substring(1);
+        const timelineKey = page + '-slide-timeline';
+        window.sessionStorage.setItem(timelineKey, JSON.stringify(slideTimeline));
+      }
+
+      function handleTimelineOnRunSlide(slideValue) {
+        const slideInfo = slideValue.split('-');
+        const sectionNo = slideInfo[0];
+        const slideNumWithinSection = slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0;
+        //start timer only if the slide isnt already done
+        if (!slideTimeline[sectionNo] || !slideTimeline[sectionNo].includes(slideValue)) {
+          const slideTextLength = $('#electure-'+slideValue + " p").text().length + $('#electure-'+slideValue + " li").text().length;
+          const CHARS_READ_PER_MS = 0.05; //when fast, 50 characters a second
+          //setting max reading time as 10 seconds for around 500 character slide
+          const minSlideReadingTime = Math.min(Math.max(2000, (slideTextLength / CHARS_READ_PER_MS) +  + (2000 * $('#electure-'+slideValue + " img").length)), 10000);
+          currSlideTimer = setTimeout(() => {
+            saveELectureTimeline(slideValue);
+          }, minSlideReadingTime);
+        }
+      }
+
+      function indicateSlideCompletedUI(slide) {
+        $('#electure-'+slide).css("box-shadow", "3px 3px 8px green"); //set green shadow for completed slides
+        $('#electure-'+slide + ' .electure-read-status').html("&#10004;");
+        $('#electure-'+slide + ' .electure-read-status').attr("title", "Slide Completed!");
+        $('#electure-'+slide + ' .electure-read-status').css("font-size", "17px");
+      }
+
+      function pushState(slideValue) {
+        var url = '/en/tsp';
+        if (typeof slideValue != 'undefined' && slideValue != null) {
+          url += '?slide=' + slideValue;
+                  }
+        window.history.pushState({slide: slideValue}, "slide " + slideValue, url);
+      }
+
+      function showPopup(callback) {
+        $('#popup').fadeIn(100, callback);
+      }
+
+      function hidePopup(callback) {
+        $('#popup').fadeOut(100, callback);
+      }
+
+      function showOverlay() {
+        $('#overlay').css('opacity', 0.5);
+        $('#overlay').show();
+
+        $("#e-lecture-timeline").show();
+        $("#e-lecture-f1map").show();
+      }
+
+      function hideOverlay() {
+        $('#overlay').hide();
+        $("#e-lecture").html("");
+        $("#e-lecture-timeline").hide();
+        $("#e-lecture-f1map").hide();
+        clearTimeout(currSlideTimer);
+      }
+
+      function makeOverlayTransparent() {
+        $('#overlay').css('opacity', 0);
+      }
+
+      function hideSlide(callback) {
+        isPlaying = true;
+        closeSlide(cur_slide, function() {
+          makeOverlayTransparent();
+          setTimeout(callback, 700); // don't immediately run the animation, wait for 500ms+ first
+        });
+      }
+
+      function showSlide() {
+        isPlaying = false;
+        openSlide(cur_slide);
+        showOverlay();
+      }
+
+      function sectorBasedModeSelection() {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        //check params are empty and then that all sectors are completed or not
+        if (!Object.keys(params).length
+          && sector1Count === sectorLength && sector2Count === sectorLength && sector3Count === (numSlides - 2 * sectorLength)) {
+            hideOverlay();
+        }
+        else
+          $('#mode-menu a').click();
+      }
+
+      $(function() {
+        if (isMobileOS() && portraitMatcher.matches) {
+          $('#rotateDeviceOverlay').show();
+          $('#rotateDeviceText').show();
+          $('#widenDeviceText').hide();
+          $('#topbar').css("z-index", 10001);
+        } else if (matchMediaNarrow.matches) {
+          $('#rotateDeviceOverlay').show();
+          $('#rotateDeviceText').hide();
+          $('#widenDeviceText').show();
+          $('#topbar').css("z-index", 10001);
+        } else {
+          $('#rotateDeviceOverlay').hide();
+          $('#topbar').css("z-index", "");
+        }
+
+        matchMediaNarrow.addEventListener('change', e => {
+          //screws up for square device! NEED RESIZE EVENT
+          if (e.matches) {
+            if ($('#rotateDeviceOverlay').is(":hidden")) {
+              $('#rotateDeviceOverlay').show();
+              $('#rotateDeviceText').hide();
+              $('#widenDeviceText').show();
+              $('#topbar').css("z-index", 10001);
+            }
+          } else {
+            $('#rotateDeviceOverlay').hide();
+            $('#topbar').css("z-index", "");
+          }
+        });
+        portraitMatcher.addEventListener('change', e => {
+          if (e.matches && isMobileOS()) {
+            if ($('#rotateDeviceOverlay').is(":hidden")) {
+              $('#rotateDeviceOverlay').show();
+              $('#rotateDeviceText').show();
+              $('#widenDeviceText').hide();
+              $('#topbar').css("z-index", 10001);
+            }
+          } else {
+            $('#rotateDeviceOverlay').hide();
+            $('#topbar').css("z-index", "");
+          }
+        });
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        let slide = getUrlParameter('slide');
+        if (typeof slide !== undefined && slide != null) {
+          cur_slide = slide;
+        }
+        //do all timeline and slide stuff only if specific params not provided
+        if (!Object.keys(params).length || params["slide"]) {
+          if (!isMobile()) {
+                            $('#mode-menu a').click();
+                      }
+        }
+        $('.mcq-submit').click(function() {
+          var questionId = parseInt($(this).attr('id').split('-')[1]);
+          var answer = $('#mcq-answer-' + questionId).val();
+          var userAnswer = $('input[type=radio][name=mcq-'+questionId+'-choice]:checked').val();
+
+          if (answer === userAnswer) {
+            $('#answer-status-' + questionId).html('<font color="green"><b>Correct!</b></font>');
+          }
+          else {
+            $('#answer-status-' + questionId).html('<font color="red"><b>Wrong Answer! Try again...</b></font>');
+          }
+          $('#answer-status-' + questionId).show();
+          setTimeout(function() {
+            $('#answer-status-' + questionId).fadeOut(1000);
+          }, 1000);
+        });
+
+        $('.msq-submit').click(function() {
+          var questionId = parseInt($(this).attr('id').split('-')[1]);
+          var answer = $('#msq-answer-' + questionId).val();
+
+          var answers = [];
+          $('input[type=checkbox][class=msq-choice]:checked').each(function() {
+            answers.push($(this).attr('id').split('-')[3]);
+          });
+          answers.sort();
+          var userAnswer = answers.join(',');
+
+          if (answer === userAnswer) {
+            $('#answer-status-' + questionId).html('<font color="green">Correct!</font>');
+          }
+          else {
+            $('#answer-status-' + questionId).html('<font color="red">Wrong Answer! Try again...</font>');
+          }
+          $('#answer-status-' + questionId).show();
+          setTimeout(function() {
+            $('#answer-status-' + questionId).fadeOut(1000);
+          }, 1000);
+        });
+
+        $('select.lecture-dropdown').change(function() {
+          var nextSlide = $(this).val();
+          openSlide(nextSlide, function() {
+            runSlide(nextSlide);
+            pushState(nextSlide);
+          });
+        });
+
+        $('#hide-popup').click(function() {
+          hidePopup();
+        });
+
+        $('#popup').hover(function() {
+          $('#hide-popup').show();
+        }, function() {
+          $('#hide-popup').hide();
+        });
+
+        $('#electure-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('2');
+          pushState('2');
+        });
+        $('#electure-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('3');
+          pushState('3');
+        });
+        $('#electure-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('1');
+          pushState('1');
+        });
+        $('#electure-3 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4');
+          pushState('4');
+        });
+        $('#electure-3 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('2');
+          pushState('2');
+        });
+        $('#electure-4 .electure-next').click(function() {
+          hidePopup();
+          runSlide('5');
+          pushState('5');
+        });
+        $('#electure-4 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('3');
+          pushState('3');
+        });
+        $('#electure-5 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6');
+          pushState('6');
+        });
+        $('#electure-5 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4');
+          pushState('4');
+        });
+        $('#electure-6 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('5');
+          pushState('5');
+        });
+      });
+
+
+      $('.electure-print').click(() => {
+        window.open(`/en/tsp/print`);
+      });
+      function adjustPopupToImageSize() {
+        var width = $('#popup-image').prop('width');
+        var height = $('#popup-image').prop('height');
+        $('#popup').width(width + 20);
+        $('#popup').height(height + 20);
+        if (width == 0 && height == 0) {
+          setTimeout(adjustPopupToImageSize, 200);
+        } else {
+          showPopup();
+        }
+      }
+
+      function POPUP_IMAGE(url) {
+        $('#popup-content').html('<img id="popup-image" src="' + url + '">');
+        adjustPopupToImageSize();
+      }
+
+      function URL(url.html) {
+        window.open(url, '_blank');
+      }
+
+      // Implement these functions in each visualisation
+      // This function will be called before entering e-Lecture Mode
+      function ENTER_LECTURE_MODE() {}
+
+      // This function will be called before returning to Explore Mode
+      function ENTER_EXPLORE_MODE() {}
+
+      // Lecture action functions
+      function CUSTOM_ACTION(action, data, mode) {}
+
+      // This function will be called everytime 1.0x is changed to 0.5x or vice versa
+      function redraw() {}
+
+      $(document).ready(function () {
+        setTimeout(function () {
+          $('#change-lang-popup').fadeOut('slow')
+        }, 5000)
+      })
+    </script>
+<script type="text/javascript">
+    var extraCSS = {"bitonic":"65px","approximation":"92px","dp":"119px","bruteforce":"146px","examples":"173px","draw":"200px"};
+    var actionsIds = {"draw":{"p":"Edit Graph","onClick":"drawGraph()"},"examples":{"p":"Example Graphs","parents":["examplek"]},"bruteforce":{"p":"Bruteforce","onClick":"bruteforce()"},"dp":{"p":"Dynamic Programming","onClick":"dp()"},"approximation":{"p":"Approximation"},"bitonic":{"p":"Bitonic TSP","onClick":"bitonic_tsp()"}};
+    var isOpens = {};
+    var len = 6;
+    var keys = ["draw","examples","bruteforce","dp","approximation","bitonic"]; 
+    for (i = 0; i < len; i++) {
+        var actionDetails = keys[i];
+        isOpens[actionDetails] = false;
+    }
+    function openAction(id) {
+        hideThirdTiers(id);
+        $("." + id).css("bottom", extraCSS[id]);
+        if (!isOpens[id]) {
+            $('.' + id).fadeIn('fast');
+            isOpens[id] = true;
+        }
+    }
+    function closeAction(id) {
+        hideThirdTiers(id);
+        if (isOpens[id]) {
+            $('.' + id).fadeOut('fast');
+            $('#' + id + '-err').html("");
+            isOpens[id] = false;
+        }
+    }
+
+    function hideEntireActionsPanel() {
+        //hideAllThirdTiers();
+                    closeAction('draw');
+                    closeAction('examples');
+                    closeAction('bruteforce');
+                    closeAction('dp');
+                    closeAction('approximation');
+                    closeAction('bitonic');
+                hideActionsPanel();
+    }
+
+    function hideThirdTiers(tier1Action) {
+        if ("parents" in actionsIds[tier1Action]) {
+            for (const secondTierAction of actionsIds[tier1Action]["parents"]) {
+                $('#' + secondTierAction + '-third-tier').fadeOut('fast');
+            }
+        }
+    }
+
+    function hideAllThirdTiers() {
+        for (const tier1Action in actionsIds) {
+            hideThirdTiers(tier1Action);
+        }
+    }
+
+    function toggleChildExtras(tier1, selectedParentTier2) {
+        hideThirdTiers(tier1);
+        //this actionId must have childExtras
+        var style = extraCSS[tier1];
+        $("." + tier1).css("bottom", (parseInt(style.substring(0, style.length - 2)) - 27));
+        //fade ins and outs are done on the ID whereas css class is set on the class
+        //fade in the third tier of the selected 2nd tier parent
+        $('#' + selectedParentTier2 + '-third-tier').fadeIn('fast');
+
+        // //fade out all other third tiers of that 'action'
+        // for (const parent of actions[tier1]["parents"]) {
+        //     console.log("parent is " + parent + " for " + selectedParentTier2);
+        //     if (parent != selectedParentTier2) {
+        //         $('#' + parent + '-third-tier').fadeOut('fast');
+        //     }
+        // }
+    }
+
+    function setActionHeightOriginal(tier1Action) {
+        $("." + tier1Action).css("bottom", extraCSS[tier1Action]);
+    }
+
+            $('#' + 'draw').click(function() {
+            openAction('draw');
+                                                                            closeAction('examples');
+                                                                closeAction('bruteforce');
+                                                                closeAction('dp');
+                                                                closeAction('approximation');
+                                                                closeAction('bitonic');
+                                    });
+            $('#' + 'examples').click(function() {
+            openAction('examples');
+                                                closeAction('draw');
+                                                                                            closeAction('bruteforce');
+                                                                closeAction('dp');
+                                                                closeAction('approximation');
+                                                                closeAction('bitonic');
+                                    });
+            $('#' + 'bruteforce').click(function() {
+            openAction('bruteforce');
+                                                closeAction('draw');
+                                                                closeAction('examples');
+                                                                                            closeAction('dp');
+                                                                closeAction('approximation');
+                                                                closeAction('bitonic');
+                                    });
+            $('#' + 'dp').click(function() {
+            openAction('dp');
+                                                closeAction('draw');
+                                                                closeAction('examples');
+                                                                closeAction('bruteforce');
+                                                                                            closeAction('approximation');
+                                                                closeAction('bitonic');
+                                    });
+            $('#' + 'approximation').click(function() {
+            openAction('approximation');
+                                                closeAction('draw');
+                                                                closeAction('examples');
+                                                                closeAction('bruteforce');
+                                                                closeAction('dp');
+                                                                                            closeAction('bitonic');
+                                    });
+            $('#' + 'bitonic').click(function() {
+            openAction('bitonic');
+                                                closeAction('draw');
+                                                                closeAction('examples');
+                                                                closeAction('bruteforce');
+                                                                closeAction('dp');
+                                                                closeAction('approximation');
+                                                                });
+    
+    //important to have all the input fields in actions menu take an id containing '-input'
+    $("[id*='-input']").on("keypress keydown keyup", (event) => {
+        event.stopPropagation();
+    });
+</script>
+<script type="text/javascript">
+// TSP Widget
+// original author: Muhammad Rais Fathin Mudzakir
+
+const K_N = 37;
+
+var TSP = function() {
+  var self = this;
+  var gw = new GraphWidget();
+
+  var iVL = {};
+  var iEL = {};
+  var amountVertex = 0;
+  var amountEdge = 0;
+
+  this.getiVL= function() { return iVL; }
+  this.getiEL = function() { return iEL; } 
+
+  this.getGraphWidget = function() { return gw; }
+
+  fixJSON = function() {
+    amountVertex = 0;
+    amountEdge = 0;
+    for (var key in iVL) amountVertex++;
+    for (var key in iEL) amountEdge++;
+  }
+
+  takeJSON = function(graph) {
+    if (graph == null) return;
+    graph = JSON.parse(graph);
+    iVL = graph["vl"];
+    iEL = graph["el"];
+    fixJSON();
+  }
+
+  statusChecking = function() {
+    $("#draw-status p").html("Put several points on the plane. Do not draw any edge as it will be drawn automatically after.");
+  }
+
+  warnChecking = function() {
+    var warn = "";
+    if (currentGraphVisu.amountVertex() >= 17) warn += "Too much vertex on screen, consider drawing smaller graph. ";
+    if (warn == "") $("#draw-warn p").html("No Warning");
+    else            $("#draw-warn p").html(warn);
+  }
+
+  errorChecking = function() {
+    var error = "";
+    if (currentGraphVisu.amountVertex() == 0) {
+      $("#draw-err p").html("Graph cannot be empty");
+      return;
+    }
+
+    if (currentGraphVisu.amountVertex() == 1) {
+      $("#draw-err p").html("Add at least one more vertex"); // Graph must contain at least one edge. ");
+      return;
+    }
+
+    if (currentGraphVisu.amountEdge() > 0) {
+      $("#draw-err p").html("There should be no edge in the graph");
+      return;
+    }
+
+    if (currentGraphVisu.amountVertex() > 8) {
+      $("#draw-err p").html("Too many vertices");
+      return;
+    }
+    const [curiVL, curiEL] = parseCurrentJSONresult()
+    var hasThreeCollinearPoints = false;
+    for (var i = 0; i < currentGraphVisu.amountVertex(); i++) {
+      for (var j = 0; j < currentGraphVisu.amountVertex(); j++) if (i != j) {
+        for (var k = 0; k < currentGraphVisu.amountVertex(); k++) if (i != k && j != k) {
+          var dy1 = curiVL[j]["y"] - curiVL[i]["y"], dx1 = curiVL[j]["x"] - curiVL[i]["x"];
+          var dy2 = curiVL[k]["y"] - curiVL[j]["y"], dx2 = curiVL[k]["x"] - curiVL[j]["x"];
+          // collinear if dy1/dx1 == dy2/dx2
+          if (Math.abs(dy1 * dx2 - dx1 * dy2) < 1e-6) {
+            $("#draw-err p").html("There should be no 3 collinear points. " + i + ", " + j + ", and " + k + " are collinear.");
+            return;
+          }
+        }
+      }
+    }
+
+    if (error == "") $("#draw-err p").html("No Error");
+    else             $("#draw-err p").html(error);
+  }
+
+
+  var intervalID;
+
+  this.startLoop = function() {
+    intervalID = setInterval(function() {
+     // takeJSON(JSONresult);
+      warnChecking();
+      errorChecking();
+      statusChecking();
+    }, 100);
+  }
+
+  this.stopLoop = function() {
+    clearInterval(intervalID);
+  }
+
+  function createCompleteEdgeList(iVL) {
+    var n = 0;
+    for (var key in iVL) {
+      n++;
+    }
+    var ret = {};
+    var edgeCounter = 0;
+    for (var i = 0; i < n; i++) {
+      for (var j = i + 1; j < n; j++) {
+        var edge = {
+          u: i,
+          v: j,
+          w: Math.round(Math.hypot(iVL[i]['x'] - iVL[j]['x'], iVL[i]['y'] - iVL[j]['y']) / 10)
+        }
+        ret[edgeCounter++] = edge;
+      }
+    }
+    return ret;
+  }
+
+  this.draw = function() {
+    if ($("#draw-err p").html() != "No Error")
+      return false;
+    takeJSON(JSONresult);
+    if ($("#submit").is(':checked'))
+      this.submit(JSONresult);
+    if ($("#copy").is(':checked'))
+      window.prompt("Copy to clipboard:", JSONresult);
+
+    iEL = createCompleteEdgeList(iVL);
+    graph = createState({iVL: iVL, iEL: iEL});
+    gw.updateGraph(graph, 500);
+    return true;
+  }
+
+  this.importjson = function(text) {
+    takeJSON(text);
+    statusChecking();
+    graph = createState(iVL, iEL);
+    gw.updateGraph(graph, 500);
+  }
+
+  this.getV = function() {
+    return amountVertex;
+  }
+
+  this.createKNGraph = function() {
+    const minVtx = 2;
+    const maxVtx = 10;
+    const numVtx = parseInt($("#v-example-k").val());
+    if (isNaN(numVtx) || numVtx < minVtx || numVtx > maxVtx) {
+      $('#examples-err').html(`Please enter a number between ${minVtx} to ${maxVtx}.`);
+      throw "Invalid number of vertices";
+    }
+    console.log(numVtx);
+
+    const iVL = {}
+    const radius = 265;
+    const dTheta = 2 * Math.PI / numVtx;
+    const centerY = radius + 50;
+    const centerX = 450;
+    for (let i = 0; i < numVtx; ++i) {
+      const theta = dTheta * i - Math.PI / 2;
+      const x = centerX + radius * Math.cos(theta)
+      const y = centerY + radius * Math.sin(theta)
+      iVL[i] = { "x": x, "y": y };
+    }
+
+    const iEL = {}
+    const weightMin = 12;
+    const weightMax = 14;
+    for (let cnt = 0, u = 0; u < numVtx - 1; ++u) {
+      for (let v = u + 1; v < numVtx; ++v, ++cnt) {
+        const weight = weightMin + Math.round(Math.random() * (weightMax - weightMin))
+        iEL[cnt] = { "u": u, "v": v, "w": weight };
+      }
+    }
+
+    return [iVL, iEL]
+  }
+
+  this.examples = function(id) {
+    if (id === K_N) {
+      [iVL, iEL] = this.createKNGraph();
+    } else {
+      iVL = getExampleGraph(id, VL);
+      iEL = getExampleGraph(id, EL);
+    }
+    fixJSON();
+    var newState = createState({iVL, iEL});
+    gw.updateGraph(newState, 500);
+    return true;
+  }
+
+  function nextPermutation(arr) {
+    function swap(i, j) {
+      var temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+    }
+    function reverse(i, j) {
+      while (i < j) {
+        swap(i, j);
+        i++;
+        j--;
+      }
+    }
+
+    var i = arr.length - 1;
+    while (i > 0 && arr[i - 1] >= arr[i]) {
+      i--;
+    }
+    if (i <= 0) return false;
+    var j = arr.length - 1;
+    while (arr[j] <= arr[i - 1]) {
+      j--;
+    }
+    swap(i - 1, j);
+    j = arr.length - 1;
+    reverse(i, j);
+    return true;
+  }
+
+  function bitmaskToString(bitmask) {
+    // safety measure
+    bitmask = parseInt(bitmask);
+    var bits = [];
+    do {
+      bits.push(bitmask % 2);
+      bitmask >>= 1;
+    } while (bitmask > 0);
+    return bits.reverse().join('');
+  }
+
+  // TODO: Preprocess to obtain O(1) query?
+  function getEdgeKey(u, v) {
+    u = parseInt(u); v = parseInt(v);
+    for (var key in iEL) {
+      var eu = iEL[key]['u'];
+      var ev = iEL[key]['v'];
+      if ((eu === u && ev === v) ||
+        (ev === u && eu === v)) {
+        return key;
+      }
+    }
+    return -1;
+  }
+
+  function fixEdgeDirection(edgeKey, u, v) {
+    if (iEL[edgeKey]['u'] !== u) {
+      var t = iEL[edgeKey]['u'];
+      iEL[edgeKey]['u'] = iEL[edgeKey]['v'];
+      iEL[edgeKey]['v'] = t;
+      return true;
+    }
+    return false;
+  }
+
+  this.bruteforce = function() {
+    if (amountVertex > 7) {
+      $('#bruteforce-err').html('The graph is too large (> 7). Consider drawing smaller graph');
+      return;
+    }
+    var cs, stateList = [];
+    var permutation = [];
+
+    var parent = [];
+
+    var edgeHighlighted = {};
+    var vertexHighlighted = {0: true};
+    var tour = [];
+    var optimumTour = [];
+    var minimumTourCost = 1000 * 1000 * 1000;
+
+    function dfs(u, bitmask, costSoFar) {
+
+      function updateGlobalMinimum(cost) {
+        if (cost >= minimumTourCost) {
+          return;
+        }
+        minimumTourCost = costSoFar + iEL[edgeKeyToOrigin]['w'];
+        for (var i = 0; i < amountVertex; i++) {
+          iVL[i]['extratext'] = '';
+        }
+        if (cost === 66) {
+          console.log(JSON.stringify(tour));
+        }
+        for (var i = 0; i < amountVertex; i++) {
+          var vertex = tour[i];
+          iVL[vertex]['extratext'] = '' + i;
+        }
+        optimumTour = tour.slice();
+        tourResult = tour.slice()
+      }
+
+      tour.push(u);
+      cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexHighlighted: vertexHighlighted,
+        edgeHighlighted: edgeHighlighted
+      });
+      cs['status'] = 'Position = {position}, bitmask = {bitmask}.'
+        .replace('{position}', u)
+        .replace('{bitmask}', bitmaskToString(bitmask));
+      cs['lineNo'] = 1;
+      stateList.push(cs);
+      if (bitmask === (1 << amountVertex) - 1) {
+        // can only go to the origin
+        var edgeKeyToOrigin = getEdgeKey(u, 0);
+        edgeHighlighted[edgeKeyToOrigin] = true;
+        fixEdgeDirection(edgeKeyToOrigin, u, 0);
+        cs = createState({
+          iVL: iVL,
+          iEL: iEL,
+          vertexHighlighted: vertexHighlighted,
+          edgeHighlighted: edgeHighlighted,
+          edgeAnimated: [edgeKeyToOrigin]
+        });
+        cs['status'] = 'Every node has been visited. Returning the cost between the last and the original vertex. ' +
+                       'The current minimal tour cost is {cost}.'.replace('{cost}', costSoFar + iEL[edgeKeyToOrigin]['w']);
+        cs['lineNo'] = 2;
+        stateList.push(cs);
+        updateGlobalMinimum(costSoFar + iEL[edgeKeyToOrigin]['w']);
+
+        delete edgeHighlighted[edgeKeyToOrigin];
+
+        // backtrack
+        cs = createState({
+          iVL: iVL,
+          iEL: iEL,
+          vertexHighlighted: vertexHighlighted,
+          edgeHighlighted: edgeHighlighted
+        })
+        cs['status'] = 'Backtracking.';
+        cs['lineNo'] = [];
+        stateList.push(cs);
+        tour.pop();
+        return iEL[edgeKeyToOrigin]['w'];
+      }
+      var ret = 1000 * 1000 * 1000;
+      for (var i = 0; i < amountVertex; i++) {
+        if (~bitmask & (1 << i)) {
+          var edgeKey = getEdgeKey(u, i);
+          vertexHighlighted[i] = true;
+          edgeHighlighted[getEdgeKey(u, i)] = true;
+          var unused_needSwap = fixEdgeDirection(edgeKey, u, i);
+          cs = createState({
+            iVL: iVL,
+            iEL: iEL,
+            vertexHighlighted: vertexHighlighted,
+            edgeHighlighted: edgeHighlighted,
+            edgeAnimated: [edgeKey]
+          });
+          cs['status'] = 'Going from {u} to {v}.'.replace('{u}', u).replace('{v}', i);
+          cs['lineNo'] = [4, 5];
+          stateList.push(cs);
+          ret = Math.min(ret, dfs(i, bitmask | (1 << i), costSoFar + iEL[edgeKey]['w']) + iEL[edgeKey]['w']);
+          delete vertexHighlighted[i];
+          delete edgeHighlighted[getEdgeKey(u, i)];
+          cs = createState({
+            iVL: iVL,
+            iEL: iEL,
+            vertexHighlighted: vertexHighlighted,
+            edgeHighlighted: edgeHighlighted
+          });
+          cs['status'] = 'Backtracking';
+          cs['lineNo'] = [];
+          stateList.push(cs);
+        }
+      }
+      cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexHighlighted: vertexHighlighted,
+        edgeHighlighted: edgeHighlighted
+      });
+      cs['status'] = 'With the current state ({position}, {bitmask}), '.replace('{position}', u).replace('{bitmask}', bitmaskToString(bitmask)) +
+                     'The cost to complete the tour out of the remaining graph is {cost}, '.replace('{cost}', ret) +
+                     'The current minimal tour cost is {cost}.'.replace('{cost}', ret + costSoFar);
+      cs['lineNo'] = 6;
+      stateList.push(cs);
+      tour.pop();
+      return ret;
+    }
+
+    var result = dfs(0, 1, 0);
+
+    edgeHighlighted = {};
+    for (var i = 0; i < amountVertex; i++) {
+      var u = optimumTour[i];
+      var v = optimumTour[(i + 1) % amountVertex];
+      for (var key in iEL) {
+	if ((iEL[key]['u'] === u && iEL[key]['v'] === v) ||
+	    (iEL[key]['u'] === v && iEL[key]['v'] === u)) {
+	  edgeHighlighted[key] = true;
+	  break;
+	}
+      }
+    }
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted,
+    });
+    cs['status'] = 'The optimum tour cost for this graph is {cost}.'.replace('{cost}', result);
+    stateList.push(cs);
+
+    for (var i = 0; i < amountVertex; i++) iVL[i]['extratext'] = '';
+
+    populatePseudocode('bruteforce');
+    gw.startAnimation(stateList);
+    return true;
+  }
+
+  // TODO(raisfathin): Implement algo reuse in the future.
+  function calculateOptimalValue() {
+    var memo = {};
+
+    function dfs(u, bitmask) {
+      if (bitmask == (1 << amountVertex) - 1) {
+	var edgeKeyToOrigin = getEdgeKey(u, 0);
+	return iEL[edgeKeyToOrigin]['w'];
+      }
+      var state = JSON.stringify([u, bitmask]);
+      if (memo[state] !== undefined) {
+	return memo[state];
+      }
+      var ret = 1000 * 1000 * 1000;
+      for (var i = 0; i < amountVertex; i++) {
+	if ((bitmask & (1 << i)) === 0) {
+	  var edgeKey = getEdgeKey(u, i);
+	  var cost = iEL[edgeKey]['w'] + dfs(i, bitmask | (1 << i));
+	  if (cost < ret) {
+	    ret = cost;
+	  }
+	}
+      }
+      return memo[state] = ret;
+    }
+
+    return dfs(0, 1);
+  }
+
+  this.dp = function() {
+    if (amountVertex > 7) {
+      $('#dp-err').html('The graph is too large (> 7). Consider drawing smaller graph');
+      return;
+    }
+    var cs, stateList = [];
+    var permutation = [];
+
+    var parent = [];
+
+    var vertexHighlighted = {};
+    var vertexCovered = {};
+    var edgeHighlighted = {};
+    var tour = [];
+
+    // this stores the value and the ids in iEL that form an optimal path
+    // { "value": value, "edgeIds": [i, ..., j] }
+    var memo = {};
+
+    function dfs(u, bitmask) {
+      function makeCurrentVertexCovered() {
+        delete vertexHighlighted[u];
+        vertexCovered[u] = true;
+      }
+
+      // should be called before exiting
+      // ...scope (exit) { revertCoveredChange() }
+      function revertCoveredChange() {
+        delete vertexCovered[u];
+        vertexHighlighted[u] = true;
+      }
+
+      makeCurrentVertexCovered();
+
+      var state = JSON.stringify([u, bitmask]);
+      cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexHighlighted: vertexHighlighted,
+        vertexCovered: vertexCovered,
+        edgeHighlighted: edgeHighlighted
+      });
+      cs['status'] = 'Position = {position}, bitmask = {bitmask}.'
+        .replace('{position}', u)
+        .replace('{bitmask}', bitmaskToString(bitmask));
+      cs['lineNo'] = 1;
+      stateList.push(cs);
+      if (bitmask === (1 << amountVertex) - 1) {
+        // can only go to the origin
+        var edgeKeyToOrigin = getEdgeKey(u, 0);
+        edgeHighlighted[edgeKeyToOrigin] = true;
+        fixEdgeDirection(edgeKeyToOrigin, u, 0);
+        cs = createState({
+          iVL: iVL,
+          iEL: iEL,
+          vertexHighlighted: vertexHighlighted,
+          vertexCovered: vertexCovered,
+          edgeHighlighted: edgeHighlighted,
+          edgeAnimated: [edgeKeyToOrigin],
+        });
+        cs['status'] = 'Every node has been visited. Returning the cost between the last and the original vertex';
+        cs['lineNo'] = 2;
+        stateList.push(cs);
+
+        delete edgeHighlighted[edgeKeyToOrigin];
+        // backtrack
+        cs = createState({
+          iVL: iVL,
+          iEL: iEL,
+          vertexHighlighted: vertexHighlighted,
+          vertexCovered: vertexCovered,
+          edgeHighlighted: edgeHighlighted
+        });
+        cs['status'] = 'Backtracking.';
+        cs['lineNo'] = [];
+        stateList.push(cs);
+        revertCoveredChange();
+        var tmp = {};
+        tmp[edgeKeyToOrigin] = true;
+        return {'value': iEL[edgeKeyToOrigin]['w'], 'edgeIds': tmp};
+      }
+      // check memo
+      if (memo[state] !== undefined) {
+        cs = createState({
+          iVL: iVL,
+          iEL: iEL,
+          vertexHighlighted: vertexHighlighted,
+          vertexCovered: vertexCovered,
+          edgeCovered: memo[state]['edgeIds'],
+          edgeHighlighted: edgeHighlighted
+        });
+        cs['status'] = 'The current state ({u}, {bitmask}) has been computed before; its value is {cost}.'
+          .replace('{u}', u)
+          .replace('{bitmask}', bitmaskToString(bitmask))
+          .replace('{cost}', memo[state]['value']);
+        cs['lineNo'] = [3, 4];
+        stateList.push(cs);
+        revertCoveredChange();
+        return memo[state];
+      } else {
+        cs = createState({
+          iVL: iVL,
+          iEL: iEL,
+          vertexHighlighted: vertexHighlighted,
+          vertexCovered: vertexCovered,
+          edgeHighlighted: edgeHighlighted
+        });
+        cs['status'] = 'The current state ({u}, {bitmask}) has not been computed before.'
+          .replace('{u}', u)
+          .replace('{bitmask}', bitmaskToString(bitmask));
+        cs['lineNo'] = 3;
+        stateList.push(cs);
+      }
+      var ret = 1000 * 1000 * 1000;
+      var edgeIds = {};
+      for (var i = 0; i < amountVertex; i++) {
+        if (~bitmask & (1 << i)) {
+          var edgeKey = getEdgeKey(u, i);
+          vertexCovered[i] = true;
+          revertCoveredChange();
+          edgeHighlighted[edgeKey] = true;
+          fixEdgeDirection(edgeKey, u, i);
+          cs = createState({
+            iVL: iVL,
+            iEL: iEL,
+            vertexHighlighted: vertexHighlighted,
+            vertexCovered: vertexCovered,
+            edgeHighlighted: edgeHighlighted,
+            edgeAnimated: [edgeKey],
+          });
+          cs['status'] = 'Going from {u} to {v}.'.replace('{u}', u).replace('{v}', i);
+          cs['lineNo'] = [5, 6];
+          stateList.push(cs);
+          var result = dfs(i, bitmask | (1 << i));
+          if (result['value'] + iEL[edgeKey]['w'] < ret) {
+            ret = result['value'] + iEL[edgeKey]['w'];
+            edgeIds = JSON.parse(JSON.stringify(result['edgeIds']));
+            edgeIds[edgeKey] = true;
+          }
+          delete vertexHighlighted[i];
+          delete edgeHighlighted[edgeKey];
+          makeCurrentVertexCovered();
+          cs = createState({
+            iVL: iVL,
+            iEL: iEL,
+            vertexHighlighted: vertexHighlighted,
+            vertexCovered: vertexCovered,
+            edgeHighlighted: edgeHighlighted
+          });
+          cs['status'] = 'Backtracking.';
+          cs['lineNo'] = [];
+          stateList.push(cs);
+        }
+      }
+      cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexHighlighted: vertexHighlighted,
+        vertexCovered: vertexCovered,
+        edgeCovered: edgeIds,
+        edgeHighlighted: edgeHighlighted
+      });
+      cs['status'] = 'With the current state ({position}, {bitmask}), '.replace('{position}', u).replace('{bitmask}', bitmaskToString(bitmask)) +
+                     'The cost to complete the tour out of the remaining graph is {cost}.'.replace('{cost}', ret);
+      cs['lineNo'] = 7;
+      stateList.push(cs);
+      revertCoveredChange();
+      memo[state] = {'value': ret, 'edgeIds': edgeIds};
+      return memo[state];
+    }
+
+    var result = dfs(0, 1);
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL
+    });
+    cs['status'] = 'The optimum tour cost for this graph is {cost}.'.replace('{cost}', result['value']);
+    stateList.push(cs);
+
+    for (var i = 0; i < amountVertex; i++) iVL[i]['extratext'] = '';
+
+    populatePseudocode('dp');
+    gw.startAnimation(stateList);
+    return true;
+  }
+
+  this.two_approximation = function() {
+    var cs, stateList = [];
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL
+    });
+    cs['status'] = '';
+    cs['lineNo'] = [];
+    stateList.push(cs);
+
+    // returns the id of edges used in MST
+    function getMSTEdges() {
+      var edgeIds = [];
+      var ufds = new UfdsHelper();
+      for (var key in iVL) {
+        ufds.insert(key);
+      }
+      var edges = [];
+      for (var key in iEL) {
+        edges.push(new ObjectPair(iEL[key]['w'], parseInt(key)));
+      }
+      edges.sort(ObjectPair.compare);
+      for (var i in edges) {
+        var edgeKey = edges[i].getSecond();
+        var u = iEL[edgeKey]['u'], v = iEL[edgeKey]['v'];
+        if (!ufds.isSameSet(u, v)) {
+          edgeIds.push(edgeKey);
+          ufds.unionSet(u, v);
+        }
+      }
+      return edgeIds;
+    }
+
+    var mstEdges = getMSTEdges();
+
+    var edgeHighlighted = {};
+    for (var key in mstEdges) {
+      edgeHighlighted[mstEdges[key]] = true;
+    }
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    var jsonForMST = JSON.stringify({'vl': iVL, 'el': iEL});
+    cs['status'] = 'Click <a target="blank" href="mst?create={json}"><b><u>here</u></b></a> for MST animation.'.replace('{json}', encodeURIComponent(jsonForMST));
+    cs['lineNo'] = 1;
+    stateList.push(cs);
+
+    var adjList = [];
+    for (var key in iVL) {
+      adjList[key] = [];
+    }
+    for (var key in mstEdges) {
+      var edgeKey = mstEdges[key];
+      var u = iEL[edgeKey]['u'], v = iEL[edgeKey]['v'];
+      adjList[u].push([v, edgeKey]);
+      adjList[v].push([u, edgeKey]);
+    }
+
+    var visited = {};
+    var eulerTour = [];
+
+    function dfs(u) {
+      visited[u] = true;
+      eulerTour.push(u);
+      for (var key in adjList[u]) {
+        var adj = adjList[u][key];
+        if (visited[adj[0]] === undefined) {
+          dfs(adj[0]);
+          eulerTour.push(u);
+        }
+      }
+    }
+
+    dfs(0);
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    cs['status'] = 'The euler tour of the MST is {euler_tour}.'.replace('{euler_tour}', JSON.stringify(eulerTour));
+    cs['lineNo'] = 2;
+    stateList.push(cs);
+
+    visited = {};
+
+    var underlinedRepeatedEulerTour = eulerTour;
+    var tspTour = [];
+    for (var key in underlinedRepeatedEulerTour) {
+      var vertex = underlinedRepeatedEulerTour[key];
+      var shouldBeUnderlineded = visited[vertex] !== undefined;
+      if (shouldBeUnderlineded) {
+        underlinedRepeatedEulerTour[key] = '<u>' + vertex + '</u>'
+      } else {
+        tspTour.push(vertex);
+        underlinedRepeatedEulerTour[key] = '' + vertex;
+      }
+      visited[vertex] = true;
+    }
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    cs['status'] = 'Euler tour with underlined repeated vertices is {euler_tour}.'
+      .replace('{euler_tour}', JSON.stringify(underlinedRepeatedEulerTour).replace(/\"/g, ''));
+    cs['lineNo'] = [3, 4];
+    stateList.push(cs);
+
+    if (tspTour.length !== amountVertex) {
+      alert("WUT " + tspTour.length);
+    }
+    var tspCost = 0;
+    edgeHighlighted = {};
+    for (var i = 0; i < amountVertex; i++) {
+      var cur = tspTour[i];
+      var next = tspTour[(i + 1) % amountVertex];
+      var edgeKey = getEdgeKey(cur, next);
+      tspCost += iEL[edgeKey]['w'];
+      edgeHighlighted[edgeKey] = true;
+    }
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    // TODO(raisfathin): Update the database.
+    cs['status'] = 'Found 2-approximation TSP tour {tour} with cost = {cost}. While the cost of the optimal solution = {optimal_cost}.'.replace('{tour}', JSON.stringify(tspTour)).replace('{cost}', tspCost).replace('{optimal_cost}', calculateOptimalValue());
+    cs['lineNo'] = [3, 4];
+    stateList.push(cs);
+
+    populatePseudocode('two_approximation');
+    gw.startAnimation(stateList);
+    return true;
+  }
+
+  this.one_half_approximation = function() {
+    var cs, stateList = [];
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL
+    });
+    var jsonForMST = JSON.stringify({'vl': iVL, 'el': iEL});
+    cs['status'] = 'Click <a target="blank" href="mst?create={json}"><b><u>here</u></b></a> for MST animation.'.replace('{json}', encodeURIComponent(jsonForMST));
+    cs['lineNo'] = [];
+    stateList.push(cs);
+
+    // returns the id of edges used in MST
+    function getMSTEdges() {
+      var edgeIds = [];
+      var ufds = new UfdsHelper();
+      for (var key in iVL) {
+        ufds.insert(key);
+      }
+      var edges = [];
+      for (var key in iEL) {
+        edges.push(new ObjectPair(iEL[key]['w'], parseInt(key)));
+      }
+      edges.sort(ObjectPair.compare);
+      for (var i in edges) {
+        var edgeKey = edges[i].getSecond();
+        var u = iEL[edgeKey]['u'], v = iEL[edgeKey]['v'];
+        if (!ufds.isSameSet(u, v)) {
+          edgeIds.push(edgeKey);
+          ufds.unionSet(u, v);
+        }
+      }
+      return edgeIds;
+    }
+
+    var mstEdges = getMSTEdges();
+
+    var edgeHighlighted = {};
+    for (var key in mstEdges) {
+      edgeHighlighted[mstEdges[key]] = true;
+    }
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    cs['status'] = ''
+    cs['lineNo'] = 1;
+    stateList.push(cs);
+
+    var adjList = [];
+    for (var key in iVL) adjList.push([]);
+    for (var key in mstEdges) {
+      var edgeKey = mstEdges[key];
+      var u = iEL[edgeKey]['u'], v = iEL[edgeKey]['v'];
+      adjList[u].push([v, edgeKey]);
+      adjList[v].push([u, edgeKey]);
+    }
+
+    // obtain a perfect matching on the graph, return the edge ids
+    function getMinCostMatchingEdges(vertexIds) {
+      var n = 0;
+      for (var key in vertexIds) n++;
+      if (n % 2 === 1) {
+        alert("ODD NUMBER OF ODD DEGREE VERTEX?");
+        return [];
+      }
+      var memo = {};
+      var what = {};
+
+      console.log("N = " + n);
+
+      function match(pos, mask) {
+        if (mask === (1 << n) - 1) {
+          return 0;
+        }
+        if (pos >= n) {
+          return 1000 * 1000 * 1000;
+        }
+        if (memo[mask] !== undefined) {
+          return memo[mask];
+        }
+        var ret = match(pos + 1, mask);
+        var cur = vertexIds[pos];
+        if ((mask & (1 << pos)) === 0) {
+          for (var i = 0; i < n; i++) {
+            var next = vertexIds[i];
+            if ((mask & (1 << i)) !== 0 || i === pos) {
+              continue;
+            }
+            var edgeKey = getEdgeKey(cur, next);
+            if (edgeKey === -1) {
+              alert("PANIC: KOK -1?");
+              console.log(cur + " " + next);
+              console.log(JSON.stringify(iEL));
+              continue;
+            }
+            var cost = iEL[edgeKey]['w'];
+            if (match(pos + 1, mask | (1 << pos) | (1 << i)) + cost < ret) {
+              ret = match(pos + 1, mask | (1 << pos) | (1 << i)) + cost;
+              what[mask] = [pos, i];
+            }
+          }
+        }
+        memo[mask] = ret;
+        return ret;
+      }
+
+      var cost = match(0, 0);
+
+      var matchingEdgeIds = [];
+      for (var mask = 0; mask !== (1 << n) - 1; ) {
+        if (what[mask] === undefined) {
+          alert("PANIC: WHAT = EMPTY???");
+          return matchingEdgeIds;
+        }
+        var a = what[mask][0];
+        var b = what[mask][1];
+        matchingEdgeIds.push(getEdgeKey(vertexIds[a], vertexIds[b]));
+        mask |= (1 << a) | (1 << b);
+      }
+      return matchingEdgeIds;
+    }
+
+    var oddDegreeVertices = [];
+    var vertexHighlighted = {};
+    for (var i = 0; i < amountVertex; i++) {
+      if (adjList[i].length % 2 === 1) {
+        oddDegreeVertices.push(i);
+        vertexHighlighted[i] = true;
+      }
+    }
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted,
+      vertexHighlighted: vertexHighlighted
+    });
+    cs['status'] = 'Obtaining odd degree vertices in the MST. They are {vertices}.'.replace('{vertices}', JSON.stringify(oddDegreeVertices));
+    cs['lineNo'] = 2;
+    stateList.push(cs);
+
+    var matchingEdges = getMinCostMatchingEdges(oddDegreeVertices);
+
+    var matchingCost = 0;
+    edgeHighlighted = {};
+
+    for (var key in matchingEdges) {
+      var edgeKey = matchingEdges[key];
+      edgeHighlighted[edgeKey] = true;
+      var u = iEL[edgeKey]['u'], v = iEL[edgeKey]['v'];
+      matchingCost += iEL[edgeKey]['w'];
+      adjList[u].push([v, edgeKey]);
+      adjList[v].push([u, edgeKey]);
+    }
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      vertexHighlighted: vertexHighlighted,
+      edgeHighlighted: edgeHighlighted
+    });
+    cs['status'] = 'Found a min cost matching with cost = {cost}.'.replace('{cost}', matchingCost);
+    cs['lineNo'] = 3;
+    stateList.push(cs);
+
+    // sanity check
+    for (var i = 0; i < amountVertex; i++) {
+      if (adjList[i].length % 2 === 1) {
+	alert('Degree of all vertices must be even after matching.');
+	return false;
+      }
+    }
+
+    var eulerTour = function() {
+      var stack = [];
+      var ptr = new Array(amountVertex);
+      var visit = new Array(amountVertex);
+      for (var i = 0; i < amountVertex; i++) {
+	ptr[i] = 0;
+	visit[i] = false;
+      }
+      stack.push(0);
+      var eulerTour = [];
+      while (stack.length > 0) {
+	var u = stack[stack.length - 1];
+	visit[u] = true;
+	if (ptr[u] == adjList[u].length) {
+	  eulerTour.push(u);
+	  stack.pop();
+	} else {
+	  stack.push(adjList[u][ptr[u]][0]);
+	  ptr[u]++;
+	}
+      }
+      for (var i = 0; i < amountVertex; i++) {
+	if (visit[i] === false) {
+	  alert("Disconnected?");
+	}
+      }
+      return eulerTour;
+    }();
+
+    edgeHighlighted = {};
+
+    for (var i = 0; i + 1 < eulerTour.length; i++) {
+      var cur = eulerTour[i];
+      var next = eulerTour[i + 1];
+      var edgeKey = getEdgeKey(cur, next);
+      edgeHighlighted[edgeKey] = true;
+    }
+
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    cs['status'] = 'The euler tour of the MST is {euler_tour}.'.replace('{euler_tour}', JSON.stringify(eulerTour));
+    cs['lineNo'] = 4;
+    stateList.push(cs);
+
+    visited = {};
+
+    var underlinedRepeatedEulerTour = eulerTour;
+    var tspTour = [];
+    for (var key in underlinedRepeatedEulerTour) {
+      var vertex = underlinedRepeatedEulerTour[key];
+      var shouldBeUnderlineded = visited[vertex] !== undefined;
+      if (shouldBeUnderlineded) {
+        underlinedRepeatedEulerTour[key] = '<u>' + vertex + '</u>'
+      } else {
+        tspTour.push(vertex);
+        underlinedRepeatedEulerTour[key] = '' + vertex;
+      }
+      visited[vertex] = true;
+    }
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    cs['status'] = 'Euler tour with underlined repeated vertices is {euler_tour}.'
+      .replace('{euler_tour}', JSON.stringify(underlinedRepeatedEulerTour).replace(/\"/g, ''));
+    cs['lineNo'] = [5, 6];
+    stateList.push(cs);
+
+    if (tspTour.length !== amountVertex) {
+      alert("WUT " + tspTour.length);
+    }
+    var tspCost = 0;
+    edgeHighlighted = {};
+    for (var i = 0; i < amountVertex; i++) {
+      var cur = tspTour[i];
+      var next = tspTour[(i + 1) % amountVertex];
+      var edgeKey = getEdgeKey(cur, next);
+      tspCost += iEL[edgeKey]['w'];
+      edgeHighlighted[edgeKey] = true;
+    }
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeHighlighted: edgeHighlighted
+    });
+    // TODO(raisfathin): Update the database.
+    cs['status'] = 'Found 1.5-approximation TSP tour {tour} with cost = {cost}. While the cost of the optimal solution = {optimal_cost}'.replace('{tour}', JSON.stringify(tspTour)).replace('{cost}', tspCost).replace('{optimal_cost}', calculateOptimalValue());
+    cs['lineNo'] = [5, 6];
+    stateList.push(cs);
+    populatePseudocode('one_half_approximation');
+    gw.startAnimation(stateList);
+    return true;
+  }
+
+  this.bitonic_tsp = function() {
+    let stateList = [];
+    let vertexTraversed = {};
+    let edgeTraversed = {};
+
+    const NEW = {ans: -1, el: {}};
+    const n = getNumVtx();
+    const VLSorted = getVtxSortedByCoord();
+    let memo = init2dMemoTable(n);
+
+    const firstVtx = VLSorted[0];
+    pushSortState(firstVtx);
+    const {ans: result} = dp(0, 0);
+    pushResultState(result);
+
+    populatePseudocode('bitonic_tsp');
+    gw.startAnimation(stateList);
+
+    function dp(idx1, idx2) {
+      const idxv = 1 + Math.max(idx1, idx2);
+      const v = VLSorted[idxv];
+      const p1 = VLSorted[idx1];
+      const p2 = VLSorted[idx2];
+
+      pushStartState(v, p1, p2);
+      if (idxv === n - 1) {
+        const ans = {
+          ans: weightFromSorted(p1, v) + weightFromSorted(v, p2),
+          el: getEndEdges(v, p1, p2),
+        }
+        pushReturnState(v, p1, p2, ans, 3);
+        return ans;
+      }
+      if (memo[idx1][idx2].ans !== -1) {
+        pushReturnState(v, p1, p2, memo[idx1][idx2], 4);
+        return memo[idx1][idx2];
+      }
+
+      coverChosenEdge(p1, v);
+      pushChosenState(v, p1, p2, 0);
+      const ltr = dp(idxv, idx2);
+      pushReturnedState(v, p2, 0, ltr);
+      uncoverChosenEdge(p1, v);
+      pushStartState(v, p1, p2, 5);
+      ltr.ans += weightFromSorted(p1, v);
+      ltr.el[getEdgeKey(p1, v)] = getEdgeKey(p1, v);
+
+      coverChosenEdge(p2, v);
+      pushChosenState(v, p1, p2, 1);
+      const rtl = dp(idx1, idxv);
+      pushReturnedState(v, p1, 1, rtl);
+      uncoverChosenEdge(p2, v);
+      pushStartState(v, p1, p2, 6);
+      rtl.ans += weightFromSorted(p2, v);
+      rtl.el[getEdgeKey(p2, v)] = getEdgeKey(p2, v);
+
+      memo[idx1][idx2] = (ltr.ans < rtl.ans) ? ltr : rtl;
+      pushReturnState(v, p1, p2, memo[idx1][idx2], 7);
+      return memo[idx1][idx2];
+    }
+
+    function getNumVtx() {
+      return Object.keys(iVL).length;
+    }
+
+    function getVtxSortedByCoord() {
+      return Object
+        .keys(iVL)
+        .sort(function sortByXThenY(i, j) {
+          const {x: ix, y: iy} = iVL[i];
+          const {x: jx, y: jy} = iVL[j];
+          if (ix == jx) return iy - jy;
+          return ix - jx;
+        })
+        .map(Number);
+    }
+
+    function init2dMemoTable(n) {
+      return Array.from(Array(n), () => new Array(n).fill(NEW));
+    }
+
+    function weightFromSorted(u, v) {
+      const edgeKey = getEdgeKey(u, v);
+      return iEL[edgeKey]["w"];
+    }
+
+    function getEndEdges(v, p1, p2) {
+      const e1 = getEdgeKey(v, p1);
+      const e2 = getEdgeKey(v, p2);
+      return {[e1]: e1, [e2]: e2};
+    }
+
+    function coverChosenEdge(u, v) {
+      const edgeKey = getEdgeKey(u, v);
+      vertexTraversed[u] = true;
+      edgeTraversed[edgeKey] = true;
+    }
+
+    function uncoverChosenEdge(u, v) {
+      const edgeKey = getEdgeKey(u, v);
+      delete vertexTraversed[u];
+      delete edgeTraversed[edgeKey];
+    }
+
+    function pushReturnState(v, p1, p2, result, lineNo) {
+      let cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexTraversed: vertexTraversed,
+        vertexHighlighted: {[p1]: true, [p2]: true},
+        edgeTraversed: edgeTraversed,
+        edgeCovered: result.el,
+      });
+      cs['status'] = 'Returning ans = {ans}.'
+        .replace('{ans}', result.ans);
+      cs['lineNo'] = lineNo;
+      stateList.push(cs);
+    }
+
+    function pushReturnedState(v, p, chosen, result) {
+      let cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexTraversed: vertexTraversed,
+        vertexHighlighted: {[v]: true, [p]: true},
+        edgeTraversed: edgeTraversed,
+        edgeCovered: result.el,
+      });
+      cs['status'] = 'Returned ans = {ans}.'
+        .replace('{ans}', result.ans);
+      cs['lineNo'] = 5 + chosen;
+      stateList.push(cs);
+    }
+
+    function pushChosenState(v, p1, p2, chosen) {
+      const u = chosen === 1 ? p2 : p1;
+      const p = chosen === 1 ? p1 : p2;
+      let cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexTraversed: vertexTraversed,
+        edgeTraversed: edgeTraversed,
+        vertexHighlighted: {[v]: true, [p]: true},
+        edgeAnimated: {[true]: getEdgeKey(u, v)},
+      });
+      const diru = chosen === 0 ? `Left = ${u}` : `Right = ${v}`;
+      const dirv = chosen === 0 ? `Right = ${v}` : `Left = ${u}`;
+      cs['status'] = 'Try {u} to {v}.'
+        .replace('{u}', diru)
+        .replace('{v}', dirv);
+      cs['lineNo'] = 5 + chosen;
+      stateList.push(cs);
+    }
+
+    function pushSortState(firstVtx) {
+      let cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexCovered: {[firstVtx]: true},
+      });
+      cs['status'] = 'Start from smallest (x, y) vertex = {v}.'
+        .replace('{v}', firstVtx);
+      cs['lineNo'] = 1;
+      stateList.push(cs);
+    }
+
+    function pushStartState(v, p1, p2, lineNo = 2) {
+      const e1 = getEdgeKey(p1, v);
+      const e2 = getEdgeKey(p2, v);
+      let cs = createState({
+        iVL: iVL,
+        iEL: iEL,
+        vertexTraversed: vertexTraversed,
+        edgeTraversed: edgeTraversed,
+        vertexCovered: {[v]: true},
+        vertexHighlighted: {[p1]: true, [p2]: true},
+        edgeQueued: {[e1]: true, [e2]: true},
+      });
+      cs['status'] = 'Vertex = {v}, Left to Right = {p1}, Right to Left = {p2}.'
+        .replace('{v}', v)
+        .replace('{p1}', p1)
+        .replace('{p2}', p2);
+      cs['lineNo'] = lineNo;
+      stateList.push(cs);
+    }
+
+    function pushResultState(result) {
+      let cs = createState({iVL: iVL, iEL: iEL});
+      cs['status'] = 'The optimum tour cost for this graph is {cost}.'.replace('{cost}', result);
+      stateList.push(cs);
+    }
+
+    return true;
+  }
+
+  function createState(options) {
+    var iVLObject = options["iVL"];
+    var iELObject = options["iEL"];
+    var vertexHighlighted = options["vertexHighlighted"];
+    var edgeHighlighted = options["edgeHighlighted"];
+    var vertexTraversed = options["vertexTraversed"];
+    var edgeTraversed = options["edgeTraversed"];
+    var edgeQueued = options["edgeQueued"];
+    var edgeCovered = options["edgeCovered"];
+    var vertexCovered = options["vertexCovered"];
+    var vertexGreyed = options["vertexGreyed"];
+    var edgeAnimated = options["edgeAnimated"];
+
+    var isDefaultGrey = true;
+    if ((vertexHighlighted == null) && (edgeHighlighted == null) && (vertexTraversed == null) && (edgeTraversed == null) && (edgeQueued == null) && (vertexGreyed == null))
+      isDefaultGrey = false;
+    if (vertexHighlighted == null) vertexHighlighted = {};
+    if (edgeHighlighted == null) edgeHighlighted = {};
+    if (vertexTraversed == null) vertexTraversed = {};
+    if (edgeTraversed == null) edgeTraversed = {};
+    if (edgeQueued == null) edgeQueued = {};
+    if (vertexGreyed == null) vertexGreyed = {};
+    if (edgeAnimated == null) edgeAnimated = [];
+
+    var key;
+    var state = {
+      "vl": {},
+      "el": {}
+    };
+
+    if (isDefaultGrey) {
+      for (key in iVLObject) {
+        state["vl"][key] = {};
+        state["vl"][key]["cx"] = iVLObject[key]["x"];
+        state["vl"][key]["cy"] = iVLObject[key]["y"];
+        state["vl"][key]["text"] = key;
+        state["vl"][key]["state"] = VERTEX_GREY_OUTLINE;
+        state["vl"][key]["extratext"] = iVLObject[key]["extratext"];
+      }
+      for (key in iELObject) {
+        state["el"][key] = {};
+        state["el"][key]["vertexA"] = iELObject[key]["u"];
+        state["el"][key]["vertexB"] = iELObject[key]["v"];
+        state["el"][key]["type"] = EDGE_TYPE_UDE;
+        state["el"][key]["weight"] = iELObject[key]["w"];
+        state["el"][key]["state"] = EDGE_GREY;
+        state["el"][key]["displayWeight"] = true;
+        state["el"][key]["animateHighlighted"] = false;
+      }
+    }
+    else {
+      for (key in iVLObject) {
+        state["vl"][key] = {};
+        state["vl"][key]["cx"] = iVLObject[key]["x"];
+        state["vl"][key]["cy"] = iVLObject[key]["y"];
+        state["vl"][key]["text"] = key;
+        state["vl"][key]["state"] = VERTEX_DEFAULT;
+        state["vl"][key]["extratext"] = iVLObject[key]["extratext"];
+      }
+      for (key in iELObject) {
+        state["el"][key] = {};
+        state["el"][key]["vertexA"] = iELObject[key]["u"];
+        state["el"][key]["vertexB"] = iELObject[key]["v"];
+        state["el"][key]["type"] = EDGE_TYPE_UDE;
+        state["el"][key]["weight"] = iELObject[key]["w"];
+        state["el"][key]["state"] = EDGE_DEFAULT;
+        state["el"][key]["displayWeight"] = true;
+        state["el"][key]["animateHighlighted"] = false;
+      }
+    }
+
+    for (key in edgeAnimated) {
+      var edgeKey = edgeAnimated[key];
+      state["el"][edgeKey]["animateHighlighted"] = true;
+    }
+
+    for (key in edgeQueued) {
+      key1 = state["el"][key]["vertexA"];
+      key2 = state["el"][key]["vertexB"]
+      state["vl"][key1]["state"] = VERTEX_DEFAULT;
+      state["vl"][key2]["state"] = VERTEX_DEFAULT;
+      state["el"][key]["state"] = EDGE_DEFAULT;
+    }
+
+    for (key in iVL) {
+      if (vertexGreyed[key] === undefined) {
+        state["vl"][key]["state"] = VERTEX_DEFAULT;
+      }
+    }
+
+    for (key in edgeTraversed) state["el"][key]["state"] = EDGE_TRAVERSED; // EDGE_GREEN;
+    for (key in vertexTraversed) state["vl"][key]["state"] = VERTEX_TRAVERSED; // VERTEX_GREEN_FILL;
+    for (key in edgeCovered) state["el"][key]["state"] = EDGE_BLUE;
+    for (key in vertexCovered) state["vl"][key]["state"] = VERTEX_BLUE_FILL;
+    for (key in edgeHighlighted) state["el"][key]["state"] = EDGE_HIGHLIGHTED; // EDGE_BLUE;
+    for (key in vertexHighlighted) state["vl"][key]["state"] = VERTEX_HIGHLIGHTED; // VERTEX_BLUE_FILL;
+
+    return state;
+  }
+
+  function populatePseudocode(act) {
+    var codes = [];
+    switch (act) {
+      case 'bruteforce':
+        codes.push('function findTour(pos, mask)');
+        codes.push('&nbsp;if every node has been visited: return cost[pos][0]');
+        codes.push('&nbsp;ans = ∞');
+        codes.push('&nbsp;for every unvisited node V');
+        codes.push('&nbsp;&nbsp;ans = min(ans,findTour(v,mask|(1&lt;&lt;V))+cost[pos][v])');
+        codes.push('&nbsp;return ans');
+        codes.push('');
+        break;
+      case 'dp':
+        codes.push('function findTour(pos, mask)');
+        codes.push('&nbsp;if every node has been visited: return cost[pos][0]');
+        codes.push('&nbsp;if (pos, mask) in memo: return memo[(pos, mask)]');
+        codes.push('&nbsp;ans = ∞');
+        codes.push('&nbsp;for every unvisited node V');
+        codes.push('&nbsp;&nbsp;ans = min(ans,findTour(v,mask|(1&lt;&lt;V))+cost[pos][v])');
+        codes.push('&nbsp;return memo[(pos, mask)] = ans');
+        break;
+      case 'two_approximation':
+        codes.push('Get the MST of the (complete) graph');
+        codes.push('Duplicate each edge in the MST and obtain a eulerian tour');
+        codes.push('Obtain a TSP tour from the obtained eulerian tour and');
+        codes.push('  skip repeated vertices');
+        codes.push('');
+        codes.push('');
+        codes.push('');
+        break;
+      case 'one_half_approximation':
+        codes.push('Get the MST of the (complete) graph');
+        codes.push('Find odd degree vertices in the MST');
+        codes.push('Find a min cost matching among those vertices');
+        codes.push('Obtain a eulerian tour using edges used in MST + matching');
+        codes.push('Obtain a TSP tour from the obtained eulerian tour and');
+        codes.push('  skip repeated vertices');
+        codes.push('');
+        break;
+      case 'bitonic_tsp':
+        // TODO @stevenha  to INSERT to db
+        codes.push('sort by (x, y) coordinates');
+        codes.push('function f(p1, p2)');
+        codes.push('&nbsp;if visited all nodes: return d[p1][v]+d[v][p2]');
+        codes.push('&nbsp;if (p1, p2) in memo: return memo[p1][p2]');
+        codes.push('&nbsp;ltr = d[p1][v] + f(v, p2)');
+        codes.push('&nbsp;rtl = d[v][p2] + f(p1, v)');
+        codes.push('&nbsp;return memo[p1][p2] = min(ltr, rtl)');
+        break;
+      default:
+        alert("WRONG POPULATE PSEUDOCODE");
+    }
+    for (var i = 0; i < 7; i++) {
+      $('#code' + (i + 1)).html(codes[i]);
+    }
+  }
+}
+
+
+
+// TSP Actions
+var actionsWidth = 150;
+var statusCodetraceWidth = 430;
+
+// local
+write(true, false);
+var mw, gw, randomGraphID;
+
+$(function() {
+  $('#play').hide();
+  mw = new TSP();
+  gw = mw.getGraphWidget();
+  gw.setAnimationDuration(700 / speedVal);
+  // var options = [K4, K5, K8, K_N, CS4234_TUTORIAL_THREE];
+  var options = [K4, K5, K8, CS4234_TUTORIAL_THREE];
+  mw.examples(options[Math.floor(Math.random()*options.length)]);
+  randomGraphID = -1;
+
+  var graphJSON = getQueryVariable("create");
+  if (graphJSON.length > 0) {
+    importjson(graphJSON);
+    window.history.pushState("object or string", "Title", window.location.href.split('?')[0]);
+  }
+});
+
+function closeAll() {
+  closeAction('draw');
+  closeAction('examples');
+  closeAction('bruteforce');
+  closeAction('dp');
+  closeAction('approximation');
+  closeAction('bitonic');
+}
+
+function importjson(text) {
+  if (isPlaying) stop();
+  if (mode == "exploration") {
+    mw.importjson(text);
+    //closeExamples();
+    closeAction('examples');
+    isPlaying = false;
+  }
+}
+
+function drawGraph() {
+  if (isPlaying) stop();
+  if (mode == "exploration") {
+    const [newiVL, newiEL] = representationConvert(mw.getiVL(), mw.getiEL())
+    // for this visualization start with NO EDGES
+    currentGraphVisu = new GraphVisu(true, false, true, newiVL, [], true)
+    $('#dark-overlay').fadeIn(function() {
+      $('#drawgraph').fadeIn();
+    });
+    mw.startLoop();
+    isPlaying = false;
+  }
+}
+
+function drawDone() {
+  if (!mw.draw()) return false;
+  mw.stopLoop();
+  $('#drawgraph').fadeOut();
+  $('#dark-overlay').fadeOut();
+}
+
+function drawCancel() {
+  mw.stopLoop();
+  $('#drawgraph').fadeOut();
+  $('#dark-overlay').fadeOut();
+}
+
+function example(id) {
+  if (isPlaying) stop();
+  setTimeout(function() {
+    if ((mode == "exploration") && mw.examples(id)) {
+      $('#progress-bar').slider("option", "max", 0);
+      //closeExamples();
+      closeAction('examples');
+      isPlaying = false;
+    }
+  }, 500);
+}
+
+function bruteforce() {
+  if (isPlaying) stop();
+  commonAction(mw.bruteforce(), 'Bruteforce');
+}
+
+function dp() {
+  if (isPlaying) stop();
+  commonAction(mw.dp(), 'Dynamic Programming');
+}
+
+function two_approximation() {
+  if (isPlaying) stop();
+  commonAction(mw.two_approximation(), '2-approximation TSP');
+}
+
+function one_half_approximation() {
+  if (isPlaying) stop();
+  commonAction(mw.one_half_approximation(), '1.5-approximation TSP');
+}
+
+function bitonic_tsp() {
+  if (isPlaying) stop();
+  commonAction(mw.bitonic_tsp(), 'Bitonic TSP');
+}
+</script>
+</body>
+
+<!-- Mirrored from visualgo.net/en/tsp by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 16 Dec 2023 15:18:01 GMT -->
+</html>

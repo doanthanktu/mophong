@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Lý Thuyết - BFS Algorithm</title>
+    <link rel="stylesheet" href="{% static 'myapp/css/styles_theory.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/css/main/style.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/css/main/shThemeDefault.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/css/main/shCore.css' %}">
+    
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .main-content {
+            max-width: 800px;
+            width: 90%;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header-title {
+            color: #9FA8B3; /* Mã màu titan */
+        }
+        .footer {
+          background-color: #333;
+          color: #fff;
+          text-align: center;
+          padding: 15px 0;
+          width: 100%;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+        }
+        
+
+        /* Các phần tử khác có thể cần được điều chỉnh tùy thuộc vào thiết kế của bạn */
+    </style>
+</head>
+    
+<body>
+    
+    
+
+    <header class="header" style="height:100%; width:100%">
+        <div class="header-content">
+            <h1 class="header-title">BFS Algorithm Theory</h1>
+            <p class="header-description">Understanding Breadth-First Search Algorithm</p>
+        </div>
+    </header>
+    <main class="main-content">
+        <div class="content">
+            <h2 class="section-title">Breadth-First Search (BFS)</h2>
+            <p>
+                Breadth-First Search (BFS) là một thuật toán duyệt đồ thị. 
+                Nó khám phá tất cả các đỉnh cùng cấp với một đỉnh xuất phát trước khi đi xuống các đỉnh cấp dưới.
+                BFS thường được sử dụng để tìm kiếm đường đi ngắn nhất trong đồ thị không trọng số hoặc tìm kiếm theo cấp bậc trong cây.
+            </p>
+            <p>
+                Để hiểu rõ hơn về BFS, bạn có thể xem thêm tại các nguồn tài liệu bên dưới hoặc xem video giới thiệu và làm bài tập vận dụng để hiểu thêm về BFS nhé:
+            </p>
+            <h1 class="entry-title">Giải thuật tìm kiếm theo chiều rộng <br>(Breadth First Search)</h1>
+      </header>
+      <div class="entry-content" style="height: auto !important;">
+        <div>
+          <hr>
+        </div>
+        <h2 id="goto-h2-1">Giải thuật tìm kiếm theo chiều rộng là gì?</h2>
+        <p>Giải thuật tìm kiếm theo chiều rộng (Breadth First Search – viết tắt là BFS) duyệt qua một đồ thị
+          theo chiều rộng và sử dụng hàng đợi (queue) để ghi nhớ đỉnh liền kề để bắt đầu việc tìm kiếm khi không
+          gặp được đỉnh liền kề trong bất kỳ vòng lặp nào.</p>
+        <img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong.png' %}"
+          alt="Giải thuật tìm kiếm theo chiều rộng">
+        <p>Như trong hình ví dụ trên, giải thuật tìm kiếm theo chiều rộng duyệt từ A tới B tới E tới F sau đó
+          tới C, tới G và cuối cùng tới D. Giải thuật này tuân theo qui tắc:</p>
+        <ul>
+          <li>
+            <p><b>Qui tắc 1</b>: Duyệt tiếp tới đỉnh liền kề mà chưa được duyệt. Đánh dấu đỉnh mà đã được duyệt.
+              Hiển thị đỉnh đó và đẩy vào trong một hàng đợi (queue)..</p>
+          </li>
+          <li>
+            <p><b>Qui tắc 2</b>: Nếu không tìm thấy đỉnh liền kề, thì xóa đỉnh đầu tiên trong hàng đợi.</p>
+          </li>
+          <li>
+            <p><b>Qui tắc 3</b>: Lặp lại Qui tắc 1 và 2 cho tới khi hàng đợi là trống.</p>
+          </li>
+        </ul>
+        <p>Bảng dưới đây minh họa cách giải thuật tìm kiếm theo chiều rộng làm việc với một ví dụ đơn giản sau:
+        </p>
+        <table class="alt">
+          <tbody>
+            <tr>
+              <th>Bước</th>
+              <th>Duyệt</th>
+              <th>Mô tả</th>
+            </tr>
+            <tr>
+              <td width="5%">1.</td>
+              <td width="50%"><img
+                  src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong-1.png' %}"
+                  alt="Giải thuật tìm kiếm theo chiều rộng"></td>
+              <td>Khởi tạo hàng đợi (queue)</td>
+            </tr>
+            <tr>
+              <td width="5%">2.</td>
+              <td width="50%"><img
+                  src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong-2.png' %}"
+                  alt="Giải thuật tìm kiếm theo chiều rộng"></td>
+              <td>Chúng ta bắt đầu duyệt đỉnh <b>S</b> (đỉnh bắt đầu) và đánh dấu đỉnh này là <b>đã duyệt</b>.
+              </td>
+            </tr>
+            <tr>
+              <td width="5%">3.</td>
+              <td width="50%"><img
+                  src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong-3.png' %}"
+                  alt="Giải thuật tìm kiếm theo chiều rộng"></td>
+              <td>Sau đó chúng ta tìm đỉnh liền kề với <b>S</b>mà chưa được duyệt. Trong ví dụ này chúng ta có 3
+                đỉnh, và theo thứ tự chữ cái chúng ta chọn đỉnh <b>A</b> đánh dấu là đã duyệt và xếp <b>A</b>
+                vào hàng đợi.</td>
+            </tr>
+            <tr>
+              <td width="5%">4.</td>
+              <td width="50%"><img
+                  src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong-4.png' %}"
+                  alt="Giải thuật tìm kiếm theo chiều rộng"></td>
+              <td>Tiếp tục duyệt đỉnh liền kề với <b>S</b> là <b>B</b>. Đánh dấu là đã duyệt và xếp đỉnh này vào
+                hàng đợi.</td>
+            </tr>
+            <tr>
+              <td width="5%">5.</td>
+              <td width="50%"><img
+                  src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong-5.png' %}"
+                  alt="Giải thuật tìm kiếm theo chiều rộng"></td>
+              <td>Tiếp tục duyệt đỉnh liền kề với <b>S</b> là <b>C</b>. Đánh dấu là đã duyệt và xếp đỉnh này vào
+                hàng đợi.</td>
+            </tr>
+            <tr>
+              <td width="5%">6.</td>
+              <td width="50%"><img
+                  src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong-6.png' %}"
+                  alt="Giải thuật tìm kiếm theo chiều rộng"></td>
+              <td>Bây giờ đỉnh <b>S</b> không còn đỉnh nào liền kề mà chưa được duyệt. Bây giờ chúng ta rút
+                <b>A</b> từ hàng đợi.
+              </td>
+            </tr>
+            <tr>
+              <td width="5%">7.</td>
+              <td width="50%"><img
+                  src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-rong-7.png' %}"
+                  alt="Giải thuật tìm kiếm theo chiều rộng"></td>
+              <td>Từ đỉnh <b>A</b> chúng ta có đỉnh liền kề là <b>D</b> và là đỉnh chưa được duyệt. Đánh dấu
+                đỉnh <b>D</b> là đã duyệt và xếp vào hàng đợi.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Đến đây, chúng ta thấy rằng không còn đỉnh nào là chưa được đánh dấu (chưa được duyệt với ví dụ trong
+          bảng này). Nhưng giải thuật vẫn tiếp tục, chúng ta vẫn tiếp tục rút các đỉnh từ hàng đợi theo thứ tự
+          để tìm tất cả các đỉnh mà chưa được duyệt. Khi hàng đợi là trống thì đó là lúc kết thúc giải thuật.
+        </p>
+
+        <hr>
+            <div class="links">
+                <h4>Các nguồn tài liệu đọc thêm, video và bài tập vận dụng:</h4>
+            </div>
+        </div>
+        <section class="page-links" target="_blank">
+            <a href="{% url 'tailieu' %}" class="page-link" target="_blank">
+                <img src="{% static 'myapp/images/theory/link1_image.jpg' %}" alt="Link 1">
+                <h2>Tài liệu</h2>
+                <p>Đọc thêm kiến thức liên quan</p>
+            </a>
+            <a href="{% url 'video' %}" class="page-link" target="_blank">
+                <img src="{% static 'myapp/images/theory/link2_image.jpg' %}" alt="Link 2">
+                <h2>Video</h2>
+                <p>Trực quan hóa <br>lý thuyết</p>
+            </a>
+            <a href="{% url 'baitap' %}" class="page-link" target="_blank">
+                <img src="{% static 'myapp/images/theory/link3_image.jpg' %}" alt="Link 3">
+                <h2>Bài tập</h2>
+                <p>Vận dụng kiến thức đã học</p>
+            </a>
+            <!--
+            <a href="https://www.youtube.com/watch?v=bhB-GIP3tZM" class="page-link">
+                <img src="{% static 'myapp/images/theory/link4_image.jpg' %}" alt="Link 4">
+                <h2>Link 4</h2>
+                <p>Description of Link 4</p>
+            </a>
+            <a href="https://www.youtube.com/watch?v=xlVX7dXLS64" class="page-link">
+                <img src="{% static 'myapp/images/theory/link5_image.jpg' %}" alt="Link 5">
+                <h2>Link 5</h2>
+                <p>Description of Link 5</p>
+            </a>
+            <a href="https://viblo.asia/p/cac-giai-thuat-tim-kiem-tren-do-thi-1Je5EBRGKnL" class="page-link">
+                <img src="{% static 'myapp/images/theory/link6_image.jpg' %}" alt="Link 6">
+                <h2>Link 6</h2>
+                <p>Description of Link 6</p>
+            </a>
+            -->
+            
+        </section>
+        
+    </main>
+    
+    <footer class="footer">
+        <p>© 2023 BFS Algorithm Web - Đoàn Huỳnh Thanh Tú - 46.01.103.076 - HCMUE</p>
+    </footer>
+</body>
+</html>

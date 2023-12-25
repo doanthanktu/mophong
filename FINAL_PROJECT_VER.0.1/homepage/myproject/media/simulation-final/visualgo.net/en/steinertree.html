@@ -1,0 +1,2810 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from visualgo.net/en/steinertree by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 16 Dec 2023 15:18:00 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Given an undirected weighted graph G = (V, E) and an integer s that partitions the set of vertices V = [0, 1, ..., |V|-1] into a set of required vertices R = [0, 1, ..., s-1] and a set of Steiner vertices S = [s, s+1, ..., |V|-1], the General Steiner Tree problem is a problem of finding a subset S&amp;#39; &amp;sube; S of the Steiner vertices and a spanning tree T = (R &amp;xcup; S&amp;#39;, E) of minimum weight. The weight of the tree T is simply the sum of its edge weights.This General Steiner Tree problem is a generalization of the more well-known Minimum Spanning Tree problem (MST).Unlike MST, which has a polynomial solution (e.g., O(E log V) Kruskal&amp;#39;s/Prim&amp;#39;s algorithm), this general Steiner-Tree problem is an NP-hard combinatorial optimization problem.">
+<meta name="keywords" content="SteinerTree">
+ 
+<meta name="csrf-token" content="dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+<meta property="og:image" content="../img/png/steinertree.png">
+<title>Steiner Tree - VisuAlgo</title>
+<link rel="icon" href="../img/favicon.png" type="image/x-icon">
+<link rel="shortcut icon" href="../img/favicon.png" type="image/x-icon">
+<link rel="apple-touch-icon" href="../img/favicon.png">
+<link rel="apple-touch-icon" sizes="72x72" href="../img/favicon.png">
+<link rel="apple-touch-icon" sizes="114x114" href="../img/favicon.png">
+<link rel="stylesheet" href="../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="../fonts/silkscreen/stylesheet.css">
+<link rel="stylesheet" type="text/css" href="../css/common-1.0.2.css">
+<link rel="stylesheet" href="../css/viz-1.0.4.css">
+<link rel="stylesheet" href="../css/visual.css">
+<link rel="stylesheet" href="../css/drawgraph-1.0.2.css">
+<style>
+      #e-lecture {
+        top: 45px;
+        right: 130px;
+        width: 400px;
+        display: block;
+        background: none;
+        /*overflow: normal;*/
+        white-space: normal;
+        text-align: right;
+        color: black; font-weight: bold; font-size: 20px;
+        z-index: 8001;
+      }
+      #e-lecture-timeline {
+        top: 80px;
+        right: 130px;
+        display: flex;
+        position: absolute;
+        z-index: 10000;
+      }
+      .e-lecture-timeline-slide {
+        height: 5px;
+        width: 2px;
+        background: black;
+        float: left;
+      }
+      .e-lecture-timeline-checkpoint {
+        height: 20px;
+        width: 3px;
+        margin-left: 2px;
+        margin-top: -7.5px;
+        background: black;
+        float: left;
+      }
+
+      #e-lecture-f1map {
+        top: 102.5px;
+        right: 130px;
+        display: flex;
+        position: absolute;
+        z-index: 10000;
+      }
+
+      .e-lecture-f1map-sector {
+        flex-grow: 1;
+        background: black;
+        float: left;
+        height: 5px;
+        margin-right: 1px;
+      }
+
+      .e-lecture-f1map-sector:last-child {
+        margin-right: 0px;
+      }
+
+      .electure-prev, .electure-next { /* force update, copied from viz.css */
+        position: absolute;
+        /* bottom: -12px; */
+        top: -20px;
+        /*bottom: '';*/
+        padding: 3px 8px;
+        background: #999;
+        color: white;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+
+      .electure-read-status {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        font-size: 14px;
+        cursor: default;
+        color: #00FF7F;
+        display: none;
+      }
+
+      .electure-prev {
+        left: -10px;
+        /* right: 30px; */
+      }
+      .electure-next {
+        right: -10px;
+        color: white;
+      }
+      .electure-print, .electure-end {
+        position: fixed;
+        top: 45px;
+        height: 20px;
+        width: 17px;
+        right: 80px;
+        padding: 3px 8px;
+        background: #999;
+        color: white;
+        cursor: pointer;
+        border-radius: 2px;
+        text-align: center;
+      }
+      .electure-end {
+        right: 45px; /* beside the X */
+      }
+
+      #change-lang-popup {
+        position: fixed;
+        background: green;
+        left: 40px;
+        top: 50px;
+        width: 250px;
+        height: 125px;
+        border: transparent;
+        border-radius: 10px;
+        padding: 10px 20px;
+        z-index: 9000;
+      }
+
+      #change-lang-popup p {
+        font-size: medium;
+        color: white;
+        line-height: 2;
+        font-family: "PT Sans", sans-serif;
+      }
+
+      #change-lang-popup-btn {
+        text-decoration: underline;
+        margin-left: 50px;
+      }
+
+      #change-lang-popup-btn:hover {
+        cursor: pointer;
+      }
+
+      #rotateDeviceOverlay {
+        z-index: 10000;
+        width: 90%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        padding-right: 5%;
+        padding-left: 5%;
+        overflow: hidden;
+      }
+
+      #mobile-playback-overlay {
+        z-index: 9600;
+        width: 90%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        gap: 100px;
+        background-color: black;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        padding-right: 5%;
+        padding-left: 5%;
+        opacity: 0.3;
+        overflow: hidden;
+      }
+      .mobile-playback-item {
+        min-width: 2.5%;
+        max-width: 35px;
+      }
+      .mobile-playback-item img {
+        width: 100%
+      }
+      .mobile-playback-label {
+        opacity: 0;
+        color: white;
+        font-size: 25px;
+        font-weight: bold;
+        min-width: 1.5%;
+        max-width: 25px;
+        transition: opacity 0.25s ease-out;
+        -webkit-backface-visibility: hidden;
+      }
+      #mobile-playback-rewind-label {
+        margin-right: -70px;
+      }
+      #mobile-playback-forward-label {
+        margin-left: -70px;
+      }
+      #viz-speed-value {
+          font-size: 15px;
+          width: 10%;
+      }
+
+      #scale {
+        position: fixed;
+        left: 5px;
+      }
+    </style>
+<style>
+/* copied here from common.css (perhaps need to use version numbering) until caches worldwide settles */
+#reload-mobile-popup, #message-popup { /* #gdpr-popup, */
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 320px;
+  bottom: 62px;
+  height: 300px;
+  background-color: #0275d8;
+  border-radius: 15px;
+  padding: 30px 40px;
+  z-index: 9500;
+}
+#reload-mobile-popup {
+  background-color: green;
+  height: 200px;
+}
+#message-popup {
+  z-index: 9000;
+  width: 40%;
+  height: 130px;
+  background-color: #d9534f;
+}
+
+#reload-mobile-popup p, #message-popup p { /* #gdpr-popup p, */
+  font-size: large;
+  color: white;
+  line-height: 2;
+  font-family: "PT Sans", sans-serif;
+}
+
+#reload-mobile-popup .inner-button, #message-popup .inner-button { /* #gdpr-popup .gdpr-button, */
+  border: white solid 2px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: x-large;
+  padding: 2px 8px;
+  color: white;
+  width: 90px;
+  text-align: center;
+  position: absolute;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#gdpr-accept, #reload-mobile-button, #dismiss-message-btn {
+  bottom: 30px;
+  right: 40px;
+}
+
+#gdpr-reject, #cancel-reload-mobile-button {
+  bottom: 30px;
+  right: 170px;
+}
+    </style>
+</head>
+<body>
+<div id="body-container" style="display: flex; flex-direction: column; min-height: 100vh;">
+<style>
+  #topbar {
+    background-color: rgb(0,0,0);
+    font-family: "PT Sans", sans-serif;
+    font-size: 13px;
+    height: 40px;
+
+    padding-left: 40px;
+    padding-right: 40px;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  #topbar a:hover {
+    text-decoration: none;
+  }
+
+  #account-dropdown-btn {
+    color: #198754;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    margin-left: 0.5rem;
+
+    border: 2px solid;
+    border-radius: 0.25rem;
+    height: 24px;
+    line-height: 1.5;
+  }
+
+  #account-dropdown-btn:hover {
+    color: #0a58ca!important;
+    border-color: #198754;
+    text-decoration: none;
+  }
+
+  #login-button {
+    color: #198754;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    margin-left: 0.5rem;
+
+    border: 2px solid;
+    border-radius: 0.25rem;
+
+    height: 24px;
+    line-height: 1.5;
+  }
+
+  #login-button a:hover {
+    color: #0a58ca!important;
+    text-decoration: none;
+  }
+
+  #account-dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    z-index: 1000;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0;
+    font-size: 1rem;
+    color: rgb(0,0,0);
+    text-align: left;
+    list-style: none;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.25rem;
+    top: 45px;
+    right: 40px;
+    line-height: 1.5;
+  }
+
+  .account-dropdown-item {
+    display: block;
+    width: auto;
+    padding: 0.25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: rgb(0,0,0);
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    height: 24px;
+    font-family: SilkscreenNormal, sans-serif;
+  }
+
+  .account-dropdown-item:hover {
+    background-color: #e9ecef;
+    color: #0a58ca;
+    text-decoration: none;
+  }
+</style>
+<nav id="topbar">
+<span style="margin-right: 0.25rem">
+<a href="https://www.comp.nus.edu.sg/~stevenha" style="text-decoration: none; color: white">
+<span class="colour" style="border: 1px solid; border-color: #198754!important; border-radius: .25rem!important">7</span>
+</a>
+<a href="https://visualgo.net/" style="font-family: SilkscreenNormal,sans-serif; font-size: 20px; margin-left: 4px;">
+<span style="color: white">Visu</span><span class="colour">Algo</span><span style="font-size: 40%; color: white">.net</span>
+</a>
+<span style="color: white">/</span>
+<select id="Language" class="select2-dropdown" onchange="changeURL()">
+<option value="en" selected>en</option>
+<option value="zh">zh</option>
+<option value="id">id</option>
+</select>
+<span style="color: white; font-family: monospace">/steinertree</span>
+</span>
+<span style="max-height: 30px">
+<span id="title">
+<a id="title-steinertree" class="selected-viz">General Steiner Tree</a>
+</span>
+</span>
+<span style="max-height: 30px; background-color:rgb(0,0,0)!important; color: white; margin-left: auto">
+<div id="mode-menu">
+<div id="mode-button" style="background-color: rgb(0,0,0)!important;" title="exploration">Exploration Mode &#9663;</div>
+<div id="other-modes" style="background-color: rgb(0,0,0)!important; padding-top: 11px">
+<a title="e-Lecture" style="background-color: rgb(0,0,0)!important;">e-Lecture Mode</a>
+</div>
+</div>
+</span>
+<span id="login-button" style="font-family: SilkscreenNormal,sans-serif">
+<a href="https://visualgo.net/login">Login</a>
+</span>
+</nav>
+<ul id="account-dropdown-menu">
+<li><a class="account-dropdown-item" href="https://visualgo.net/profile">Profile</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/training">Training</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/tests">Tests</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/logout">Log Out</a></li>
+</ul>
+<script>
+  function changeURL() {
+    let URL = window.location.href.split('https://visualgo.net/');
+    URL[3] = document.getElementById("Language").value;
+    window.location.assign(URL.join('https://visualgo.net/'));
+  }
+
+  function changeDefaultLanguageAndURL() {
+    let URL = window.location.href.split('https://visualgo.net/');
+    let val = document.getElementById("Language").value;
+    URL[3] = val;
+
+    let data = {
+      '_token': "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+      'lang'  : val
+    }
+    $.post('https://visualgo.net/changeLanguage', data, function (res, status) {
+      if(res['status'] === 'success') {
+        window.location.assign(URL.join('https://visualgo.net/'));
+      } else if (res['status'] === 'failed') {
+        alert(res['message']);
+      } else {
+        alert('An unknown error occurred');
+      }
+    })
+  }
+</script>
+<div id="dark-overlay"></div>
+<div id="main-content-container" style="flex: 1">
+
+<div id="mobile-playback-overlay" class="playing" style="display: none;">
+<span id="mobile-playback-rewind-label" class="mobile-playback-label">-7</span>
+<span id="mobile-playback-rewind" class="mobile-playback-item" onclick="mobilePlaybackRewind()"><img src="../img/prevFrame.png" alt="rewind 7 frames"></span>
+<span id="mobile-playback-pause" class="mobile-playback-item" onclick="mobilePlaybackPauseOrPlay()"><img src="../img/pause.png" alt="pause"></span>
+<span id="mobile-playback-play" class="mobile-playback-item" style="display: none;" onclick="mobilePlaybackPauseOrPlay()"><img src="../img/play.png" alt="play"></span>
+<span id="mobile-playback-forward" class="mobile-playback-item" onclick="mobilePlaybackForward()"><img src="../img/nextFrame.png" alt="forward 7 frames"></span>
+<span id="mobile-playback-forward-label" class="mobile-playback-label">+7</span>
+</div>
+<div id="status" class="panel"><p></p></div>
+<div id="status-hide" class="panel-hide"><img src="../img/arrow_white_right.png" alt=">" title="show/hide status panel" /></div>
+<div id="codetrace" class="panel">
+<p id="code1" style="padding-top: 10px;"></p>
+<p id="code2"></p>
+<p id="code3"></p>
+<p id="code4"></p>
+<p id="code5"></p>
+<p id="code6"></p>
+<p id="code7" style="padding-bottom: 10px;"></p>
+</div>
+<div id="codetrace-hide" class="panel-hide"><img src="../img/arrow_white_right.png" alt=">" title="show/hide codetrace panel" /></div>
+<div id="left-bar"></div>
+<div id="right-bar"></div>
+<div id="media-controls">
+<div id="speed-control"><div id="speed-input"></div><div id="viz-speed-value">1x</div></div>
+<span id="go-to-beginning" class="media-control-button" title="go to beginning" onclick="goToBeginning()"><img src="../img/goToBeginning.png" alt="go to beginning"></span>
+<span id="previous" class="media-control-button" title="step backward" onclick="stepBackward()"><img src="../img/prevFrame.png" alt="previous frame"></span>
+<span id="pause" class="media-control-button" title="pause" onclick="pause()"><img src="../img/pause.png" alt="pause"></span>
+<span id="play" class="media-control-button" title="play" onclick="play()"><img src="../img/play.png" alt="play"></span>
+<span id="next" class="media-control-button" title="step forward" onclick="stepForward()"><img src="../img/nextFrame.png" alt="next frame"></span>
+<span id="go-to-end" class="media-control-button" title="go to end" onclick="goToEnd()"><img src="../img/goToEnd.png" alt="go to end"></span>
+<div id="progress-bar" class="media-control-button"></div>
+</div>
+<div id="viz">
+<p id="info" "></p>
+</div>
+<div id="current-action" class="panel"></div>
+<div id="e-lecture" class="panel"></div> 
+<div id="e-lecture-timeline"></div>
+<div id="e-lecture-f1map">
+<div class="e-lecture-f1map-sector" sectorNo="1"></div>
+<div class="e-lecture-f1map-sector" sectorNo="2"></div>
+<div class="e-lecture-f1map-sector" sectorNo="3"></div>
+</div>
+<div id="overlay" hidden onclick="end_eLecture()"> 
+<div id="electure-dropdown">
+<select class="lecture-dropdown" style="width:100%">
+<option value="1">1. Introduction</option>
+<option value="1-1">&nbsp;&nbsp;&nbsp;1-1. Other Steiner-Tree Problem Variants</option>
+<option value="2">2. Visualization</option>
+<option value="3">3. Input</option>
+<option value="4">4. Exact Algorithms</option>
+<option value="4-1">&nbsp;&nbsp;&nbsp;4-1. Exact Algorithms - Complete Search</option>
+<option value="4-2">&nbsp;&nbsp;&nbsp;4-2. Exact Algorithms - Dynamic Programming</option>
+<option value="5">5. Approximation</option>
+</select>
+</div>
+<div class="electure-print" title="Print the e-Lecture note" style="z-index=8001;">&#9997;</div>
+<div class="electure-end" title="Close the e-Lecture mode" style="z-index=8001;">&#10008;</div>
+</div>
+<div id="dropdown-temp-holder" hidden></div>
+
+<div id="electure-1" class="electure-dialog" style="top:70px;left:60px;width:500px;">
+<p>Given an undirected weighted graph <b>G = (V, E)</b> and an integer <b>s</b> that partitions the set of vertices <b>V = [0, 1, ..., |V|-1]</b> into a set of <b>required</b> vertices <b>R = [0, 1, ..., s-1]</b> and a set of <b>Steiner</b> vertices <b>S = [s, s+1, ..., |V|-1]</b>, the General Steiner Tree problem is a problem of finding a subset <b>S&#39; &sube; S</b> of the <b>Steiner</b> vertices and a spanning tree <b>T = (R &xcup; S&#39;, E)</b> of minimum weight. The weight of the tree <b>T</b> is simply the sum of its edge weights.</p><br><p>This General Steiner Tree problem is a generalization of the more well-known <a href="mst.html"><u>Minimum Spanning Tree problem (MST)</u></a>.</p><br><p>Unlike MST, which has a polynomial solution (e.g., O(E log V) Kruskal&#39;s/Prim&#39;s algorithm), this general Steiner-Tree problem is an NP-hard combinatorial optimization problem.</p>
+<div class="electure-addition">
+<hr>
+<p><b>Remarks</b>: By default, we show e-Lecture Mode for first time (or non logged-in) visitor.<br>
+If you are an NUS student and a repeat visitor, please <a href="https://visualgo.net/login"><u>login</u></a>.</p>
+</div>
+<div class="electure-next" data-nextid="1-1" title="Go to the next slide 1-1">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-1-1" class="electure-dialog" style="top:70px;left:60px;width:500px;">
+<p>There are a few other variants of this general Steiner-Tree problem, e.g., the Euclidean-Steiner-Tree and the Metric-Steiner-Tree problems.</p><br><p>In the Euclidean-Steiner-Tree problem, there are <b>V</b> distinct points (set <b>R</b>) on an Euclidean (2-dimensional) plane, the job is to find a(n additional, possibly empty) set of <b>Steiner</b> points <b>S</b> (can be anywhere in the 2-D plane) and a spanning tree <b>T = (R &xcup; S, E)</b> such that the weight of <b>T</b> is minimized. The weight of any two points is simply the Euclidean distance of those two points.</p><br><p>In the Metric-Steiner-Tree problem, it is like the Euclidean-Steiner-Tree, but this time the additional Steiner points are given as a set of <b>S</b> upfront. The weight of any two points must satisfy <a href="https://en.wikipedia.org/wiki/Metric_space" target="_blank"><u>metric space</u></a> properties.</p><br><p>Euclidean-Steiner Tree, Metric-Steiner-Tree, and the general Steiner-Tree that is visualized in this website, are all NP-hard optimization problems.</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 1: Since you are not <a href="https://visualgo.net/login"><u>logged-in</u></a>, you may be a first time visitor (or not an NUS student) who are not aware of the following keyboard shortcuts to navigate this e-Lecture mode: <b>[PageDown]</b>/<b>[PageUp]</b> to go to the next/previous slide, respectively, (and if the drop-down box is highlighted, you can also use <b>[&rarr; or &darr;/&larr; or &uarr;]</b> to do the same),and <b>[Esc]</b> to toggle between this e-Lecture mode and exploration mode.</p>
+</div>
+<div class="electure-prev" data-nextid="1" title="Go to the previous slide 1">&larr;</div>
+<div class="electure-next" data-nextid="2" title="Go to the next slide 2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-2" class="electure-dialog" style="top:320px;left:50%;margin-left:-250px;width:500px;">
+<p>View the visualisation of the selected Steiner-Tree algorithms here.</p><br><p>Originally, all vertices and edges in the input graph are colored with the standard black outline. As the visualization goes on, the color <font color="lightblue">light blue</font> will be used to denote the set of required vertices <b>R</b> and the color <span style="color: rgb(255, 165, 0);">orange</span> will be used to show Steiner vertices that are currently used.</p><br><p>At the end of the selected Steiner-Tree algorithm, we show the best spanning tree = the Steiner tree <b>T</b>.</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 2: We designed this visualization and this e-Lecture mode to look good on 1366x768 resolution <b>or larger</b> (typical modern laptop resolution in 2021). We recommend using Google Chrome to access VisuAlgo. Go to full screen mode (<b>F11</b>) to enjoy this setup. However, you can use zoom-in (<b>Ctrl +</b>) or zoom-out (<b>Ctrl -</b>) to calibrate this.</p>
+</div>
+<div class="electure-prev" data-nextid="1-1" title="Go to the previous slide 1-1">&larr;</div>
+<div class="electure-next" data-nextid="3" title="Go to the next slide 3">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-3" class="electure-dialog" style="bottom:190px;left:60px;width:500px;">
+<p>There are two different ways to specify an input graph:</p><ol><li><b>Edit Graph</b>: You can edit the currently displayed undirected weighted graph into any other undirected weighted graph.</li><li><b>Example Graphs</b>: You can select from the list of example undirected weighted graphs to get you started.</li></ol><p>One day, we will provide an easy way to relabel vertices in any currently loaded graph so that the set of required vertices <b>R</b> is always numbered with <b>[0, 1, ..., s-1]</b> (thus the rest are the potential Steiner vertices <b>S</b>).</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 3: Other than using the typical media UI at the bottom of the page, you can also control the animation playback using keyboard shortcuts (in Exploration Mode): <b>Spacebar</b> to play/pause/replay the animation, <b>&larr;</b>/<b>&rarr;</b> to step the animation backwards/forwards, respectively, and <b>-</b>/<b>+</b> to decrease/increase the animation speed, respectively.</p>
+</div>
+<div class="electure-prev" data-nextid="2" title="Go to the previous slide 2">&larr;</div>
+<div class="electure-next" data-nextid="4" title="Go to the next slide 4">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4" class="electure-dialog" style="bottom:190px;left:60px;width:500px;">
+<p>There are 3 special cases of the general Steiner-Tree problem with polynomial solutions:</p><ol><li><b>s = 2</b>, that implies that the only required vertices <b>R = [0, 1]</b>, we can simply run O((V+E) log V) <a href="sssp.html"><u>Dijkstra&#39;s algorithm</u></a> to find the <b>Shortest Path Spanning Tree</b> that connects source vertex 0 with destination vertex 1 (or vice versa). This spanning tree will also be the required Steiner Tree.</li><li><b>s = |V|</b>, that implies that all of the <b>|V|</b> vertices, i.e., <b>R = [0, 1, ..., |V|-1]</b> are all required, we can simply run O(E log V) <a href="mst.html"><u>Kruskal&#39;s or Prim&#39;s algorithm</u></a> to find the full <b>Minimum Spanning Tree (MST)</b> of the entire graph. This MST will also be the required Steiner Tree.</li><li>If <b>G</b> is a tree: Details TBA.</b></ol>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="3" title="Go to the previous slide 3">&larr;</div>
+<div class="electure-next" data-nextid="4-1" title="Go to the next slide 4-1">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4-1" class="electure-dialog" style="bottom:190px;left:60px;width:500px;">
+<p>But when <b>s = [3, 4, ..., |V|-2]</b>, we have no choice but to run exponential algorithms as these cases fall into general cases of the NP-hard general Steiner-Tree problem.</p><br><p>One possible way is to try all possible subsets of the <b>|V|-s</b> vertices that can be part of the optimal Steiner Tree. Each time, we combine vertices in <b>R = [0, 1, ..., s-1]</b> with the currently chosen subset of potential Steiner vertices, run an O(E) Kruskal&#39;s algorithm (without re-sorting the edge list by weight anymore) for each of the <b>2<sup>|V|-s</sub></b> possible subsets, and report the best Steiner Tree. This is an exponential algorithm and this visualization page shows this algorithm.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="4" title="Go to the previous slide 4">&larr;</div>
+<div class="electure-next" data-nextid="4-2" title="Go to the next slide 4-2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4-2" class="electure-dialog" style="bottom:190px;left:60px;width:500px;">
+<p>There is a more optimized exponential algorithm called the Dreyfus-Wagner Dynamic Programming (DP) algorithm that avoids recomputation of sub-problems.</p><br><p>Unfortunately this part has not been digitized/visualized yet and is in the pipeline.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="4-1" title="Go to the previous slide 4-1">&larr;</div>
+<div class="electure-next" data-nextid="5" title="Go to the next slide 5">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-5" class="electure-dialog" style="bottom:190px;left:60px;width:500px;">
+<p>Please see CS4234 lecture note for the details.</p>
+<div class="electure-addition">
+<hr>
+<p>You have reached the last slide. Return to 'Exploration Mode' to start exploring!</p>
+<p>Note that if you notice any bug in this visualization or if you want to request for a new visualization feature, do not hesitate to drop an email to the project leader: Dr Steven Halim via his email address: stevenhalim at gmail dot com.</p>
+</div>
+<div class="electure-prev" data-nextid="4-2" title="Go to the previous slide 4-2">&larr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="popup" hidden>
+<div id="popup-content"></div>
+<span id="hide-popup" hidden>X <u>Close</u></span>
+</div>
+<div id="rotateDeviceOverlay" style="display: none;">
+<div id="rotateDeviceText" style="font-size: 45px; font-weight: bold; text-align: center">Please rotate your device to landscape mode for a better user experience</div>
+<div id="widenDeviceText" style="font-size: 45px; font-weight: bold; text-align: center">Please make the window wider for a better user experience</div>
+</div>
+
+<style>
+        .draw {
+            bottom: 146px
+        }
+    </style>
+<style>
+        .examples {
+            bottom: 119px
+        }
+    </style>
+<style>
+        .exact {
+            bottom: 92px
+        }
+    </style>
+<style>
+        .approximation {
+            bottom: 65px
+        }
+    </style>
+<div id="actions" class="panel">
+<p class="execAction" id="draw" onClick="drawGraph()">Edit Graph</p>
+<p id="examples">Example Graphs</p>
+<p id="exact">Exact</p>
+<p id="approximation">Approximation</p>
+</div>
+<div id="actions-hide" class="panel-hide"><span style="color:white; font-size: x-large; display: inline-block;">&gt;</span></div>
+<div id="actions-extras">
+<div class="draw action-menu-pullout">
+<div id="draw-err" class="err" style="float: left;"></div>
+</div>
+<div class="examples action-menu-pullout">
+<div id="example1" class="execAction new-menu-option coloured-menu-option" onClick="example(K4)">
+<p>K4</p>
+</div>
+<div id="example2" class="execAction new-menu-option coloured-menu-option" onClick="example(K5)">
+<p>K5</p>
+</div>
+<div id="example3" class="execAction new-menu-option coloured-menu-option" onClick="example(WHEEL)">
+<p>W5</p>
+</div>
+<div id="example4" class="execAction new-menu-option coloured-menu-option" onClick="example(CS4234_STEINER_SAMPLE_1)">
+<p>CS4234 Example 1</p>
+</div>
+<div id="example5" class="execAction new-menu-option coloured-menu-option" onClick="example(CS4234_STEINER_SAMPLE_2)">
+<p>CS4234 Example 2</p>
+</div>
+<div id="examples-err" class="err" style="float: left;"></div>
+</div>
+<div class="exact action-menu-pullout">
+<div id="exact-input" class="new-menu-option">
+s = <input id="exact-k" type="number" title="terminal" autocomplete="off" min="2" max="99" value="2"> </div>
+<div id="exact-go" class="execAction new-menu-option coloured-menu-option" onClick="exact()">
+<p>Go</p>
+</div>
+<div id="exact-err" class="err" style="float: left;"></div>
+</div>
+<div class="approximation action-menu-pullout">
+<div id="approximation-input" class="new-menu-option">
+s = <input id="approximation-k" type="number" title="terminal" autocomplete="off" min="2" max="99" value="2"> </div>
+<div id="approximation-go" class="execAction new-menu-option coloured-menu-option" onClick="approximation()">
+<p>Go</p>
+</div>
+<div id="approximation-err" class="err" style="float: left;"></div>
+</div>
+</div>
+
+<div id="drawgraph" class="overlays"></div>
+</div>
+
+<div id="bottom-bar">
+<a id="scale" style="display: none;">1.0x</a>
+<a id="trigger-about">About</a>
+<a id="trigger-team">Team</a>
+<a id="trigger-terms">Terms of use</a>
+<a id="trigger-privacy">Privacy Policy</a>
+</div>
+<div id="about" class="overlays">
+<h4>About</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>Initially conceived in 2011 by Associate Professor Steven Halim, VisuAlgo aimed to facilitate a deeper understanding of data structures and algorithms for his students by providing a self-paced, interactive learning platform.</p><p>Featuring numerous advanced algorithms discussed in Dr. Steven Halim&#39;s book, &#39;Competitive Programming&#39; — co-authored with Dr. Felix Halim and Dr. Suhendry Effendy — VisuAlgo remains the exclusive platform for visualizing and animating several of these complex algorithms even after a decade.</p><p>While primarily designed for National University of Singapore (NUS) students enrolled in various data structure and algorithm courses (e.g., CS1010/equivalent, CS2040/equivalent (including IT5003), CS3230, CS3233, and CS4234), VisuAlgo also serves as a valuable resource for inquisitive minds worldwide, promoting online learning.</p><p>Initially, VisuAlgo was not designed for small touch screens like smartphones, as intricate algorithm visualizations required substantial pixel space and click-and-drag interactions. For an optimal user experience, a minimum screen resolution of 1366x768 is recommended. However, since April 2022, a mobile (lite) version of VisuAlgo has been made available, making it possible to use a subset of VisuAlgo features on smartphone screens.</p><p>VisuAlgo remains a work in progress, with the ongoing development of more complex visualizations. At present, the platform features 24 visualization modules.</p><p>Equipped with a built-in question generator and answer verifier, VisuAlgo&#39;s "online quiz system" enables students to test their knowledge of basic data structures and algorithms. Questions are randomly generated based on specific rules, and students&#39; answers are automatically graded upon submission to our grading server. As more CS instructors adopt this online quiz system worldwide, it could effectively eliminate manual basic data structure and algorithm questions from standard Computer Science exams in many universities. By assigning a small (but non-zero) weight to passing the online quiz, CS instructors can significantly enhance their students&#39; mastery of these basic concepts, as they have access to an almost unlimited number of practice questions that can be instantly verified before taking the online quiz. Each VisuAlgo visualization module now includes its own online quiz component.</p><p>VisuAlgo has been translated into three primary languages: English, Chinese, and Indonesian. Additionally, we have authored public notes about VisuAlgo in various languages, including Indonesian, Korean, Vietnamese, and Thai:</p>
+<a href="https://www.facebook.com/notes/steven-halim/httpidvisualgonet-visualisasi-struktur-data-dan-algoritma-dengan-animasi/10153236934439689" target="_blank"><u>id</u></a>,
+<a href="http://blog.naver.com/visualgo_nus" target="_blank"><u>kr</u></a>,
+<a href="https://www.facebook.com/groups/163215593699283/permalink/824003417620494/" target="_blank"><u>vn</u></a>,
+<a href="http://pantip.com/topic/32736343" target="_blank"><u>th</u></a>.
+</div>
+</div>
+<div id="team" class="overlays">
+<h4>Team</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>
+<strong><span style="line-height: 150%;">Project Leader &amp; Advisor (Jul 2011-present)</span></strong><br>
+<a href="https://www.comp.nus.edu.sg/~stevenha/" target="_blank">Associate Professor Steven Halim</a>, School of Computing (SoC), National University of Singapore (NUS)<br>
+<a href="https://www.linkedin.com/in/felixhalim/" target="_blank">Dr Felix Halim</a>, Senior Software Engineer, Google (Mountain View)
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 1</span></strong><br>
+<b>CDTL TEG 1: Jul 2011-Apr 2012</b>: Koh Zi Chun, Victor Loh Bo Huai
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 1</span></strong><br>
+<b>Jul 2012-Dec 2013</b>: Phan Thi Quynh Trang, Peter Phandi, Albert Millardo Tjindradinata, Nguyen Hoang Duy<br>
+<b>Jun 2013-Apr 2014</b> <a href="https://www.rosemarietan.com/" target="_blank">Rose Marie Tan Zhao Yun</a>, Ivan Reinaldo
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 2</span></strong><br>
+<b>CDTL TEG 2: May 2014-Jul 2014</b>: Jonathan Irvin Gunawan, Nathan Azaria, Ian Leow Tze Wei, Nguyen Viet Dung, Nguyen Khac Tung, Steven Kester Yuwono, Cao Shengze, Mohan Jishnu
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 2</span></strong><br>
+<b>Jun 2014-Apr 2015</b>: Erin Teo Yi Ling, Wang Zi<br>
+<b>Jun 2016-Dec 2017</b>: Truong Ngoc Khanh, John Kevin Tjahjadi, Gabriella Michelle, Muhammad Rais Fathin Mudzakir<br>
+<b>Aug 2021-Apr 2023</b>: Liu Guangyuan, Manas Vegi, Sha Long, Vuong Hoang Long, Ting Xiao, Lim Dewen Aloysius<br>
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 3</span></strong><br>
+<b>Optiver: Aug 2023-Oct 2023</b>: Bui Hong Duc, Oleh Naver, Tay Ngan Lin<br>
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 3</span></strong><br>
+<b>Aug 2023-Apr 2024</b>: Xiong Jingya, Radian Krisno, Ng Wee Han<br>
+</p>
+<p>
+List of translators who have contributed &ge; 100 translations can be found at <a href="https://visualgo.net/statistics">statistics</a> page.
+</p>
+<p>
+<strong><span style="line-height: 150%;">Acknowledgements</span></strong><br>
+NUS <a href="https://nus.edu.sg/cdtl" target="_blank"><u>CDTL</u></a> gave Teaching Enhancement Grant to kickstart this project.<div>For Academic Year 2023/24, a generous donation from Optiver will be used to further develop VisuAlgo.</div>
+</p>
+</div>
+</div>
+<div id="termsofuse" class="overlays">
+<h4>Terms of use</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>VisuAlgo is generously offered at no cost to the global Computer Science community. If you appreciate VisuAlgo, we kindly request that you <b>spread the word about its existence to fellow Computer Science students and instructors</b>. You can share VisuAlgo through social media platforms (e.g., Facebook, YouTube, Instagram, TikTok, Twitter, etc), course webpages, blog reviews, emails, and more.</p><p>Data Structures and Algorithms (DSA) students and instructors are welcome to use this website directly for their classes. If you capture screenshots or videos from this site, feel free to use them elsewhere, provided that you cite the URL of this website (<a href="https://visualgo.net/">https://visualgo.net</a>) and/or the list of publications below as references. However, please refrain from downloading VisuAlgo&#39;s client-side files and hosting them on your website, as this constitutes plagiarism. At this time, we do not permit others to fork this project or create VisuAlgo variants. Personal use of an offline copy of the client-side VisuAlgo is acceptable.</p><p>Please note that VisuAlgo&#39;s online quiz component has a substantial server-side element, and it is not easy to save server-side scripts and databases locally. Currently, the general public can access the online quiz system only through the &#39;training mode.&#39; The &#39;test mode&#39; offers a more controlled environment for using randomly generated questions and automatic verification in real examinations at NUS.</p><p><strong><span style="line-height: 200%;">List of Publications</span></strong></p> <p>This work has been presented at the CLI Workshop at the ICPC World Finals 2012 (Poland, Warsaw) and at the IOI Conference at IOI 2012 (Sirmione-Montichiari, Italy). You can click <a href="https://ioinformatics.org/journal/INFOL099.pdf" target="_blank">this link</a> to read our 2012 paper about this system (it was not yet called VisuAlgo back in 2012) and <a href="https://ioinformatics.org/journal/v9_2015_243_245.pdf" target="_blank">this link</a> for the short update in 2015 (to link VisuAlgo name with the previous project).</p><p><strong><span style="line-height: 200%;">Bug Reports or Request for New Features</span></strong></p> <p>VisuAlgo is not a finished project. Associate Professor Steven Halim is still actively improving VisuAlgo. If you are using VisuAlgo and spot a bug in any of our visualization page/online quiz tool or if you want to request for new features, please contact Associate Professor Steven Halim. His contact is the concatenation of his name and add gmail dot com.</p>
+</div>
+</div>
+<div id="privacy-policy" class="overlays">
+<h4>Privacy Policy</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p><b>Version 1.2 (Updated Fri, 18 Aug 2023).</b></p><p>Since Fri, 18 Aug 2023, we no longer use Google Analytics. Thus, all cookies that we use now are solely for the operations of this website. The annoying cookie-consent popup is now turned off even for first-time visitors.</p><p>Since Fri, 07 Jun 2023, thanks to a generous donation by Optiver, anyone in the world can self-create a VisuAlgo account to store a few customization settings (e.g., layout mode, default language, playback speed, etc).</p><p>Additionally, for NUS students, by using a VisuAlgo account (a tuple of NUS official email address, student name as in the class roster, and a password that is encrypted on the server side — no other personal data is stored), you are giving a consent for your course lecturer to keep track of your e-lecture slides reading and online quiz training progresses that is needed to run the course smoothly. Your VisuAlgo account will also be needed for taking NUS official VisuAlgo Online Quizzes and thus passing your account credentials to another person to do the Online Quiz on your behalf constitutes an academic offense. Your user account will be purged after the conclusion of the course unless you choose to keep your account (OPT-IN). Access to the full VisuAlgo database (with encrypted passwords) is limited to Prof Halim himself.</p><p>For other CS lecturers worldwide who have written to Steven, a VisuAlgo account (your (non-NUS) email address, you can use any display name, and encrypted password) is needed to distinguish your online credential versus the rest of the world. Your account will have CS lecturer specific features, namely the ability to see the hidden slides that contain (interesting) answers to the questions presented in the preceding slides before the hidden slides. You can also access Hard setting of the VisuAlgo Online Quizzes. You can freely use the material to enhance your data structures and algorithm classes. Note that there can be other CS lecturer specific features in the future.<br></p><p>For anyone with VisuAlgo account, you can remove your own account by yourself should you wish to no longer be associated with VisuAlgo tool.</p>
+</div>
+</div>
+</div>
+
+
+<script src="../../code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+<script src="../../cdn.jsdelivr.net/npm/bootstrap%405.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="../../unpkg.com/d3-force-boundary%400.0.1/dist/d3-force-boundary.min.js"></script>
+<script>
+  $(function () {
+    // overlays stuffs
+    $('#trigger-about').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#about').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-team').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#team').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-terms').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#termsofuse').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-privacy').click(function () {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#privacy-policy').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    })
+
+    $('.close-overlay').click(function() {
+      $('.overlays').fadeOut(function() {
+        $('#dark-overlay').fadeOut();
+      });
+    });
+
+    $('#dark-overlay').click(function() {
+      $('.overlays').fadeOut();
+      $('#dark-overlay').fadeOut();
+      if (typeof GeometryWidget !== 'undefined') {
+        GeometryWidget.stopLoop();
+      }
+    });
+  })
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1566631-4"></script>
+<script>
+      $.ajaxSetup({
+        headers: {
+          'X-CSRF-TOKEN': "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H"
+        }
+      });
+
+      // handles account dropdown menu
+      $(function () {
+        $('#language-dropdown-btn').click(function (e) {
+          $('#language-dropdown-menu').css('display', 'block');
+          $('#account-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function () {
+          $('#language-dropdown-menu').css('display', 'none')
+        })
+      })
+
+      $(function () {
+        $('#account-dropdown-btn').click(function (e) {
+          $('#account-dropdown-menu').css('display', 'block')
+          $('#language-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function (e) {
+          $('#account-dropdown-menu').css('display', 'none')
+        })
+      })
+
+      // surprise colour!
+      // Referenced to in  home.js and viz.js also
+      var colourArray = ["#52bc69", "#d65775"/*"#ed5a7d"*/, "#2ebbd1", "#d9513c", "#fec515", "#4b65ba", "#ff8a27", "#a7d41e"]; // green, pink, blue, red, yellow, indigo, orange, lime
+
+      function disableScroll() { $('html').css('overflow', 'hidden'); }
+
+      function enableScroll() { $('html').css('overflow', 'visible'); }
+
+      function replaceAll(find, replace, str) { return str.replace(new RegExp(find, 'g'), replace); }
+
+      function getColours() {
+        var generatedColours = new Array();
+        while (generatedColours.length < 4) {
+          var n = (Math.floor(Math.random() * colourArray.length));
+          if ($.inArray(n, generatedColours) == -1)
+            generatedColours.push(n);
+        }
+        return generatedColours;
+      }
+
+      function isOn(value, position) {
+        return (value>>position) & 1 === 1;
+      }
+
+      function customAlert(msg) {
+        $('#custom-alert p').html(msg);
+        var m = -1 * ($('#custom-alert').outerHeight()/2);
+        $('#custom-alert').css('margin-top', m+'px');
+        $('#dark-overlay').fadeIn(function() {
+          $('#custom-alert').fadeIn(function() {
+            setTimeout(function() {
+              $('#custom-alert').fadeOut(function() {
+                $('#dark-overlay').fadeOut();
+              });
+            }, 1000);
+          });
+        });
+      }
+
+      function showLoadingScreen() {
+        $('#loading-overlay').show();
+        $('#loading-message').show();
+      }
+
+      function hideLoadingScreen() {
+        $('#loading-overlay').hide();
+      }
+
+      function commonAction(retval, msg) {
+        if (retval) {
+          $('#current-action').show();
+          $('#current-action').html(mode == "exploration" ? msg : ("e-Lecture Example (auto play until done)<br>" + msg));
+          $('#progress-bar').slider("option", "max", gw.getTotalIteration()-1);
+          triggerRightPanels();
+          isPlaying = true;
+        }
+      }
+
+      function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; ++i) {
+          var pair = vars[i].split('=');
+          if (decodeURIComponent(pair[0]) == variable)
+            return decodeURIComponent(pair[1]);
+        }
+        return "";
+      }
+
+      const MOBILE_WIDTH = 1000;
+      const matchMediaMobile = window.matchMedia(`only screen and (max-width: ${MOBILE_WIDTH}px)`);
+      const matchMediaNarrow = window.matchMedia(`only screen and (max-width: 500px)`);
+      function isMobile() {
+        return matchMediaMobile.matches;
+      }
+      //To fix the issue of a narrow desktop window being asked to rotate, I am now checking for it based on the navigator.userAgent to see if its mobile or not.
+      //This may change in the future if browsers decide to change the naming of userAgent for mobile browsers so may need to keep an eye on this.
+      function isMobileOS() {
+        return /Mobi/i.test(navigator.userAgent) && !/ipad/i.test(navigator.userAgent);
+      }
+      let portraitMatcher = window.matchMedia("(orientation:portrait)");
+      function isPortrait() {
+        return portraitMatcher.matches;
+      }
+
+      var generatedColours = getColours();
+      var surpriseColour = colourArray[generatedColours[0]];
+      var colourTheSecond = colourArray[generatedColours[1]];
+      var colourTheThird = colourArray[generatedColours[2]];
+      var colourTheFourth = colourArray[generatedColours[3]];
+
+      $(function() {
+        $('.links').css('background', surpriseColour);
+        $('.colour').css("color", surpriseColour);
+        $('h4').css("background-color", surpriseColour); // about, contact us etc. button background
+
+        // title
+        $('#title a').click(function() {
+          $('#title a').removeClass('selected-viz');
+          $(this).addClass('selected-viz');
+        });
+      });
+
+/*
+      // GA dropped 26 Jun 2023 and then made official on 18 Aug 2023
+/*
+      // the sunset-ed GA, commented on 26 Jun 2023, and Prof Halim doesn't bother to use anymore
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+*/
+
+      // function setCookie(cname, cvalue, exdays) {
+      //   const d = new Date();
+      //   d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      //   let expires = "expires="+ d.toUTCString();
+      //   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+      // }
+
+//       //         $(function() {
+//           $('#gdpr-accept').click(function () {
+// /*
+//             // added on 26 Jun 2023
+//             window.dataLayer = window.dataLayer || [];
+//             function gtag(){dataLayer.push(arguments);}
+//             gtag('js', new Date());
+
+//             gtag('config', 'UA-1566631-4');
+// */
+// //            ga('create', 'UA-1566631-4', 'auto');
+// //            ga('send', 'pageview');
+//             setCookie('use_google_analytics', 'true', 365)
+//             $('#gdpr-popup').hide()
+//           });
+//           $('#gdpr-reject').click(function () {
+//             setCookie('use_google_analytics', 'false', 365)
+//             $('#gdpr-popup').hide()
+//           });
+//         });
+//       
+      $('#gdpr-privacy-policy').click(function () {
+        if ($(window).width() > 600) {
+          $('#dark-overlay').fadeIn(function() {
+            $('#privacy-policy').fadeIn();
+          });
+        }
+        else
+          alert('Sorry, this dialog is too big. Please load it on bigger screen');
+      })
+    </script>
+
+<script src="../js/jquery-ui.min.js"></script>
+
+<script src="../js/d3.min.js"></script>
+<script src="../js/viz-1.0.10.js"></script>
+
+<script src="../js/graph_library/constant.js"></script>
+<script src="../js/graph_library/drawgraph.js"></script>
+<script src="../js/graph_library/GraphEdgeWidget.js"></script>
+<script src="../js/graph_library/GraphPolygonWidget.js"></script>
+<script src="../js/graph_library/GraphVertexWidget.js"></script>
+<script src="../js/graph_library/GraphWidget.js"></script>
+<script src="../js/graph_library/helperObjects89db.js?refresh22aug9pm"></script> 
+<script src="../js/graph_library/misc.js"></script>
+<script src="../js/graph_library/properties.js"></script>
+<script src="../js/graph_library/Widget.js"></script>
+<script src="../js/graph_library/force_directed_library.js"></script>
+
+<script>
+      $(function () {
+        let defaultPlaybackSpeed = 1;
+                createPlaybackSpeedSlider(defaultPlaybackSpeed);
+
+
+        $('#account-dropdown-btn').click(function (e) {
+          $('#account-dropdown-menu').css('display', 'block')
+          $('#language-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function (e) {
+          $('#account-dropdown-menu').css('display', 'none')
+        });
+        //Mobile Design Related DOM Manipulations
+        if (isMobile()) {
+          $("#status").css({
+            "bottom": "10%",
+            "height": "12%",
+            "max-height": "54px"
+          });
+          $("#current-action").css("bottom", "22%");
+          $('#status-hide').remove();
+          $('#left-bar').remove();
+          $('#right-bar').remove();
+          $("#mode-menu").remove();
+          $("#codetrace").css("z-index", 1);
+          $("#bottom-bar a").hide();
+          $("#bottom-bar").css("height", $("#topbar").css("height"));
+          $(".speed-dropup-btn").show();
+          $("#go-to-beginning").remove();
+          $("#go-to-end").remove();
+          $("#pause").remove();
+          $("#play").remove();
+          $("#previous").remove();
+          $("#next").remove();
+
+          //make progress bar longer
+          $("#progress-bar").css({
+            left: "30%",
+            width: "60%",
+            'margin-left': 0
+          })
+        }
+      })
+
+      let mobilePlaybackOverlayTimeout;
+      $(function() {
+        $("#viz").on("click", () => {
+          if (isMobile()) {
+            if ($("#mobile-playback-overlay").is(":hidden") && isPlaying) {
+              $("#mobile-playback-overlay").fadeIn();
+              hideMobilePlaybackOverlay(6000);
+            } else {
+              $("#mobile-playback-overlay").fadeOut();
+            }
+          }
+        });
+        $("#mobile-playback-overlay").on("click", (event) => {
+          if (event.target === event.currentTarget) //to ensure clicks on the controls dont fade the overlay
+            $("#mobile-playback-overlay").fadeOut();
+          else
+            hideMobilePlaybackOverlay(5000);
+        })
+      });
+      function hideMobilePlaybackOverlay(timeOut) {
+        if (mobilePlaybackOverlayTimeout)
+          clearTimeout(mobilePlaybackOverlayTimeout);
+        mobilePlaybackOverlayTimeout = setTimeout(() => {
+            $("#mobile-playback-overlay").fadeOut();
+        }, timeOut);
+      }
+      function mobilePlaybackPauseOrPlay() {
+        if ($("#mobile-playback-overlay").hasClass("playing")) {
+          pause();
+          hideMobilePlaybackOverlay(5000);
+        } else {
+          play();
+          hideMobilePlaybackOverlay(3000);
+        }
+      }
+      let rewindLabelTimeout, forwardLabelTimeout;
+      function mobilePlaybackRewind() {
+        $("#mobile-playback-rewind-label").css("opacity", 1);
+        if (rewindLabelTimeout)
+          clearTimeout(rewindLabelTimeout);
+        rewindLabelTimeout = setTimeout(() => {
+          $("#mobile-playback-rewind-label").css("opacity", 0);
+        }, 800);
+        stepBackward(7);
+      }
+      function mobilePlaybackForward() {
+        $("#mobile-playback-forward-label").css("opacity", 1);
+        if (forwardLabelTimeout)
+          clearTimeout(forwardLabelTimeout);
+        forwardLabelTimeout = setTimeout(() => {
+          $("#mobile-playback-forward-label").css("opacity", 0);
+        }, 800);
+        stepForward(7);
+      }
+
+      //let eLectureSessionHistory = {};
+      const sectorColors = ['#05a4d0', '#f1c706', '#fa0202'];
+      function setSlideTimelineColor(slideNo) {
+        const sectionNo = slideNo.split('-')[0];
+        $(`[slideNo="${slideNo}"]`).css('background', sectorColors[(parseInt(sectionNo) % 3)]);
+      }
+
+      let currSlideTimer = null; //global so that we can clear the timeout when required
+
+      const lectureIds = [{"id":656,"category":"steinertree","order":1,"top":"70px","right":"","bottom":"","left":"60px","marginLeft":"","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-09-19 06:50:10","updated_at":"2023-08-22 10:40:50","section":-1,"code":"","section_order":-1,"value":"1","text":"<p>Given an undirected weighted graph <b>G = (V, E)<\/b> and an integer <b>s<\/b> that partitions the set of vertices <b>V = [0, 1, ..., |V|-1]<\/b> into a set of <b>required<\/b> vertices <b>R = [0, 1, ..., s-1]<\/b> and a set of <b>Steiner<\/b> vertices <b>S = [s, s+1, ..., |V|-1]<\/b>, the General Steiner Tree problem is a problem of finding a subset <b>S&#39; &sube; S<\/b> of the <b>Steiner<\/b> vertices and a spanning tree <b>T = (R &xcup; S&#39;, E)<\/b> of minimum weight. The weight of the tree <b>T<\/b> is simply the sum of its edge weights.<\/p><br><p>This General Steiner Tree problem is a generalization of the more well-known <a href=\".\/mst\"><u>Minimum Spanning Tree problem (MST)<\/u><\/a>.<\/p><br><p>Unlike MST, which has a polynomial solution (e.g., O(E log V) Kruskal&#39;s\/Prim&#39;s algorithm), this general Steiner-Tree problem is an NP-hard combinatorial optimization problem.<\/p>","title":"Introduction"},{"id":858,"category":"steinertree","order":1,"top":"70px","right":"","bottom":"","left":"60px","marginLeft":"","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-08-22 10:36:53","updated_at":"2023-08-22 10:48:54","section":656,"code":"","section_order":1,"value":"1-1","text":"<p>There are a few other variants of this general Steiner-Tree problem, e.g., the Euclidean-Steiner-Tree and the Metric-Steiner-Tree problems.<\/p><br><p>In the Euclidean-Steiner-Tree problem, there are <b>V<\/b> distinct points (set <b>R<\/b>) on an Euclidean (2-dimensional) plane, the job is to find a(n additional, possibly empty) set of <b>Steiner<\/b> points <b>S<\/b> (can be anywhere in the 2-D plane) and a spanning tree <b>T = (R &xcup; S, E)<\/b> such that the weight of <b>T<\/b> is minimized. The weight of any two points is simply the Euclidean distance of those two points.<\/p><br><p>In the Metric-Steiner-Tree problem, it is like the Euclidean-Steiner-Tree, but this time the additional Steiner points are given as a set of <b>S<\/b> upfront. The weight of any two points must satisfy <a href=\"https:\/\/en.wikipedia.org\/wiki\/Metric_space\" target=\"_blank\"><u>metric space<\/u><\/a> properties.<\/p><br><p>Euclidean-Steiner Tree, Metric-Steiner-Tree, and the general Steiner-Tree that is visualized in this website, are all NP-hard optimization problems.<\/p>","title":"Other Steiner-Tree Problem Variants"},{"id":773,"category":"steinertree","order":2,"top":"320px","right":"","bottom":"","left":"50%","marginLeft":"-250px","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2022-01-04 08:39:48","updated_at":"2023-08-22 10:54:20","section":-1,"code":"","section_order":-1,"value":"2","text":"<p>View the visualisation of the selected Steiner-Tree algorithms here.<\/p><br><p>Originally, all vertices and edges in the input graph are colored with the standard black outline. As the visualization goes on, the color <font color=\"lightblue\">light blue<\/font> will be used to denote the set of required vertices <b>R<\/b> and the color <span style=\"color: rgb(255, 165, 0);\">orange<\/span> will be used to show Steiner vertices that are currently used.<\/p><br><p>At the end of the selected Steiner-Tree algorithm, we show the best spanning tree = the Steiner tree <b>T<\/b>.<\/p>","title":"Visualization"},{"id":774,"category":"steinertree","order":3,"top":"","right":"","bottom":"190px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2022-01-04 08:39:52","updated_at":"2023-08-22 11:03:10","section":-1,"code":"$(\"#draw\").addClass(\"menu-highlighted\");\n$(\"#examples\").click().addClass(\"menu-highlighted\");","section_order":-1,"value":"3","text":"<p>There are two different ways to specify an input graph:<\/p><ol><li><b>Edit Graph<\/b>: You can edit the currently displayed undirected weighted graph into any other undirected weighted graph.<\/li><li><b>Example Graphs<\/b>: You can select from the list of example undirected weighted graphs to get you started.<\/li><\/ol><p>One day, we will provide an easy way to relabel vertices in any currently loaded graph so that the set of required vertices <b>R<\/b> is always numbered with <b>[0, 1, ..., s-1]<\/b> (thus the rest are the potential Steiner vertices <b>S<\/b>).<\/p>","title":"Input"},{"id":859,"category":"steinertree","order":4,"top":"","right":"","bottom":"190px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-08-22 10:59:54","updated_at":"2023-08-22 11:26:06","section":-1,"code":"$(\"#exact\").click().addClass(\"menu-highlighted\");","section_order":-1,"value":"4","text":"<p>There are 3 special cases of the general Steiner-Tree problem with polynomial solutions:<\/p><ol><li><b>s = 2<\/b>, that implies that the only required vertices <b>R = [0, 1]<\/b>, we can simply run O((V+E) log V) <a href=\".\/sssp\"><u>Dijkstra&#39;s algorithm<\/u><\/a> to find the <b>Shortest Path Spanning Tree<\/b> that connects source vertex 0 with destination vertex 1 (or vice versa). This spanning tree will also be the required Steiner Tree.<\/li><li><b>s = |V|<\/b>, that implies that all of the <b>|V|<\/b> vertices, i.e., <b>R = [0, 1, ..., |V|-1]<\/b> are all required, we can simply run O(E log V) <a href=\".\/mst\"><u>Kruskal&#39;s or Prim&#39;s algorithm<\/u><\/a> to find the full <b>Minimum Spanning Tree (MST)<\/b> of the entire graph. This MST will also be the required Steiner Tree.<\/li><li>If <b>G<\/b> is a tree: Details TBA.<\/b><\/ol>","title":"Exact Algorithms"},{"id":861,"category":"steinertree","order":1,"top":"","right":"","bottom":"190px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-08-22 11:09:48","updated_at":"2023-08-22 11:14:11","section":859,"code":"$(\"#exact\").click().addClass(\"menu-highlighted\");","section_order":4,"value":"4-1","text":"<p>But when <b>s = [3, 4, ..., |V|-2]<\/b>, we have no choice but to run exponential algorithms as these cases fall into general cases of the NP-hard general Steiner-Tree problem.<\/p><br><p>One possible way is to try all possible subsets of the <b>|V|-s<\/b> vertices that can be part of the optimal Steiner Tree. Each time, we combine vertices in <b>R = [0, 1, ..., s-1]<\/b> with the currently chosen subset of potential Steiner vertices, run an O(E) Kruskal&#39;s algorithm (without re-sorting the edge list by weight anymore) for each of the <b>2<sup>|V|-s<\/sub><\/b> possible subsets, and report the best Steiner Tree. This is an exponential algorithm and this visualization page shows this algorithm.<\/p>","title":"Exact Algorithms - Complete Search"},{"id":862,"category":"steinertree","order":2,"top":"","right":"","bottom":"190px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-08-22 11:15:18","updated_at":"2023-08-22 11:17:23","section":859,"code":"$(\"#exact\").click().addClass(\"menu-highlighted\");","section_order":4,"value":"4-2","text":"<p>There is a more optimized exponential algorithm called the Dreyfus-Wagner Dynamic Programming (DP) algorithm that avoids recomputation of sub-problems.<\/p><br><p>Unfortunately this part has not been digitized\/visualized yet and is in the pipeline.<\/p><!--<p>Please see CS4234 lecture note for the details.<\/p>-->","title":"Exact Algorithms - Dynamic Programming"},{"id":860,"category":"steinertree","order":5,"top":"","right":"","bottom":"190px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-08-22 11:00:33","updated_at":"2023-08-22 11:20:49","section":-1,"code":"$(\"#approximation\").click().addClass(\"menu-highlighted\");","section_order":-1,"value":"5","text":"<p>Please see CS4234 lecture note for the details.<\/p>","title":"Approximation"}];
+      const numSlides = lectureIds.length;
+      var sectorJunction12Section = 0, sectorJunction12Slide = 0;
+      var sectorJunction23Section = 0, sectorJunction23Slide = 0;
+      var sector1Count = 0, sector2Count = 0, sector3Count = 0;
+      const sectorLength = Math.floor(numSlides / 3);
+      function createELectureTimelineDisplay() {
+        for (let j = 0; j < numSlides; ++j) {
+          const currLecture = lectureIds[j].value;
+          if (currLecture.includes('-')) {
+            $('#e-lecture-timeline').append(
+              $(`<div class="e-lecture-timeline-slide" slideNo=${lectureIds[j].value}></div>`)
+            );
+          } else {
+            $('#e-lecture-timeline').append(
+              $(`<div class="e-lecture-timeline-checkpoint" slideNo=${lectureIds[j].value}></div>`)
+            );
+          }
+        }
+      }
+
+      function setSectorJunctionInfo() {
+          //setting the sector junction slide numbers
+          const j12 = sectorLength !== 0 ? (sectorLength - 1): 0;
+          const j23 = sectorLength !== 0 ? (2 * sectorLength - 1) : 0;
+
+          const sectorJunction12 = lectureIds[j12].value.split('-');
+          sectorJunction12Section = parseInt(sectorJunction12[0]);
+          sectorJunction12Slide = sectorJunction12.length > 1 ? parseInt(sectorJunction12[1]) : sectorJunction12Slide;
+
+          const sectorJunction23 = lectureIds[j23].value.split('-');
+          sectorJunction23Section = parseInt(sectorJunction23[0]);
+          sectorJunction23Slide = sectorJunction23.length > 1 ? parseInt(sectorJunction23[1]) : sectorJunction23Slide;
+      }
+
+      function runSlide(slide) { // Steven's patch on 28 Jan 2022: Properly remove slide 99, 99-1, 99-2, 99-3, integrate with the earlier slides
+        if (slide == '1') {
+          $("#e-lecture").html("slide " + slide + " (" + 12 + "%)");
+          
+        }
+        if (slide == '1-1') {
+          $("#e-lecture").html("slide " + slide + " (" + 25 + "%)");
+          
+        }
+        if (slide == '2') {
+          $("#e-lecture").html("slide " + slide + " (" + 37 + "%)");
+          
+        }
+        if (slide == '3') {
+          $("#e-lecture").html("slide " + slide + " (" + 50 + "%)");
+          $("#draw").addClass("menu-highlighted");
+$("#examples").click().addClass("menu-highlighted");
+        }
+        if (slide == '4') {
+          $("#e-lecture").html("slide " + slide + " (" + 62 + "%)");
+          $("#exact").click().addClass("menu-highlighted");
+        }
+        if (slide == '4-1') {
+          $("#e-lecture").html("slide " + slide + " (" + 75 + "%)");
+          $("#exact").click().addClass("menu-highlighted");
+        }
+        if (slide == '4-2') {
+          $("#e-lecture").html("slide " + slide + " (" + 87 + "%)");
+          $("#exact").click().addClass("menu-highlighted");
+        }
+        if (slide == '5') {
+          $("#e-lecture").html("slide " + slide + " (" + 100 + "%)");
+          $("#approximation").click().addClass("menu-highlighted");
+        }
+        clearTimeout(currSlideTimer);
+      }
+
+      window.onpopstate = function(event) {
+        var slide = event.state['slide'];
+        openSlide(slide, function() {
+          runSlide(slide);
+        });
+      };
+
+      function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'), sParameterName, i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] === sParam) return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+      };
+      var slideTimeline = {};
+
+      //reads all visited slides in the slideTimeline and gives them their sector color
+      function setVisitedSlideTimelineColors() {
+        for(const [sectionNo, visitedSlides] of Object.entries(slideTimeline)) {
+          const visitedSlides = slideTimeline[sectionNo];
+          for(const visitedSlideNo of visitedSlides) {
+            setSlideTimelineColor(visitedSlideNo);
+          }
+        }
+      }
+
+      //only called on load if there is nothing in session
+      function setTimelineForCompletedSector(sectorNum) {
+        let len = sectorLength;
+        switch (sectorNum) {
+          case 1 : len = sectorLength; break;
+          case 2 : len = 2 * sectorLength; break;
+          default: len = numSlides;
+        }
+        let i = 0;
+        switch (sectorNum) {
+          case 1 : i = 0; break;
+          case 2 : i = sectorLength; break;
+          default: i = 2 * sectorLength;
+        }
+        for (; i < len; i++) {
+          saveELectureTimeline(lectureIds[i].value, true);
+        }
+      }
+
+      function getUserSectorHistory(callback) {
+        $.ajax({
+          type: 'GET',
+          url: "https://visualgo.net/section-info",
+          data: {
+            _token: "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+            topic: "/steinertree".substring(1)
+          }
+        }
+        ).done(function (data) {
+            if (data.data[0] === 1) {
+              setF1SectorColor(1);
+              setTimelineForCompletedSector(1);
+            }
+            if (data.data[1] === 1) {
+              setF1SectorColor(2);
+              setTimelineForCompletedSector(2);
+            }
+            if (data.data[2] === 1) {
+              setF1SectorColor(3);
+              setTimelineForCompletedSector(3);
+            }
+            callback();
+        }).fail(function (data) {
+            console.log('get user sector history failed!');
+        });
+      }
+
+      function getELectureTimelineFromSession() {
+        const page = "/steinertree".substring(1);
+        const timelineKey = page + '-slide-timeline';
+        const storedTimeline = window.sessionStorage.getItem(timelineKey);
+        if (storedTimeline) {
+          slideTimeline = JSON.parse(storedTimeline);
+        } else {
+          return false;
+        }
+        let slideInfo = [];
+        for (const [sectionNum, slides] of Object.entries(slideTimeline)) {
+          for (const slide of slides) {
+            indicateSlideCompletedUI(slide);
+            slideInfo = slide.split('-');
+            incrementSectorVisits(parseInt(sectionNum), slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0);
+          }
+        }
+        return true;
+      }
+
+      async function initializeELectureTimeline() {
+        setSectorJunctionInfo();
+        if (!getELectureTimelineFromSession())
+          getUserSectorHistory(sectorBasedModeSelection);
+        else
+          sectorBasedModeSelection();
+
+        createELectureTimelineDisplay();
+        setVisitedSlideTimelineColors();
+      }
+
+      function setF1SectorColor(sectorNum) {
+        $(`[sectorNo="${sectorNum}"]`).css('background', sectorColors[(parseInt(sectorNum) % 3)]);
+      }
+
+      function updateSectorInDB(sectorNum) {
+        $.ajax({
+          type: 'POST',
+          url: "https://visualgo.net/section-info",
+          data: {
+            _token: "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+            section: (sectorNum - 1),
+            topic: "/steinertree".substring(1)
+          }
+        }
+        ).done(function (data) {
+            //console.log("Saved the sector " + sectorNum + " as done " + JSON.stringify(data));
+        }).fail(function (data) {
+            console.log("Setting sector done failed new attempt! "+ JSON.stringify(data));
+        });
+      }
+
+      //If 87.5% or more of the slides in sector are done
+      function setF1SectorCompleted(sectorNum, isInitializationCall) {
+        setF1SectorColor(sectorNum);
+        //avoid api call on initialization
+        if (!isInitializationCall) {
+          updateSectorInDB(sectorNum);
+          $(`[sectorNo="${sectorNum}"]`).css("animation", "green-pulse 2s 4");
+          setTimeout(() => {
+            $(`[sectorNo="${sectorNum}"]`).css("animation", "");
+          }, 8000);
+        }
+      }
+
+      function incrementSectorVisits(sectionNum, slideNumWithinSection, isInitializationCall) {
+        //updating sector count
+        if (sectionNum < sectorJunction12Section
+          || (sectionNum === sectorJunction12Section && slideNumWithinSection <= sectorJunction12Slide)) {
+          ++sector1Count;
+          if (sector1Count >= Math.ceil(0.875 * sectorLength))
+            setF1SectorCompleted(1, isInitializationCall);
+        } else if (sectionNum < sectorJunction23Section
+          || (sectionNum === sectorJunction23Section && slideNumWithinSection <= sectorJunction23Slide)) {
+          ++sector2Count;
+          if (sector2Count >= Math.ceil(0.875 * sectorLength))
+            setF1SectorCompleted(2, isInitializationCall);
+        } else {
+          ++sector3Count;
+          if (sector3Count >= Math.ceil(0.875 * (numSlides - 2 * sectorLength)))
+            setF1SectorCompleted(3, isInitializationCall);
+        }
+      }
+
+      function saveELectureTimeline(slideNo, isInitialization) {
+        const slideInfo = slideNo.split('-');
+        const sectionNo = slideInfo[0];
+        const slideNumWithinSection = slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0;
+        if (slideTimeline[sectionNo]) {
+          if (!slideTimeline[sectionNo].includes(slideNo)) {
+            slideTimeline[sectionNo].push(slideNo);
+            const sectionNum = parseInt(sectionNo);
+            incrementSectorVisits(sectionNum, slideNumWithinSection, isInitialization);
+          }
+        } else {
+          slideTimeline[sectionNo] = [];
+          slideTimeline[sectionNo].push(slideNo);
+          const sectionNum = parseInt(sectionNo);
+          incrementSectorVisits(sectionNum, slideNumWithinSection, isInitialization);
+        }
+        setSlideTimelineColor(slideNo);
+        indicateSlideCompletedUI(slideNo);
+      }
+
+      function saveELectureTimelineToSession() {
+        const page = "/steinertree".substring(1);
+        const timelineKey = page + '-slide-timeline';
+        window.sessionStorage.setItem(timelineKey, JSON.stringify(slideTimeline));
+      }
+
+      function handleTimelineOnRunSlide(slideValue) {
+        const slideInfo = slideValue.split('-');
+        const sectionNo = slideInfo[0];
+        const slideNumWithinSection = slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0;
+        //start timer only if the slide isnt already done
+        if (!slideTimeline[sectionNo] || !slideTimeline[sectionNo].includes(slideValue)) {
+          const slideTextLength = $('#electure-'+slideValue + " p").text().length + $('#electure-'+slideValue + " li").text().length;
+          const CHARS_READ_PER_MS = 0.05; //when fast, 50 characters a second
+          //setting max reading time as 10 seconds for around 500 character slide
+          const minSlideReadingTime = Math.min(Math.max(2000, (slideTextLength / CHARS_READ_PER_MS) +  + (2000 * $('#electure-'+slideValue + " img").length)), 10000);
+          currSlideTimer = setTimeout(() => {
+            saveELectureTimeline(slideValue);
+          }, minSlideReadingTime);
+        }
+      }
+
+      function indicateSlideCompletedUI(slide) {
+        $('#electure-'+slide).css("box-shadow", "3px 3px 8px green"); //set green shadow for completed slides
+        $('#electure-'+slide + ' .electure-read-status').html("&#10004;");
+        $('#electure-'+slide + ' .electure-read-status').attr("title", "Slide Completed!");
+        $('#electure-'+slide + ' .electure-read-status').css("font-size", "17px");
+      }
+
+      function pushState(slideValue) {
+        var url = '/en/steinertree';
+        if (typeof slideValue != 'undefined' && slideValue != null) {
+          url += '?slide=' + slideValue;
+                  }
+        window.history.pushState({slide: slideValue}, "slide " + slideValue, url);
+      }
+
+      function showPopup(callback) {
+        $('#popup').fadeIn(100, callback);
+      }
+
+      function hidePopup(callback) {
+        $('#popup').fadeOut(100, callback);
+      }
+
+      function showOverlay() {
+        $('#overlay').css('opacity', 0.5);
+        $('#overlay').show();
+
+        $("#e-lecture-timeline").show();
+        $("#e-lecture-f1map").show();
+      }
+
+      function hideOverlay() {
+        $('#overlay').hide();
+        $("#e-lecture").html("");
+        $("#e-lecture-timeline").hide();
+        $("#e-lecture-f1map").hide();
+        clearTimeout(currSlideTimer);
+      }
+
+      function makeOverlayTransparent() {
+        $('#overlay').css('opacity', 0);
+      }
+
+      function hideSlide(callback) {
+        isPlaying = true;
+        closeSlide(cur_slide, function() {
+          makeOverlayTransparent();
+          setTimeout(callback, 700); // don't immediately run the animation, wait for 500ms+ first
+        });
+      }
+
+      function showSlide() {
+        isPlaying = false;
+        openSlide(cur_slide);
+        showOverlay();
+      }
+
+      function sectorBasedModeSelection() {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        //check params are empty and then that all sectors are completed or not
+        if (!Object.keys(params).length
+          && sector1Count === sectorLength && sector2Count === sectorLength && sector3Count === (numSlides - 2 * sectorLength)) {
+            hideOverlay();
+        }
+        else
+          $('#mode-menu a').click();
+      }
+
+      $(function() {
+        if (isMobileOS() && portraitMatcher.matches) {
+          $('#rotateDeviceOverlay').show();
+          $('#rotateDeviceText').show();
+          $('#widenDeviceText').hide();
+          $('#topbar').css("z-index", 10001);
+        } else if (matchMediaNarrow.matches) {
+          $('#rotateDeviceOverlay').show();
+          $('#rotateDeviceText').hide();
+          $('#widenDeviceText').show();
+          $('#topbar').css("z-index", 10001);
+        } else {
+          $('#rotateDeviceOverlay').hide();
+          $('#topbar').css("z-index", "");
+        }
+
+        matchMediaNarrow.addEventListener('change', e => {
+          //screws up for square device! NEED RESIZE EVENT
+          if (e.matches) {
+            if ($('#rotateDeviceOverlay').is(":hidden")) {
+              $('#rotateDeviceOverlay').show();
+              $('#rotateDeviceText').hide();
+              $('#widenDeviceText').show();
+              $('#topbar').css("z-index", 10001);
+            }
+          } else {
+            $('#rotateDeviceOverlay').hide();
+            $('#topbar').css("z-index", "");
+          }
+        });
+        portraitMatcher.addEventListener('change', e => {
+          if (e.matches && isMobileOS()) {
+            if ($('#rotateDeviceOverlay').is(":hidden")) {
+              $('#rotateDeviceOverlay').show();
+              $('#rotateDeviceText').show();
+              $('#widenDeviceText').hide();
+              $('#topbar').css("z-index", 10001);
+            }
+          } else {
+            $('#rotateDeviceOverlay').hide();
+            $('#topbar').css("z-index", "");
+          }
+        });
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        let slide = getUrlParameter('slide');
+        if (typeof slide !== undefined && slide != null) {
+          cur_slide = slide;
+        }
+        //do all timeline and slide stuff only if specific params not provided
+        if (!Object.keys(params).length || params["slide"]) {
+          if (!isMobile()) {
+                            $('#mode-menu a').click();
+                      }
+        }
+        $('.mcq-submit').click(function() {
+          var questionId = parseInt($(this).attr('id').split('-')[1]);
+          var answer = $('#mcq-answer-' + questionId).val();
+          var userAnswer = $('input[type=radio][name=mcq-'+questionId+'-choice]:checked').val();
+
+          if (answer === userAnswer) {
+            $('#answer-status-' + questionId).html('<font color="green"><b>Correct!</b></font>');
+          }
+          else {
+            $('#answer-status-' + questionId).html('<font color="red"><b>Wrong Answer! Try again...</b></font>');
+          }
+          $('#answer-status-' + questionId).show();
+          setTimeout(function() {
+            $('#answer-status-' + questionId).fadeOut(1000);
+          }, 1000);
+        });
+
+        $('.msq-submit').click(function() {
+          var questionId = parseInt($(this).attr('id').split('-')[1]);
+          var answer = $('#msq-answer-' + questionId).val();
+
+          var answers = [];
+          $('input[type=checkbox][class=msq-choice]:checked').each(function() {
+            answers.push($(this).attr('id').split('-')[3]);
+          });
+          answers.sort();
+          var userAnswer = answers.join(',');
+
+          if (answer === userAnswer) {
+            $('#answer-status-' + questionId).html('<font color="green">Correct!</font>');
+          }
+          else {
+            $('#answer-status-' + questionId).html('<font color="red">Wrong Answer! Try again...</font>');
+          }
+          $('#answer-status-' + questionId).show();
+          setTimeout(function() {
+            $('#answer-status-' + questionId).fadeOut(1000);
+          }, 1000);
+        });
+
+        $('select.lecture-dropdown').change(function() {
+          var nextSlide = $(this).val();
+          openSlide(nextSlide, function() {
+            runSlide(nextSlide);
+            pushState(nextSlide);
+          });
+        });
+
+        $('#hide-popup').click(function() {
+          hidePopup();
+        });
+
+        $('#popup').hover(function() {
+          $('#hide-popup').show();
+        }, function() {
+          $('#hide-popup').hide();
+        });
+
+        $('#electure-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('1-1');
+          pushState('1-1');
+        });
+        $('#electure-1-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('2');
+          pushState('2');
+        });
+        $('#electure-1-1 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('1');
+          pushState('1');
+        });
+        $('#electure-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('3');
+          pushState('3');
+        });
+        $('#electure-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('1-1');
+          pushState('1-1');
+        });
+        $('#electure-3 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4');
+          pushState('4');
+        });
+        $('#electure-3 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('2');
+          pushState('2');
+        });
+        $('#electure-4 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4-1');
+          pushState('4-1');
+        });
+        $('#electure-4 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('3');
+          pushState('3');
+        });
+        $('#electure-4-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4-2');
+          pushState('4-2');
+        });
+        $('#electure-4-1 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4');
+          pushState('4');
+        });
+        $('#electure-4-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('5');
+          pushState('5');
+        });
+        $('#electure-4-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4-1');
+          pushState('4-1');
+        });
+        $('#electure-5 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4-2');
+          pushState('4-2');
+        });
+      });
+
+
+      $('.electure-print').click(() => {
+        window.open(`/en/steinertree/print`);
+      });
+      function adjustPopupToImageSize() {
+        var width = $('#popup-image').prop('width');
+        var height = $('#popup-image').prop('height');
+        $('#popup').width(width + 20);
+        $('#popup').height(height + 20);
+        if (width == 0 && height == 0) {
+          setTimeout(adjustPopupToImageSize, 200);
+        } else {
+          showPopup();
+        }
+      }
+
+      function POPUP_IMAGE(url) {
+        $('#popup-content').html('<img id="popup-image" src="' + url + '">');
+        adjustPopupToImageSize();
+      }
+
+      function URL(url.html) {
+        window.open(url, '_blank');
+      }
+
+      // Implement these functions in each visualisation
+      // This function will be called before entering e-Lecture Mode
+      function ENTER_LECTURE_MODE() {}
+
+      // This function will be called before returning to Explore Mode
+      function ENTER_EXPLORE_MODE() {}
+
+      // Lecture action functions
+      function CUSTOM_ACTION(action, data, mode) {}
+
+      // This function will be called everytime 1.0x is changed to 0.5x or vice versa
+      function redraw() {}
+
+      $(document).ready(function () {
+        setTimeout(function () {
+          $('#change-lang-popup').fadeOut('slow')
+        }, 5000)
+      })
+    </script>
+<script type="text/javascript">
+    var extraCSS = {"approximation":"65px","exact":"92px","examples":"119px","draw":"146px"};
+    var actionsIds = {"draw":{"p":"Edit Graph","onClick":"drawGraph()"},"examples":{"p":"Example Graphs"},"exact":{"p":"Exact"},"approximation":{"p":"Approximation"}};
+    var isOpens = {};
+    var len = 4;
+    var keys = ["draw","examples","exact","approximation"]; 
+    for (i = 0; i < len; i++) {
+        var actionDetails = keys[i];
+        isOpens[actionDetails] = false;
+    }
+    function openAction(id) {
+        hideThirdTiers(id);
+        $("." + id).css("bottom", extraCSS[id]);
+        if (!isOpens[id]) {
+            $('.' + id).fadeIn('fast');
+            isOpens[id] = true;
+        }
+    }
+    function closeAction(id) {
+        hideThirdTiers(id);
+        if (isOpens[id]) {
+            $('.' + id).fadeOut('fast');
+            $('#' + id + '-err').html("");
+            isOpens[id] = false;
+        }
+    }
+
+    function hideEntireActionsPanel() {
+        //hideAllThirdTiers();
+                    closeAction('draw');
+                    closeAction('examples');
+                    closeAction('exact');
+                    closeAction('approximation');
+                hideActionsPanel();
+    }
+
+    function hideThirdTiers(tier1Action) {
+        if ("parents" in actionsIds[tier1Action]) {
+            for (const secondTierAction of actionsIds[tier1Action]["parents"]) {
+                $('#' + secondTierAction + '-third-tier').fadeOut('fast');
+            }
+        }
+    }
+
+    function hideAllThirdTiers() {
+        for (const tier1Action in actionsIds) {
+            hideThirdTiers(tier1Action);
+        }
+    }
+
+    function toggleChildExtras(tier1, selectedParentTier2) {
+        hideThirdTiers(tier1);
+        //this actionId must have childExtras
+        var style = extraCSS[tier1];
+        $("." + tier1).css("bottom", (parseInt(style.substring(0, style.length - 2)) - 27));
+        //fade ins and outs are done on the ID whereas css class is set on the class
+        //fade in the third tier of the selected 2nd tier parent
+        $('#' + selectedParentTier2 + '-third-tier').fadeIn('fast');
+
+        // //fade out all other third tiers of that 'action'
+        // for (const parent of actions[tier1]["parents"]) {
+        //     console.log("parent is " + parent + " for " + selectedParentTier2);
+        //     if (parent != selectedParentTier2) {
+        //         $('#' + parent + '-third-tier').fadeOut('fast');
+        //     }
+        // }
+    }
+
+    function setActionHeightOriginal(tier1Action) {
+        $("." + tier1Action).css("bottom", extraCSS[tier1Action]);
+    }
+
+            $('#' + 'draw').click(function() {
+            openAction('draw');
+                                                                            closeAction('examples');
+                                                                closeAction('exact');
+                                                                closeAction('approximation');
+                                    });
+            $('#' + 'examples').click(function() {
+            openAction('examples');
+                                                closeAction('draw');
+                                                                                            closeAction('exact');
+                                                                closeAction('approximation');
+                                    });
+            $('#' + 'exact').click(function() {
+            openAction('exact');
+                                                closeAction('draw');
+                                                                closeAction('examples');
+                                                                                            closeAction('approximation');
+                                    });
+            $('#' + 'approximation').click(function() {
+            openAction('approximation');
+                                                closeAction('draw');
+                                                                closeAction('examples');
+                                                                closeAction('exact');
+                                                                });
+    
+    //important to have all the input fields in actions menu take an id containing '-input'
+    $("[id*='-input']").on("keypress keydown keyup", (event) => {
+        event.stopPropagation();
+    });
+</script>
+<script type="text/javascript">
+// Steiner Tree Widget
+// Created by Muhammad Rais Fathin Mudzakir
+// Now maintained by A/Prof Steven Halim
+
+var SteinerTree = function() {
+  var self = this;
+  var gw = new GraphWidget();
+
+  var iVL = {};
+  var iEL = {};
+  var iAL = {}; // special, for Tree
+
+  this.getiVL = function() {
+    return iVL;
+  }
+
+  this.getiEL = function() {
+    return iEL;
+  }
+
+  var amountVertex = 0;
+  var amountEdge = 0;
+
+  this.getGraphWidget = function() { return gw; }
+
+  this.getN = function() { return amountVertex; }
+
+  fixJSON = function() {
+    amountVertex = 0;
+    amountEdge = 0;
+    for (var key in iVL) amountVertex++;
+    for (var key in iEL) amountEdge++;
+
+    var sortedArray = [];
+    for (key in iEL) {
+      sortedArray.push(new ObjectTriple(parseInt(iEL[key]["w"]), parseInt(iEL[key]["u"]), parseInt(iEL[key]["v"])));
+    }
+    sortedArray.sort(ObjectTriple.compare); // sort by increasing w, and if ties, by increasing u, and if still ties, by increasing v
+
+    for (var i = 0; i < sortedArray.length; i++) { // rearrange the keys in iEL based on our custom sort order
+      iEL[i]["w"] = sortedArray[i].getFirst();
+      iEL[i]["u"] = sortedArray[i].getSecond();
+      iEL[i]["v"] = sortedArray[i].getThird();
+    }
+
+    for (var key in iVL) iAL[key] = Array();
+    for (var key in iEL) { // transform EL to AL (for Tree)
+      iAL[iEL[key]["u"]].push(new ObjectTriple(iEL[key]["v"], iEL[key]["w"], key));
+      iAL[iEL[key]["v"]].push(new ObjectTriple(iEL[key]["u"], iEL[key]["w"], key)); // bidirectional
+    }
+  }
+
+  takeJSON = function(graph) {
+    if (graph == null) return;
+    graph = JSON.parse(graph);
+    iVL = graph["vl"];
+    iEL = graph["el"];
+    fixJSON();
+  }
+
+  statusChecking = function() {
+    $("#draw-status p").html("Draw several vertices");
+  }
+
+  warnChecking = function() {
+    var warn = "";
+    if (currentGraphVisu.amountVertex() >= 17) warn += "Too many vertices";
+    if (warn == "") $("#draw-warn p").html("No Warning");
+    else            $("#draw-warn p").html(warn);
+  }
+
+  errorChecking = function() {
+    var error = "";
+    if (currentGraphVisu.amountVertex() <= 1) {
+      $("#draw-err p").html("Graph must have at least two vertices"); // Graph must have at least one vertex");
+      return;
+    }
+    const [curiVL, curiEL] = parseCurrentJSONresult()
+    var visited = [];
+    var stack = [];
+    stack.push(0);
+    visited[0] = true;
+    while (stack.length > 0) {
+      var now = stack.pop();
+      for (var key2 in curiEL) {
+        if (curiEL[key2]["u"] == now && !visited[curiEL[key2]["v"]]) {
+          visited[curiEL[key2]["v"]] = true;
+          stack.push(+curiEL[key2]["v"]);
+        }
+        if (curiEL[key2]["v"] == now && !visited[curiEL[key2]["u"]]) {
+          visited[curiEL[key2]["u"]] = true;
+          stack.push(+curiEL[key2]["u"]);
+        }
+      }
+    }
+
+    for (var i = 0; i < currentGraphVisu.amountVertex(); i++)
+      if (!visited[i]) {
+        error = error + "The graph is not connected".replace("{i}", i);
+        break;
+      }
+
+    if (error == "") $("#draw-err p").html("No error");
+    else             $("#draw-err p").html(error);
+  }
+
+  var intervalID;
+
+  this.startLoop = function() {
+    intervalID = setInterval(function() {
+     // takeJSON(JSONresult);
+      warnChecking();
+      errorChecking();
+      statusChecking();
+    }, 100);
+  }
+
+  this.stopLoop = function() {
+    clearInterval(intervalID);
+  }
+
+  this.draw = function() {
+    if ($("#draw-err p").html() != "No error")
+      return false;
+      takeJSON(JSONresult);
+    if ($("#submit").is(':checked'))
+      this.submit(JSONresult);
+    if ($("#copy").is(':checked'))
+      window.prompt("Copy to clipboard:", JSONresult);
+
+    fixJSON(); // to re-sort the edges
+
+    graph = createState({iVL: iVL, iEL: iEL});
+    gw.updateGraph(graph, 500);
+    return true;
+  }
+
+  this.importjson = function(text) {
+    takeJSON(text);
+    statusChecking();
+    graph = createState(iVL, iEL);
+    gw.updateGraph(graph, 500);
+  }
+
+  this.getGraph = function() {
+    return {
+      'vl': iVL,
+      'el': iEL
+    };
+  }
+
+  this.getV = function() {
+    return amountVertex;
+  }
+
+  this.solveExact = function(input, callback) {
+    amountTerminal = input;
+    if (amountTerminal === 2) {
+      return this.dijkstra(input, callback);
+    }
+    if (amountTerminal === amountVertex) {
+      return this.mst(input, callback);
+    }
+    if (this.isTree()) {
+      return this.on_tree(input, callback);
+    }
+    return this.bruteforce(input, callback);
+  }
+
+  this.solveApproximation = function(input, callback) {
+    amountTerminal = input;
+    return this.approximation(input, callback);
+  }
+
+  this.isTree = function() {
+    var visited = new Array(amountVertex);
+    for (var i = 0; i < amountVertex; i++) {
+      visited[i] = false;
+    }
+    isTree = true;
+    function dfs(u, parent) {
+      visited[u] = true;
+      for (var key in iEL) {
+	var a = iEL[key]['u'];
+	var b = iEL[key]['v'];
+	if (a !== u && b !== u) {
+	  continue;
+	}
+	if ((a === u && b === parent) || (b === u && a === parent)) {
+	  continue;
+	}
+	var other = (a === u) ? b : a;
+	if (visited[other]) {
+	  isTree = false;
+	  break;
+	}
+	dfs(other, u);
+      }
+    }
+    dfs(0, -1);
+    return isTree;
+  }
+
+   // TODO(raisfathin): This is so messy :(
+  function calcMst(mask, edges) {
+    var tempUfds = new UfdsHelper();
+
+    for (var i = 0; i < amountVertex; i++) {
+      if (mask & (1 << i)) {
+	tempUfds.insert(i);
+      }
+    }
+
+    var newEl = [];
+    for (var key in edges) {
+      var u = edges[key]['u'];
+      var v = edges[key]['v'];
+      var w = edges[key]['w'];
+      if ((mask & (1 << u)) === 0 || (mask & (1 << v)) === 0) {
+	continue;
+      }
+      newEl.push(new ObjectPair(w, key));
+    }
+
+    newEl.sort(ObjectPair.compare);
+
+    var setCount = 0;
+
+    for (var i = 0; i < amountVertex; i++) {
+      if (mask & (1 << i)) {
+	setCount++;
+      }
+    }
+
+    var totalCost = 0;
+    var usedEdges = [];
+    for (var edgeKey in newEl) {
+      var realEdgeKey = newEl[edgeKey].getSecond();
+      var u = edges[realEdgeKey]['u'];
+      var v = edges[realEdgeKey]['v'];
+      if (!tempUfds.isSameSet(u, v)) {
+	totalCost += newEl[edgeKey].getFirst();
+	usedEdges.push(realEdgeKey);
+	tempUfds.unionSet(u, v);
+	setCount--;
+      }
+    }
+
+    if (setCount != 1) {
+      return {
+	'cost': 1e9,
+	'edges': [],
+      };
+    }
+
+    return {
+      'cost': totalCost,
+      'edges': usedEdges,
+    };
+  }
+
+  function getMetricDistance() {
+    var dist = new Array(amountVertex);
+    for (var i = 0; i < amountVertex; i++) {
+      dist[i] = runDijkstra(i);
+    }
+    return dist;
+  }
+
+  function runDijkstra(source) {
+    var dist = new Array(amountVertex);
+    var settled = new Array(amountVertex);
+    for (var i = 0; i < amountVertex; i++) {
+      settled[i] = false;
+      dist[i] = {'cost': 1e9, 'edges': []};
+    }
+    function relax_edge(from, to, cost, edgeKey) {
+      if (dist[to]['cost'] > dist[from]['cost'] + cost) {
+	dist[to]['cost'] = dist[from]['cost'] + cost;
+	dist[to]['edges'] = dist[from]['edges'].slice(0);
+	dist[to]['edges'].push(edgeKey);
+      }
+    }
+    dist[source] = {'cost': 0, 'edges': []};
+    while (true) {
+      var arg_min = -1;
+      for (var i = 0; i < amountVertex; i++) {
+	if (!settled[i] && (arg_min === -1 || dist[i]['cost'] < dist[arg_min]['cost'])) {
+	  arg_min = i;
+	}
+      }
+      if (arg_min == -1) {
+	break;
+      }
+      settled[arg_min] = true;
+      for (var key in iEL) {
+	if (iEL[key]['u'] === arg_min) {
+	  relax_edge(iEL[key]['u'], iEL[key]['v'], iEL[key]['w'], key);
+	}
+	if (iEL[key]['v'] === arg_min) {
+	  relax_edge(iEL[key]['v'], iEL[key]['u'], iEL[key]['w'], key);
+	}
+      }
+    }
+
+    return dist;
+  }
+
+  function calcOptimalCost() {
+    var optimalCost = 1e9;
+    for (var i = 0; i < (1 << (amountVertex - amountTerminal)); i++) {
+      var mask = ((1 << amountTerminal) - 1) | (i << amountTerminal);
+      var currentCost = calcMst(mask, iEL);
+      if (currentCost['cost'] < optimalCost) {
+	optimalCost = currentCost['cost'];
+      }
+    }
+    return optimalCost;
+  }
+
+  this.bruteforce = function(input, callback) {
+    if (amountVertex === 0) {
+      $('#exact-err').html("There is no graph to run this on. Please select an example graph first.");
+      return false;
+    }
+    if (amountTerminal <= 0 || amountTerminal > amountVertex) {
+      $('#exact-err').html("Invalid number of terminal. Please enter a value between 1 and N.")
+    }
+
+    var cs, stateList = [];
+
+    var minCost = {
+      'cost': 1e9,
+      'edges': [],
+    };
+
+    function getJsonForMst(mask) {
+      var vl = [], el = [];
+      var mapping = new Array(amountVertex);
+      var id = 0;
+      for (var i = 0; i < amountVertex; ++i) {
+	if (mask & (1 << i))
+	  mapping[i] = id++;
+	else
+	  mapping[i] = -1;
+      }
+
+      for (var i = 0; i < amountVertex; ++i)
+	if (mapping[i] !== -1)
+	  vl.push(iVL[i]);
+
+      for (var key in iEL) {
+	if (mapping[iEL[key]['u']] !== -1 && mapping[iEL[key]['v']] !== -1) {
+	  el.push({'u': mapping[iEL[key]['u']], 'v': mapping[iEL[key]['v']], 'w': iEL[key]['w']});
+	}
+      }
+      return JSON.stringify({'vl': vl, 'el': el});
+    }
+
+    var bestVertexHighlighted = {};
+    for (var i = 0; i < (1 << (amountVertex-amountTerminal)); ++i) {
+      var mask = (i<<amountTerminal) | ((1<<amountTerminal) - 1);
+      var selectedTerminal = [];
+      var selectedSteiner = [];
+      var vertexHighlighted = {};
+      var vertexCovered = {};
+      var edges = [];
+
+      for (var j = 0; j < amountVertex-amountTerminal; ++j)
+	if (i & (1 << j)) {
+	  vertexHighlighted[j + amountTerminal] = true;
+	  selectedSteiner.push(j + amountTerminal);
+	}
+
+      for (var j = 0; j < amountTerminal; j++) {
+	vertexCovered[j] = true;
+	selectedTerminal.push(j);
+      }
+
+      for (var key in iEL) {
+	var u = iEL[key]['u'];
+	var v = iEL[key]['v'];
+	var w = iEL[key]['w'];
+	if ((mask & (1 << u)) !== 0 && (mask & (1 << v)) !== 0) {
+	  edges.push({
+	    'u': u,
+	    'v': v,
+	    'w': w,
+	    'edges': [key],
+	  });
+	}
+      }
+      cs = createState({
+	iVL: iVL,
+	iEL: iEL,
+	vertexHighlighted: vertexHighlighted,
+	vertexCovered: vertexCovered,
+      });
+      cs['status'] = 'Trying required vertices {terminal_subset} + Steiner vertices {steiner_subset}'
+	.replace('{terminal_subset}', JSON.stringify(selectedTerminal))
+	.replace('{steiner_subset}', JSON.stringify(selectedSteiner));
+      cs['lineNo'] = 1;
+      stateList.push(cs);
+      var currentCost = calcMst(mask, edges);
+      if (currentCost['cost'] >= 1e9) {
+	cs = createState({
+	  iVL: iVL,
+	  iEL: iEL,
+	  vertexHighlighted: vertexHighlighted,
+	  vertexCovered: vertexCovered,
+	});
+	cs['status'] = 'Could not find an MST that uses only vertices in required vertices {terminal_subset} + Steiner vertices {steiner_subset}'
+	  .replace('{terminal_subset}', JSON.stringify(selectedTerminal))
+	  .replace('{steiner_subset}', JSON.stringify(selectedSteiner));
+	cs['lineNo'] = 2;
+	stateList.push(cs);
+      }
+      else {
+	var edgeHighlighted = {};
+	for (var key in currentCost['edges']) {
+	  var currentEdgeKey = currentCost['edges'][key];
+	  edgeHighlighted[edges[currentEdgeKey]['edges'][0]] = true;
+	}
+	cs = createState({
+	  iVL: iVL,
+	  iEL: iEL,
+	  vertexHighlighted: vertexHighlighted,
+	  vertexCovered: vertexCovered,
+	  edgeHighlighted: edgeHighlighted,
+	});
+	var mstJson = getJsonForMst(mask);
+	cs['status'] = 'Obtained an MST of cost = {cost}.<br>Click <a target="blank" href="mst?create={json}"><u>here</u></a> for MST visualization'.replace('{cost}', currentCost['cost']).replace('{json}', encodeURIComponent(mstJson));
+	cs['lineNo'] = [2, 3]
+	stateList.push(cs);
+      }
+
+      if (currentCost['cost'] < minCost['cost']) {
+	minCost['cost'] = currentCost['cost'];
+	minCost['edges'].length = 0;
+	for (var edgeKey in currentCost['edges']) {
+	  var edgeIndexInNewEdges = currentCost['edges'][edgeKey];
+	  minCost['edges'].push(edges[edgeIndexInNewEdges]['edges'][0]);
+	}
+	argMin = mask;
+        bestVertexHighlighted = JSON.parse(JSON.stringify(vertexHighlighted)); // deep copy
+      }
+    }
+
+    var edgeCovered = {};
+    var vertexCovered = {};
+    for (var i = 0; i < amountTerminal; ++i)
+      vertexCovered[i] = true;
+    for (var key in minCost['edges'])
+      edgeCovered[minCost['edges'][key]] = true;
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      vertexHighlighted: bestVertexHighlighted, // also show the best Steiner vertices used in the optimal solution
+      vertexCovered: vertexCovered,
+      edgeCovered: edgeCovered,
+    });
+    cs['status'] = 'Cost of optimal steiner tree = {cost}.'.replace('{cost}', minCost['cost']);
+    cs['lineNo'] = [];
+    stateList.push(cs);
+
+    populatePseudocode('bruteforce');
+    gw.startAnimation(stateList, callback);
+    return true;
+  }
+
+  this.mst = function(callback) {
+    var cs, stateList = [];
+
+    var mstResult = calcMst((1 << amountVertex) - 1, iEL);
+    var edgeHighlighted = {};
+    for (var key in mstResult['edges']) {
+      edgeHighlighted[mstResult['edges'][key]] = true;
+    }
+    var mstJson = JSON.stringify({'vl': iVL, 'el': iEL});
+    cs = createState({
+      'iVL': iVL,
+      'iEL': iEL,
+      'edgeHighlighted': edgeHighlighted,
+    });
+    cs['status'] = 'Cost = {cost}.<br>Click <a target="blank" href="mst?create={json}"><u>here</u></a> for MST visualization'.replace('{cost}', mstResult['cost']).replace('{json}', encodeURIComponent(mstJson));
+    cs['lineNo'] = 1;
+    stateList.push(cs);
+
+    populatePseudocode('mst');
+    gw.startAnimation(stateList, callback);
+    return true;
+  }
+
+  this.dijkstra = function(callback) {
+    var cs, stateList = [];
+
+    var dijkstraResult = runDijkstra(0);
+    var edgeHighlighted = {};
+    for (var key in dijkstraResult[1]['edges']) {
+      edgeHighlighted[dijkstraResult[1]['edges'][key]] = true;
+    }
+    cs = createState({
+      'iVL': iVL,
+      'iEL': iEL,
+      'edgeHighlighted': edgeHighlighted,
+    });
+    cs['status'] = 'Cost = {cost}'.replace('{cost}', dijkstraResult[1]['cost']);
+    cs['lineNo'] = 1;
+    stateList.push(cs);
+
+    populatePseudocode('dijkstra');
+    gw.startAnimation(stateList, callback);
+    return true;
+  }
+
+  this.approximation = function(callback) {
+    var cs, stateList = [];
+    var vertexCovered = {};
+
+    for (var i = 0; i < amountTerminal; i++) {
+      vertexCovered[i] = true;
+    }
+
+    cs = createState({
+      'iVL': iVL,
+      'iEL': iEL,
+      'vertexCovered': vertexCovered,
+    });
+    cs['status'] = '';
+    cs['lineNo'] = 1;
+    stateList.push(cs);
+
+    var metricDistance = getMetricDistance();
+    var completeEl = [];
+    for (var i = 0; i < amountVertex; i++) {
+      for (var j = i + 1; j < amountVertex; j++) {
+	completeEl.push({'u': i, 'v': j, 'w': metricDistance[i][j]['cost']});
+      }
+    }
+    cs = createState({
+      'iVL': iVL,
+      'iEL': completeEl,
+      'vertexCovered': vertexCovered,
+    });
+    cs['status'] = '';
+    cs['lineNo'] = 1;
+    stateList.push(cs);
+
+    var edges = [];
+    for (var i = 0; i < amountTerminal; i++) {
+      for (var j = i + 1; j < amountTerminal; j++) {
+	edges.push({'u': i, 'v': j, 'w': metricDistance[i][j]['cost']});
+      }
+    }
+
+    var mstCost = calcMst((1 << amountTerminal) - 1, edges);
+    var usedEdgeInNewGraph = {};
+    var usedEdgeInRealGraph = {};
+    for (var edgeKey in mstCost['edges']) {
+      var newEdgeKey = mstCost['edges'][edgeKey];
+      var u = edges[newEdgeKey]['u'];
+      var v = edges[newEdgeKey]['v'];
+      var id = -1;
+      for (var key in completeEl) {
+	if ((completeEl[key]['u'] === u && completeEl[key]['v'] === v) ||
+	    (completeEl[key]['u'] === v && completeEl[key]['v'] === u)) {
+	  id = key;
+	  break;
+	}
+      }
+      usedEdgeInNewGraph[id] = true;
+      for (var realEdgeIndex in metricDistance[u][v]['edges']) {
+	usedEdgeInRealGraph[metricDistance[u][v]['edges'][realEdgeIndex]] = true;
+      }
+    }
+    cs = createState({
+      'iVL': iVL,
+      'iEL': completeEl,
+      'edgeHighlighted': usedEdgeInNewGraph,
+      'vertexCovered': vertexCovered,
+    });
+    cs['status'] = 'Cost = {cost}'.replace('{cost}', mstCost['cost']);
+    cs['lineNo'] = 2;
+    stateList.push(cs);
+
+    var realCost = 0;
+    for (var edgeKey in usedEdgeInRealGraph) {
+      realCost += iEL[parseInt(edgeKey)]['w'];
+    }
+    cs = createState({
+      'iVL': iVL,
+      'iEL': iEL,
+      'edgeHighlighted': usedEdgeInRealGraph,
+      'vertexCovered': vertexCovered,
+    });
+    cs['status'] = 'Approximation cost = {approximation_cost} while the optimal cost = {optimal_cost}.'.replace('{approximation_cost}', realCost).replace('{optimal_cost}', calcOptimalCost());
+    cs['lineNo'] = 3;
+    stateList.push(cs);
+    populatePseudocode('approximation');
+    gw.startAnimation(stateList, callback);
+    return true;
+  }
+
+  this.on_tree = function(callback) {
+    if (amountVertex === 0) {
+      $('#on_tree-err').html("There is no graph to run this on. Please select an example graph first.");
+      return false;
+    }
+    if (amountTerminal <= 0 || amountTerminal > amountVertex) {
+      $('#on_tree-err').html("Invalid number of terminal. Please enter a value between 1 and N..");
+      return false;
+    }
+    var cs, stateList = [];
+    var requiredEdges = {};
+    var ans = 0;
+    function dfs(u, parent = -1) {
+      var vertexHighlighted = {};
+      vertexHighlighted[u] = true;
+      cs = createState({
+	iVL: iVL,
+	iEL: iEL,
+	vertexHighlighted: vertexHighlighted,
+	edgeCovered: requiredEdges,
+      });
+      cs['status'] = 'Processing vertex {vertex_id}'.replace('{vertex_id}', u);
+      cs['lineNo'] = 1;
+      stateList.push(cs);
+      var has_terminal = u < amountTerminal;
+      cs = createState({
+	iVL: iVL,
+	iEL: iEL,
+	vertexHighlighted: vertexHighlighted,
+	edgeCovered: requiredEdges,
+      });
+      if (u < amountTerminal) {
+	cs['status'] = 'Vertex {vertex_id} is a terminal, set has_terminal to true'.replace('{vertex_id}', u);
+	cs['lineNo'] = 2;
+      } else {
+	cs['status'] = 'Vertex {vertex_id} is not a terminal, set has_terminal to false'.replace('{vertex_id}', u);
+	cs['lineNo'] = 2;
+      }
+      stateList.push(cs);
+      for (var key in iEL) {
+	var other = -1;
+	if (iEL[key]['u'] === u) {
+	  other = iEL[key]['v'];
+	}
+	if (iEL[key]['v'] === u) {
+	  other = iEL[key]['u'];
+	}
+	if (other === -1 || other === parent) {
+	  continue;
+	}
+	var edgeHighlighted = {};
+	edgeHighlighted[key] = true;
+	cs = createState({
+	  iVL: iVL,
+	  iEL: iEL,
+	  vertexHighlighted: vertexHighlighted,
+	  edgeCovered: requiredEdges,
+	});
+	cs['status'] = 'Processing edge {vertex_from} -> {vertex_to}'.replace('{vertex_from}', u).replace('{vertex_to}', other);
+	cs['lineNo'] = 4;
+	stateList.push(cs);
+	var ret = dfs(other, u);
+	has_terminal |= ret;
+	cs = createState({
+	  iVL: iVL,
+	  iEL: iEL,
+	  vertexHighlighted: vertexHighlighted,
+	  edgeCovered: requiredEdges,
+	});
+	if (ret) {
+	  cs['status'] = 'Found some terminal inside the subtree rooted at {neighbor}. Take {current} -> {neighbor}'.replace('{current}', u).replace('{neighbor}', other).replace('{neighbor}', other);
+	  requiredEdges[key] = true;
+	  cs['lineNo'] = [5, 6];
+	  ans += iEL[key]['w'];
+	} else {
+	  cs['status'] = 'There is no terminal inside the subtree rooted at {vertex}'.replace('{vertex}', other);
+	  cs['lineNo'] = 5;
+	}
+	stateList.push(cs);
+      }
+      cs = createState({
+	iVL: iVL,
+	iEL: iEL,
+	vertexHighlighted: vertexHighlighted,
+	edgeCovered: requiredEdges,
+      });
+      cs = createState({
+	iVL: iVL,
+	iEL: iEL,
+	vertexHighlighted: vertexHighlighted,
+	edgeCovered: requiredEdges,
+      });
+      cs['status'] = 'Done processing vertex {vertex}'.replace('{vertex}', u);
+      cs['lineNo'] = 7;
+      stateList.push(cs);
+      return has_terminal;
+    }
+    dfs(0, -1);
+    var terminals = {};
+    for (var i = 0; i < amountTerminal; i++) {
+      terminals[i] = true;
+    }
+    cs = createState({
+      iVL: iVL,
+      iEL: iEL,
+      edgeCovered: requiredEdges,
+      vertexCovered: terminals,
+    });
+    cs['status'] = 'Steiner tree cost = {cost}'.replace('{cost}', ans);
+    stateList.push(cs);
+    populatePseudocode('on_tree');
+    gw.startAnimation(stateList, callback);
+    return true;
+  }
+
+  this.examples = function(id) {
+    var vertexList = getExampleGraph(id, VL);
+    var edgeList = getExampleGraph(id, EL);
+    this.loadGraph(vertexList, edgeList);
+    return true;
+  }
+
+  this.loadGraph = function(vertexList, edgeList) {
+    iVL = vertexList;
+    iEL = edgeList;
+    fixJSON();
+    var newState = createState({iVL: iVL, iEL: iEL});
+    gw.updateGraph(newState, 500);
+  }
+
+  function createState(options) {
+    var iVLObject = options["iVL"];
+    var iELObject = options["iEL"];
+    var vertexHighlighted = options["vertexHighlighted"];
+    var edgeHighlighted = options["edgeHighlighted"];
+    var vertexTraversed = options["vertexTraversed"];
+    var edgeTraversed = options["edgeTraversed"];
+    var edgeQueued = options["edgeQueued"];
+    var edgeCovered = options["edgeCovered"];
+    var vertexCovered = options["vertexCovered"];
+    var vertexGreyed = options["vertexGreyed"];
+    var edgeAnimated = options["edgeAnimated"];
+
+    var isDefaultGrey = true;
+    if ((vertexHighlighted == null) && (edgeHighlighted == null) && (vertexTraversed == null) && (edgeTraversed == null) && (edgeQueued == null) && (vertexGreyed == null))
+      isDefaultGrey = false;
+    if (vertexHighlighted == null) vertexHighlighted = {};
+    if (edgeHighlighted == null) edgeHighlighted = {};
+    if (vertexTraversed == null) vertexTraversed = {};
+    if (edgeTraversed == null) edgeTraversed = {};
+    if (edgeQueued == null) edgeQueued = {};
+    if (vertexGreyed == null) vertexGreyed = {};
+    if (edgeAnimated == null) edgeAnimated = [];
+
+    var key;
+    var state = {
+      "vl": {},
+      "el": {}
+    };
+
+    if (isDefaultGrey) {
+      for (key in iVLObject) {
+        state["vl"][key] = {};
+        state["vl"][key]["cx"] = iVLObject[key]["x"];
+        state["vl"][key]["cy"] = iVLObject[key]["y"];
+        state["vl"][key]["text"] = key;
+        state["vl"][key]["state"] = VERTEX_GREY_OUTLINE;
+        state["vl"][key]["extratext"] = iVLObject[key]["extratext"];
+      }
+      for (key in iELObject) {
+        state["el"][key] = {};
+        state["el"][key]["vertexA"] = iELObject[key]["u"];
+        state["el"][key]["vertexB"] = iELObject[key]["v"];
+        state["el"][key]["type"] = EDGE_TYPE_UDE;
+        state["el"][key]["weight"] = iELObject[key]["w"];
+        state["el"][key]["state"] = EDGE_GREY;
+        state["el"][key]["displayWeight"] = true;
+        state["el"][key]["animateHighlighted"] = false;
+      }
+    }
+    else {
+      for (key in iVLObject) {
+        state["vl"][key] = {};
+        state["vl"][key]["cx"] = iVLObject[key]["x"];
+        state["vl"][key]["cy"] = iVLObject[key]["y"];
+        state["vl"][key]["text"] = key;
+        state["vl"][key]["state"] = VERTEX_DEFAULT;
+        state["vl"][key]["extratext"] = iVLObject[key]["extratext"];
+      }
+      for (key in iELObject) {
+        state["el"][key] = {};
+        state["el"][key]["vertexA"] = iELObject[key]["u"];
+        state["el"][key]["vertexB"] = iELObject[key]["v"];
+        state["el"][key]["type"] = EDGE_TYPE_UDE;
+        state["el"][key]["weight"] = iELObject[key]["w"];
+        state["el"][key]["state"] = EDGE_DEFAULT;
+        state["el"][key]["displayWeight"] = true;
+        state["el"][key]["animateHighlighted"] = false;
+      }
+    }
+
+    for (key in edgeAnimated) {
+      var edgeKey = edgeAnimated[key];
+      state["el"][edgeKey]["animateHighlighted"] = true;
+    }
+
+    for (key in edgeQueued) {
+      key1 = state["el"][key]["vertexA"];
+      key2 = state["el"][key]["vertexB"]
+      state["vl"][key1]["state"] = VERTEX_DEFAULT;
+      state["vl"][key2]["state"] = VERTEX_DEFAULT;
+      state["el"][key]["state"] = EDGE_DEFAULT;
+    }
+
+    for (key in iVL) {
+      if (vertexGreyed[key] === undefined) {
+        state["vl"][key]["state"] = VERTEX_DEFAULT;
+      }
+    }
+
+    for (key in edgeCovered) state["el"][key]["state"] = EDGE_BLUE;
+    for (key in vertexCovered) state["vl"][key]["state"] = VERTEX_BLUE_FILL;
+    for (key in vertexHighlighted) state["vl"][key]["state"] = VERTEX_HIGHLIGHTED; // VERTEX_BLUE_FILL;
+    for (key in edgeHighlighted) state["el"][key]["state"] = EDGE_HIGHLIGHTED; // EDGE_BLUE;
+    for (key in vertexTraversed) state["vl"][key]["state"] = VERTEX_TRAVERSED; // VERTEX_GREEN_FILL;
+    for (key in edgeTraversed) state["el"][key]["state"] = EDGE_TRAVERSED; // EDGE_GREEN;
+
+    return state;
+  }
+
+  function populatePseudocode(act) {
+    switch (act) {
+      case 'bruteforce':
+	$('#code1').html('for every possible set S of steiner points');
+	$('#code2').html('&nbsp;&nbsp;Calculate the MST of S union terminals');
+	$('#code3').html('&nbsp;&nbsp;ans = min(ans, cost(MST))');
+	$('#code4').html('');
+	$('#code5').html('');
+	$('#code6').html('');
+	$('#code7').html('');
+        break;
+      case 'on_tree':
+        $('#code1').html('function dfs(u)');
+        $('#code2').html('&nbsp;&nbsp;has_terminal = u is a terminal');
+        $('#code3').html('&nbsp;&nbsp;for (neighbour v of u)');
+        $('#code4').html('&nbsp;&nbsp;&nbsp;&nbsp;v_has_terminal = dfs(v)');
+        $('#code5').html('&nbsp;&nbsp;&nbsp;&nbsp;if v_has_terminal');
+        $('#code6').html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;take edge u -> v');
+	$('#code7').html('&nbsp;&nbsp;return has_terminal');
+	break;
+      case 'approximation':
+	$('#code1').html('Do metric completion with dijkstra');
+	$('#code2').html('Calculate the MST of terminals');
+	$('#code3').html('Map edges used in the MST to those in original graph');
+	$('#code4').html('');
+	$('#code5').html('');
+	$('#code6').html('');
+	$('#code7').html('');
+        break;
+      case 'mst':
+	$('#code1').html('Calculate the MST of the entire graph');
+	$('#code2').html('');
+	$('#code3').html('');
+	$('#code4').html('');
+	$('#code5').html('');
+	$('#code6').html('');
+	$('#code7').html('');
+	break;
+      case 'dijkstra':
+	$('#code1').html('Run Dijkstra from vertex 0 to vertex 1');
+	$('#code2').html('');
+	$('#code3').html('');
+	$('#code4').html('');
+	$('#code5').html('');
+	$('#code6').html('');
+	$('#code7').html('');
+	break;
+      default:
+	alert("WUT");
+    }
+  }
+}
+
+
+
+// Steiner Tree Actions
+var actionsWidth = 150;
+var statusCodetraceWidth = 430;
+
+
+// local
+write(true, false);
+var mw, gw, randomGraphID;
+
+$(function() {
+  $('#play').hide();
+  mw = new SteinerTree();
+  gw = mw.getGraphWidget();
+  gw.setAnimationDuration(700 / speedVal);
+  var options = [K4, K5, WHEEL, CS4234_STEINER_SAMPLE_1, CS4234_STEINER_SAMPLE_2]; // CP3_4_10, CP3_4_14, K5, RAIL, TESSELLATION];
+  mw.examples(options[Math.floor(Math.random()*5)]);
+  $("#exact-k").val(2 + Math.floor(Math.random()*(mw.getN()-2)));
+  $("#approximation-k").val(2 + Math.floor(Math.random()*(mw.getN()-2)));
+  randomGraphID = -1;
+
+  var graphJSON = getQueryVariable("create");
+  if (graphJSON.length > 0) {
+    importjson(graphJSON);
+    window.history.pushState("object or string", "Title", window.location.href.split('?')[0]);
+  }
+});
+
+function importjson(text) {
+  if (isPlaying) stop();
+  if (mode == "exploration") {
+    mw.importjson(text);
+    //closeExamples();
+    closeAction('examples');
+    isPlaying = false;
+  }
+}
+
+function drawGraph() {
+  if (isPlaying) stop();
+  if (mode == "exploration") {
+    const [newiVL, newiEL] = representationConvert(mw.getiVL(), mw.getiEL());
+    currentGraphVisu = new GraphVisu(true, false, true, newiVL, newiEL, true);
+    $('#dark-overlay').fadeIn(function() {
+      $('#drawgraph').fadeIn();
+    });
+    mw.startLoop();
+    isPlaying = false;
+  }
+}
+
+function drawDone() {
+  if (!mw.draw()) return false;
+  mw.stopLoop();
+  $('#drawgraph').fadeOut();
+  $('#dark-overlay').fadeOut();
+}
+
+function drawCancel() {
+  mw.stopLoop();
+  $('#drawgraph').fadeOut();
+  $('#dark-overlay').fadeOut();
+}
+
+// function example(id) {
+//   if (isPlaying) stop();
+//   setTimeout(function() {
+//     if ((mode == "exploration") && mw.examples(id)) {
+//       $('#progress-bar').slider("option", "max", 0);
+//       //closeExamples();
+//       closeAction('examples');
+//       isPlaying = false;
+//     }
+//   }, 500);
+// }
+
+function example(id) {
+  if (isPlaying) stop();
+  if (mw.examples(id)) { // not 100% the same as commonAction
+    $('#progress-bar').slider("option", "max", 0);
+    isPlaying = false;
+  }
+}
+
+function exact(callback) {
+  if (isPlaying) stop();
+  var input = parseInt($('#exact-k').val());
+  commonAction(mw.solveExact(input, callback), "Steiner Tree (Exact)");
+  setTimeout(function() {
+    $("#exact-k").val(2 + Math.floor(Math.random()*(mw.getN()-2)));
+  }, 500);
+}
+
+function approximation(callback) {
+  if (isPlaying) stop();
+  var input = parseInt($('#approximation-k').val());
+  commonAction(mw.solveApproximation(input, callback), "Steiner Tree (Approximation)");
+  setTimeout(function() {
+    $("#approximation-k").val(2 + Math.floor(Math.random()*(mw.getN()-2)));
+  }, 500);
+}
+
+function loadGraph(graph) {
+  if (mw) {
+    mw.loadGraph(graph['vl'], graph['el']);
+  }
+}
+
+// Implement these functions in each visualisation
+var userGraph = {
+  'vl': {},
+  'el': {},
+};
+
+// hide this for now, as doing this causes a bug (the graph disappears after quitting e-Lecture mode)
+// // This function will be called before entering E-Lecture Mode
+// function ENTER_LECTURE_MODE() {
+//   if (mw) userGraph = mw.getGraph();
+// }
+
+// // This function will be called before returning to Explore Mode
+// function ENTER_EXPLORE_MODE() {
+//   loadGraph(userGraph);
+// }
+
+// Lecture action functions
+function CUSTOM_ACTION(action, data, mode) {
+  go(data, showSlide);
+}
+</script>
+</body>
+
+<!-- Mirrored from visualgo.net/en/steinertree by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 16 Dec 2023 15:18:01 GMT -->
+</html>

@@ -1,0 +1,56 @@
+hướng game di chuyển:
+
+phase_null:
+
+start (F --> launch('Load1') && stop ('start'))
+Load1 (time -- > launch('guide') && stop ('Load1'))
+
+
+phase_0:
+
+giude (F --> launch('HD2'))
+HD2 (F --> launch('HD3') && stop('HD2'))
+HD3 (F --> launch('HD4') && stop('HD3'))
+HD(n) (F --> launch('HD(n+1)') && stop('HD(n)')) n:[2-5]
+HD6 (hitbox --> launch('HD7') && stop('HD6'))
+'HD7 && guide' (F --> lauch('Load2') && stop('HD7' && 'guide'))
+
+phase_1:
+
+Load2 (time --> launch('MainScene') && stop('Load2'))
+MainScene (hitbox --> launch('CR1'))
+CR1 (F --> launch('Load3') && stop('MainScene' && 'CR1'))
+
+Load3 (time --> launch('map-new-1') && stop('Load3'))
+map-new-1 (hitbox --> launch('CR2'))
+CR2 (F --> launch('Load4') && stop('map-new-1' && 'CR2'))
+
+Load(n) (time --> launch('map(m)') && stop('Load(n)'))
+map(m) (hitbox --> launch(CR('n-1')))
+CR('n-1') (F --> launch('Load(n+1)') && stop(map('m') && 'CR(n-1)'))
+
+
+#run --> start(index && Load1) --> preload(load((player) && (output))) --> guide(map-zero && hd([2:7]) && Load2) --> 
+
+--> MainScene(map1 && CR1 && Load3) --> map-new-1(map-mew-1 && CR2 && Load4) -->
+
+--> map2(map2 && CR3 && Load5) --> map-new-2(map-new-2 && CR4 && Load6) --> 
+
+--> map3(map3 && CR5 && Load7) --> map4(map4 && CR6 && Load8) --> 
+
+--> map-new-3(map-new-3 && CR7 && Load9) --> map-new-4(map-new-4 && CR8 && Load10)
+
+--> map-new-5(map-new-5 && CR9 && Load11) --> map-new-6(map-new-6 && CR10 && Load_N)
+
+--> map8(map8 && WINNER && Load_index) --> phase-run#
+
+
+note fix: reset nhân vật, tạo thêm biến temp để +temp & key 
+
+fix: MainScene không đúng vị trí nhân vật lần 2
+
+
+
+
+
+

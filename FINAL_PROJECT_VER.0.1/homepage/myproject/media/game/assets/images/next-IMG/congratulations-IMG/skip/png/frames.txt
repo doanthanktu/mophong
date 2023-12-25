@@ -1,0 +1,8 @@
+skip1 : width: 840px, height: 720px, frames: 74
+skip1-S:  width: 630px, height: 540px, frames: 74
+skip2 : width: 840px, height: 720px, frames: 61
+skip2-S : width: 700px, height: 600px, frames: 61
+skip3 : width: 840px, height: 720px, frames: 59
+skip3-S: width: 630px, height: 540px, frames: 59
+skip4 : width: 840px, height: 720px, frames: 44
+skip4-S :width: 630px, height: 540px, frames: 44

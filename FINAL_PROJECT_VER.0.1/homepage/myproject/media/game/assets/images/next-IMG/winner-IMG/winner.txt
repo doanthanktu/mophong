@@ -1,0 +1,1 @@
+width: 864px, height: 720px, frames: 122

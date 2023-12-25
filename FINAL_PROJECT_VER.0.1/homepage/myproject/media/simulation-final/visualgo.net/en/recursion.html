@@ -1,0 +1,3223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from visualgo.net/en/recursion by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 16 Dec 2023 15:17:24 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="This visualization can visualize the recursion tree of a recursive algorithm or the recursion tree of a Divide and Conquer (D&amp;amp;C) algorithm recurrence.You can also visualize the Directed Acyclic Graph (DAG) of a Dynamic Programming (DP) algorithm.PS: there is a silly sync bug whenever you switch e-Lecture slides, so Redraw the current visualization manually.">
+<meta name="keywords" content="Recursion Tree DAG Dynamic Programming DP">
+ 
+<meta name="csrf-token" content="dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+<meta property="og:image" content="../img/png/recursion.png">
+<title>Recursion Tree and DAG (Dynamic Programming/DP) - VisuAlgo</title>
+<link rel="icon" href="../img/favicon.png" type="image/x-icon">
+<link rel="shortcut icon" href="../img/favicon.png" type="image/x-icon">
+<link rel="apple-touch-icon" href="../img/favicon.png">
+<link rel="apple-touch-icon" sizes="72x72" href="../img/favicon.png">
+<link rel="apple-touch-icon" sizes="114x114" href="../img/favicon.png">
+<link rel="stylesheet" href="../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="../fonts/silkscreen/stylesheet.css">
+<link rel="stylesheet" type="text/css" href="../css/common-1.0.2.css">
+<link rel="stylesheet" href="../css/viz-1.0.4.css">
+<link rel="stylesheet" href="../css/visual.css">
+<link rel="stylesheet" href="../css/drawgraph-1.0.2.css">
+<style>
+      #e-lecture {
+        top: 45px;
+        right: 130px;
+        width: 400px;
+        display: block;
+        background: none;
+        /*overflow: normal;*/
+        white-space: normal;
+        text-align: right;
+        color: black; font-weight: bold; font-size: 20px;
+        z-index: 8001;
+      }
+      #e-lecture-timeline {
+        top: 80px;
+        right: 130px;
+        display: flex;
+        position: absolute;
+        z-index: 10000;
+      }
+      .e-lecture-timeline-slide {
+        height: 5px;
+        width: 2px;
+        background: black;
+        float: left;
+      }
+      .e-lecture-timeline-checkpoint {
+        height: 20px;
+        width: 3px;
+        margin-left: 2px;
+        margin-top: -7.5px;
+        background: black;
+        float: left;
+      }
+
+      #e-lecture-f1map {
+        top: 102.5px;
+        right: 130px;
+        display: flex;
+        position: absolute;
+        z-index: 10000;
+      }
+
+      .e-lecture-f1map-sector {
+        flex-grow: 1;
+        background: black;
+        float: left;
+        height: 5px;
+        margin-right: 1px;
+      }
+
+      .e-lecture-f1map-sector:last-child {
+        margin-right: 0px;
+      }
+
+      .electure-prev, .electure-next { /* force update, copied from viz.css */
+        position: absolute;
+        /* bottom: -12px; */
+        top: -20px;
+        /*bottom: '';*/
+        padding: 3px 8px;
+        background: #999;
+        color: white;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+
+      .electure-read-status {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        font-size: 14px;
+        cursor: default;
+        color: #00FF7F;
+        display: none;
+      }
+
+      .electure-prev {
+        left: -10px;
+        /* right: 30px; */
+      }
+      .electure-next {
+        right: -10px;
+        color: white;
+      }
+      .electure-print, .electure-end {
+        position: fixed;
+        top: 45px;
+        height: 20px;
+        width: 17px;
+        right: 80px;
+        padding: 3px 8px;
+        background: #999;
+        color: white;
+        cursor: pointer;
+        border-radius: 2px;
+        text-align: center;
+      }
+      .electure-end {
+        right: 45px; /* beside the X */
+      }
+
+      #change-lang-popup {
+        position: fixed;
+        background: green;
+        left: 40px;
+        top: 50px;
+        width: 250px;
+        height: 125px;
+        border: transparent;
+        border-radius: 10px;
+        padding: 10px 20px;
+        z-index: 9000;
+      }
+
+      #change-lang-popup p {
+        font-size: medium;
+        color: white;
+        line-height: 2;
+        font-family: "PT Sans", sans-serif;
+      }
+
+      #change-lang-popup-btn {
+        text-decoration: underline;
+        margin-left: 50px;
+      }
+
+      #change-lang-popup-btn:hover {
+        cursor: pointer;
+      }
+
+      #rotateDeviceOverlay {
+        z-index: 10000;
+        width: 90%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        padding-right: 5%;
+        padding-left: 5%;
+        overflow: hidden;
+      }
+
+      #mobile-playback-overlay {
+        z-index: 9600;
+        width: 90%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        gap: 100px;
+        background-color: black;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        padding-right: 5%;
+        padding-left: 5%;
+        opacity: 0.3;
+        overflow: hidden;
+      }
+      .mobile-playback-item {
+        min-width: 2.5%;
+        max-width: 35px;
+      }
+      .mobile-playback-item img {
+        width: 100%
+      }
+      .mobile-playback-label {
+        opacity: 0;
+        color: white;
+        font-size: 25px;
+        font-weight: bold;
+        min-width: 1.5%;
+        max-width: 25px;
+        transition: opacity 0.25s ease-out;
+        -webkit-backface-visibility: hidden;
+      }
+      #mobile-playback-rewind-label {
+        margin-right: -70px;
+      }
+      #mobile-playback-forward-label {
+        margin-left: -70px;
+      }
+      #viz-speed-value {
+          font-size: 15px;
+          width: 10%;
+      }
+
+      #scale {
+        position: fixed;
+        left: 5px;
+      }
+    </style>
+<style>
+.run { bottom: 10px; }
+
+#run-input input {
+  width: 140px;
+  padding: 6px 8px 5px;
+}
+
+#run-go p { padding: 5px 8px; }
+#run-dp { padding: 5px 8px; }
+#insert-err { padding: 5px 0px; }
+
+#error {
+  left: 43px;
+  bottom: 230px;
+  position: relative;
+  color: red;
+}
+
+#run {
+  float: right;
+  padding-right: 10px; //: 5px 10px;
+}
+
+#run:hover{
+  color: white;
+  background-color: black;
+  cursor: pointer;
+}
+
+svg {
+  position: relative;
+  left: 150px;
+}
+
+#switch-code:hover {
+  background: black;
+  color: white;
+  cursor: pointer;
+}
+
+#switch-code {
+  font-family: "PT Sans";
+  font-size: 13px;
+  padding: 5px 10px;
+  background : grey;
+  color : white;
+}
+</style>
+<script src="../js/external/dagre.min.js"></script>
+<style>
+/* copied here from common.css (perhaps need to use version numbering) until caches worldwide settles */
+#reload-mobile-popup, #message-popup { /* #gdpr-popup, */
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 320px;
+  bottom: 62px;
+  height: 300px;
+  background-color: #0275d8;
+  border-radius: 15px;
+  padding: 30px 40px;
+  z-index: 9500;
+}
+#reload-mobile-popup {
+  background-color: green;
+  height: 200px;
+}
+#message-popup {
+  z-index: 9000;
+  width: 40%;
+  height: 130px;
+  background-color: #d9534f;
+}
+
+#reload-mobile-popup p, #message-popup p { /* #gdpr-popup p, */
+  font-size: large;
+  color: white;
+  line-height: 2;
+  font-family: "PT Sans", sans-serif;
+}
+
+#reload-mobile-popup .inner-button, #message-popup .inner-button { /* #gdpr-popup .gdpr-button, */
+  border: white solid 2px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: x-large;
+  padding: 2px 8px;
+  color: white;
+  width: 90px;
+  text-align: center;
+  position: absolute;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#gdpr-accept, #reload-mobile-button, #dismiss-message-btn {
+  bottom: 30px;
+  right: 40px;
+}
+
+#gdpr-reject, #cancel-reload-mobile-button {
+  bottom: 30px;
+  right: 170px;
+}
+    </style>
+</head>
+<body>
+<div id="body-container" style="display: flex; flex-direction: column; min-height: 100vh;">
+<style>
+  #topbar {
+    background-color: rgb(0,0,0);
+    font-family: "PT Sans", sans-serif;
+    font-size: 13px;
+    height: 40px;
+
+    padding-left: 40px;
+    padding-right: 40px;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  #topbar a:hover {
+    text-decoration: none;
+  }
+
+  #account-dropdown-btn {
+    color: #198754;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    margin-left: 0.5rem;
+
+    border: 2px solid;
+    border-radius: 0.25rem;
+    height: 24px;
+    line-height: 1.5;
+  }
+
+  #account-dropdown-btn:hover {
+    color: #0a58ca!important;
+    border-color: #198754;
+    text-decoration: none;
+  }
+
+  #login-button {
+    color: #198754;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    margin-left: 0.5rem;
+
+    border: 2px solid;
+    border-radius: 0.25rem;
+
+    height: 24px;
+    line-height: 1.5;
+  }
+
+  #login-button a:hover {
+    color: #0a58ca!important;
+    text-decoration: none;
+  }
+
+  #account-dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    z-index: 1000;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0;
+    font-size: 1rem;
+    color: rgb(0,0,0);
+    text-align: left;
+    list-style: none;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.25rem;
+    top: 45px;
+    right: 40px;
+    line-height: 1.5;
+  }
+
+  .account-dropdown-item {
+    display: block;
+    width: auto;
+    padding: 0.25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: rgb(0,0,0);
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    height: 24px;
+    font-family: SilkscreenNormal, sans-serif;
+  }
+
+  .account-dropdown-item:hover {
+    background-color: #e9ecef;
+    color: #0a58ca;
+    text-decoration: none;
+  }
+</style>
+<nav id="topbar">
+<span style="margin-right: 0.25rem">
+<a href="https://www.comp.nus.edu.sg/~stevenha" style="text-decoration: none; color: white">
+<span class="colour" style="border: 1px solid; border-color: #198754!important; border-radius: .25rem!important">7</span>
+</a>
+<a href="https://visualgo.net/" style="font-family: SilkscreenNormal,sans-serif; font-size: 20px; margin-left: 4px;">
+<span style="color: white">Visu</span><span class="colour">Algo</span><span style="font-size: 40%; color: white">.net</span>
+</a>
+<span style="color: white">/</span>
+<select id="Language" class="select2-dropdown" onchange="changeURL()">
+<option value="en" selected>en</option>
+<option value="zh">zh</option>
+<option value="id">id</option>
+</select>
+<span style="color: white; font-family: monospace">/recursion</span>
+</span>
+<span style="max-height: 30px">
+<span id="title">
+<a id="title-recursion" class="selected-viz">Recursion Tree</a>
+<a id="title-dp">Recursion DAG (DP)</a>
+</span>
+</span>
+<span style="max-height: 30px; background-color:rgb(0,0,0)!important; color: white; margin-left: auto">
+<div id="mode-menu">
+<div id="mode-button" style="background-color: rgb(0,0,0)!important;" title="exploration">Exploration Mode &#9663;</div>
+<div id="other-modes" style="background-color: rgb(0,0,0)!important; padding-top: 11px">
+<a title="e-Lecture" style="background-color: rgb(0,0,0)!important;">e-Lecture Mode</a>
+</div>
+</div>
+</span>
+<span id="login-button" style="font-family: SilkscreenNormal,sans-serif">
+<a href="https://visualgo.net/login">Login</a>
+</span>
+</nav>
+<ul id="account-dropdown-menu">
+<li><a class="account-dropdown-item" href="https://visualgo.net/profile">Profile</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/training">Training</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/tests">Tests</a></li>
+<li><a class="account-dropdown-item" href="https://visualgo.net/logout">Log Out</a></li>
+</ul>
+<script>
+  function changeURL() {
+    let URL = window.location.href.split('https://visualgo.net/');
+    URL[3] = document.getElementById("Language").value;
+    window.location.assign(URL.join('https://visualgo.net/'));
+  }
+
+  function changeDefaultLanguageAndURL() {
+    let URL = window.location.href.split('https://visualgo.net/');
+    let val = document.getElementById("Language").value;
+    URL[3] = val;
+
+    let data = {
+      '_token': "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+      'lang'  : val
+    }
+    $.post('https://visualgo.net/changeLanguage', data, function (res, status) {
+      if(res['status'] === 'success') {
+        window.location.assign(URL.join('https://visualgo.net/'));
+      } else if (res['status'] === 'failed') {
+        alert(res['message']);
+      } else {
+        alert('An unknown error occurred');
+      }
+    })
+  }
+</script>
+<div id="dark-overlay"></div>
+<div id="main-content-container" style="flex: 1">
+
+<div id="left-bar"></div>
+<div id="right-bar"></div>
+<div id="media-controls">
+<div id="speed-control"><div id="speed-input"></div><div id="viz-speed-value">1x</div></div>
+<span id="go-to-beginning" class="media-control-button" title="go to beginning" onclick="goToBeginning()"><img src="../img/goToBeginning.png" alt="go to beginning"></span>
+<span id="previous" class="media-control-button" title="step backward" onclick="stepBackward()"><img src="../img/prevFrame.png" alt="previous frame"></span>
+<span id="pause" class="media-control-button" title="pause" onclick="pause()"><img src="../img/pause.png" alt="pause"></span>
+<span id="play" class="media-control-button" title="play" onclick="play()"><img src="../img/play.png" alt="play"></span>
+<span id="next" class="media-control-button" title="step forward" onclick="stepForward()"><img src="../img/nextFrame.png" alt="next frame"></span>
+<span id="go-to-end" class="media-control-button" title="go to end" onclick="goToEnd()"><img src="../img/goToEnd.png" alt="go to end"></span>
+<div id="progress-bar" class="media-control-button"></div>
+</div>
+<div id="viz">
+<p id="info" "></p>
+</div>
+<div id="current-action" class="panel"></div>
+<div id="e-lecture" class="panel"></div> 
+<div id="e-lecture-timeline"></div>
+<div id="e-lecture-f1map">
+<div class="e-lecture-f1map-sector" sectorNo="1"></div>
+<div class="e-lecture-f1map-sector" sectorNo="2"></div>
+<div class="e-lecture-f1map-sector" sectorNo="3"></div>
+</div>
+<div id="overlay" hidden onclick="end_eLecture()"> 
+<div id="electure-dropdown">
+<select class="lecture-dropdown" style="width:100%">
+<option value="1">1. Visualization</option>
+<option value="2">2. Recursion Tree and DAG</option>
+<option value="3">3. Example Recursion - One Subproblem</option>
+<option value="3-1">&nbsp;&nbsp;&nbsp;3-1. Factorial Numbers</option>
+<option value="3-2">&nbsp;&nbsp;&nbsp;3-2. Greatest Common Divisor (GCD)</option>
+<option value="3-3">&nbsp;&nbsp;&nbsp;3-3. Max Range Sum</option>
+<option value="3-4">&nbsp;&nbsp;&nbsp;3-4. Catalan Numbers</option>
+<option value="4">4. Example Recursion - Two Subproblems</option>
+<option value="4-1">&nbsp;&nbsp;&nbsp;4-1. Fibonacci Numbers</option>
+<option value="4-2">&nbsp;&nbsp;&nbsp;4-2. Binomial Coefficient C(n, k)</option>
+<option value="4-3">&nbsp;&nbsp;&nbsp;4-3. 0-1 Knapsack</option>
+<option value="5">5. Example Recursion - Many Subproblems</option>
+<option value="5-1">&nbsp;&nbsp;&nbsp;5-1. Coin Change</option>
+<option value="5-2">&nbsp;&nbsp;&nbsp;5-2. Longest Increasing Subsequence (LIS)</option>
+<option value="5-3">&nbsp;&nbsp;&nbsp;5-3. Traveling Salesman Problem (TSP)</option>
+<option value="5-4">&nbsp;&nbsp;&nbsp;5-4. Graph Matching</option>
+<option value="6">6. Example Recurrences</option>
+<option value="6-1">&nbsp;&nbsp;&nbsp;6-1. Merge Sort Analysis (1)</option>
+<option value="6-2">&nbsp;&nbsp;&nbsp;6-2. Analysis (2)</option>
+<option value="6-3">&nbsp;&nbsp;&nbsp;6-3. Analysis (3)</option>
+<option value="6-4">&nbsp;&nbsp;&nbsp;6-4. Analysis (4)</option>
+<option value="6-5">&nbsp;&nbsp;&nbsp;6-5. (Non-Randomized) Quick Sort Analysis</option>
+<option value="6-6">&nbsp;&nbsp;&nbsp;6-6. Analysis (2)</option>
+<option value="6-7">&nbsp;&nbsp;&nbsp;6-7. Analysis (3)</option>
+<option value="6-8">&nbsp;&nbsp;&nbsp;6-8. Analysis (4)</option>
+<option value="6-9">&nbsp;&nbsp;&nbsp;6-9. Master Theorem, Case 1 (1)</option>
+<option value="6-10">&nbsp;&nbsp;&nbsp;6-10. Case 1 (2)</option>
+<option value="6-11">&nbsp;&nbsp;&nbsp;6-11. Master Theorem, Case 2</option>
+<option value="6-12">&nbsp;&nbsp;&nbsp;6-12. Master Theorem, Case 3</option>
+</select>
+</div>
+<div class="electure-print" title="Print the e-Lecture note" style="z-index=8001;">&#9997;</div>
+<div class="electure-end" title="Close the e-Lecture mode" style="z-index=8001;">&#10008;</div>
+</div>
+<div id="dropdown-temp-holder" hidden></div>
+
+<div id="electure-1" class="electure-dialog" style="top:70px;left:60px;width:500px;">
+<p>This visualization can visualize the recursion tree of a recursive algorithm or the recursion tree of a Divide and Conquer (D&amp;C) algorithm recurrence.</p><br><p>You can also visualize the Directed Acyclic Graph (DAG) of a Dynamic Programming (DP) algorithm.</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+<hr>
+<p><b>Remarks</b>: By default, we show e-Lecture Mode for first time (or non logged-in) visitor.<br>
+If you are an NUS student and a repeat visitor, please <a href="https://visualgo.net/login"><u>login</u></a>.</p>
+</div>
+<div class="electure-next" data-nextid="2" title="Go to the next slide 2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-2" class="electure-dialog" style="bottom:60px;left:50%;margin-left:-250px;width:500px;">
+<p>This is the Recursion Tree and Recursion Directed Acyclic Graph (DAG) visualization area. The Recursion Tree/DAG are drawn/animated as per how a real computer program that implements this recursion works, i.e., "depth-first".</p><br><p>The current parameter value is shown inside each vertex (comma-separated for recursion with two or more parameters). Active vertices will be colored <span style="color: orange;">orange</span>. Vertices that are no longer calling any other recursive problem (the base cases) will be colored <span style="color: green;">green</span>. Vertices (subproblems) that are repeated will be colored <span style="color: lightblue;">lightblue</span> for the second occurrence onwards. The return value of each recursive call is written as a <span style="color: red;">red</span> text below the vertex.</p><br><p>Note that due to combinatorial explosion, it will be very hard to visualize the Recursion Tree for large instances.</p><br><p>For the Recursion DAG, it will also very hard to minimize the number of edge crossings in the event of overlapping subproblems.</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 1: Since you are not <a href="https://visualgo.net/login"><u>logged-in</u></a>, you may be a first time visitor (or not an NUS student) who are not aware of the following keyboard shortcuts to navigate this e-Lecture mode: <b>[PageDown]</b>/<b>[PageUp]</b> to go to the next/previous slide, respectively, (and if the drop-down box is highlighted, you can also use <b>[&rarr; or &darr;/&larr; or &uarr;]</b> to do the same),and <b>[Esc]</b> to toggle between this e-Lecture mode and exploration mode.</p>
+</div>
+<div class="electure-prev" data-nextid="1" title="Go to the previous slide 1">&larr;</div>
+<div class="electure-next" data-nextid="3" title="Go to the next slide 3">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-3" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>Select one of the example recursive algorithms or write your own recursive code — in JavaScript. Note that the visualization can run <i>any</i> JavaScript code, including malicious code, so please be careful (it will only affect your own web browser, don&#39;t worry).</p><br><p>Click the &#39;Run&#39; button at the top right corner of the action box to start the visualization after you have selected (or written) a valid JavaScript code!</p><br><p>In the next sub-sections, we start with example recursive algorithms with just one sub-problem, i.e., not branching. For these one-subproblem examples, their recursion trees and recursion DAGs are 100% identical (they looked like Singly Linked Lists from the root (initial call) to the leaf (base case). As there is no overlapping subproblem for the examples in this category, you will not see any <span style="color: lightblue;">lightblue</span>-colored vertex and only one <span style="color: green;">green</span>-colored vertex (the base case).</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 2: We designed this visualization and this e-Lecture mode to look good on 1366x768 resolution <b>or larger</b> (typical modern laptop resolution in 2021). We recommend using Google Chrome to access VisuAlgo. Go to full screen mode (<b>F11</b>) to enjoy this setup. However, you can use zoom-in (<b>Ctrl +</b>) or zoom-out (<b>Ctrl -</b>) to calibrate this.</p>
+</div>
+<div class="electure-prev" data-nextid="2" title="Go to the previous slide 2">&larr;</div>
+<div class="electure-next" data-nextid="3-1" title="Go to the next slide 3-1">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-3-1" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Factorial Numbers example computes the factorial of an integer <b>N</b>.</p><br><samp>f(n) = 1 (if n == 0);<br>f(n) = n*f(n-1) otherwise</samp><br><br><p>It is one of the simplest (tail) recursive function that can be easily rewritten into an iterative version. It&#39;s time complexity is also simply O(n).</p><br><p>The value of Factorial f(n) grows very fast, thus try only the small values of n &le; 10.</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+<hr>
+<p>Pro-tip 3: Other than using the typical media UI at the bottom of the page, you can also control the animation playback using keyboard shortcuts (in Exploration Mode): <b>Spacebar</b> to play/pause/replay the animation, <b>&larr;</b>/<b>&rarr;</b> to step the animation backwards/forwards, respectively, and <b>-</b>/<b>+</b> to decrease/increase the animation speed, respectively.</p>
+</div>
+<div class="electure-prev" data-nextid="3" title="Go to the previous slide 3">&larr;</div>
+<div class="electure-next" data-nextid="3-2" title="Go to the next slide 3-2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-3-2" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Greatest Common Divisor (GCD) example computes the GCD of two integers <samp>a</samp> and <samp>b</samp>.</p><br><samp>f(a, b) = a (if b == 0);<br>f(a, b) = f(b, a%b) otherwise</samp><br><br><p>This is the classic Euclid&#39;s algorithm that runs in O(log min(a, b)).</p><br><p>Due to its low time complexity, it should be OK to try <samp>0 &le; a, b &le; 99</samp>.</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="3-1" title="Go to the previous slide 3-1">&larr;</div>
+<div class="electure-next" data-nextid="3-3" title="Go to the next slide 3-3">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-3-3" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Max Range Sum example computes the value of the subarray with the maximum total sum inside the given array <samp>ai</samp> with <samp>n</samp> integers (the first textbox below the code editor textbox). The value of <samp>ai</samp> can be positive integers, zeroes, or negative integers (without any negative integer, the answer will obviously the sum of the entire integers in <samp>ai</samp>).</p><br><p>Formally, let&#39;s define <samp>RSQ(i, j) = a1[i] + a1[i+1] + ... + a1[j]</samp>, where <samp>0 &le; i &le; j &le; n-1</samp> (RSQ stands for Range Sum Query). Max Range Sum problem seeks to find the optimal <samp>i</samp> and <samp>j</samp> such that <samp>RSQ(i, j)</samp> is the maximum.</p><br><samp>f(i) = max(ai[0], 0) (if i == 0, as ai[0] can be negative);<br>f(i) = max(f(i-1) + ai[i], 0) otherwise</samp><br><br><p>We call <samp>f(n-1)</samp>. The largest value of <samp>f(i)</samp> is the answer.</p><br><p>This is the classic Kadane&#39;s algorithm that runs in O(n).</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="3-2" title="Go to the previous slide 3-2">&larr;</div>
+<div class="electure-next" data-nextid="3-4" title="Go to the next slide 3-4">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-3-4" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Catalan example computes the <b>N</b>-th catalan number recursively.</p><br><p>[This slide is a stub and will be expanded later].</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="3-3" title="Go to the previous slide 3-3">&larr;</div>
+<div class="electure-next" data-nextid="4" title="Go to the next slide 4">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>In the next sub-sections, we will see example recursive algorithms that have exactly two sub-problems, i.e., branching. The sizes of the subproblems can be identical or vary. For these one-subproblem examples, their recursion trees will usually be much bigger that their recursion DAGs (especially if there are (many) overlapping sub-problems, indicated with the <span style="color: lightblue;">lightblue</span> vertices on the recursion tree drawing).</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="3-4" title="Go to the previous slide 3-4">&larr;</div>
+<div class="electure-next" data-nextid="4-1" title="Go to the next slide 4-1">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4-1" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Fibonacci Numbers example computes the <b>N</b>-th Fibonacci number.</p><br><samp>f(n) = n (if n <= 1); // i.e., 0 if n == 0 or 1 if n == 1<br>f(n) = f(n-1) + f(n-2) otherwise</samp><br><br><p>Unlike Factorial example, this time each recursive step recurses to two other smaller sub-problems (if we call f(n-1) first before f(n-2), then the left side of the recursion tree will be taller than the right side &mdash; try swapping the two sub-problems). It can still be written in iterative fashion after one understands the concept of Dynamic Programming. Fibonacci recursion tree (and DAG) are frequently used to showcase the basic idea of recursion, its inefficiency, and the linkage to Dynamic Programming topic.</p><br><p>The value of Fibonacci(n) grows very fast and the Recursion Tree also grows exponentially, i.e., at least &Omega;(2<sup>n/2</sup>), thus try only the small values of n &le; 7 (to avoid crashing your web browser). It&#39;s Recursion DAG only contains O(n) vertices and thus can go to a larger n &le; 20 (to still looks nice in this visualization).</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="4" title="Go to the previous slide 4">&larr;</div>
+<div class="electure-next" data-nextid="4-2" title="Go to the next slide 4-2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4-2" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The C(n, k) example computes the binomial coefficient C(n, k).</p><br><samp>f(n, k) = 1 (if k == 0); // 1 way to take nothing out of n items<br>f(n, k) = 1 (if k == n); // 1 way to take everything out of n items<br>otherwise take the last item or skip it<br>f(n, k) = f(n-1, k-1) + f(n-1, k)</samp><br><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="4-1" title="Go to the previous slide 4-1">&larr;</div>
+<div class="electure-next" data-nextid="4-3" title="Go to the next slide 4-3">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-4-3" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The 0-1 Knapsack example solves the <a href="https://en.wikipedia.org/wiki/Knapsack_problem#0.2F1_knapsack_problem" target="_blank"><u>0/1 Knapsack Problem</u></a>: What is the maximum value that we can get, given a knapsack that can hold a maximum weight of w, where the value of the i-th item is a1[i], the weight of the i-th item is a2[i]?</p><br><p>[This slide is a stub and will be expanded later].</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="4-2" title="Go to the previous slide 4-2">&larr;</div>
+<div class="electure-next" data-nextid="5" title="Go to the next slide 5">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-5" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>In the next sub-sections, we will see example recursive algorithms that have many sub-problems (1, 2, 3, ..., a certain limit). For many of these examples, the sizes of their Recursion Trees are exponential and we will need to use Dynamic Programming to compute its Recursion DAGs instead.</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="4-3" title="Go to the previous slide 4-3">&larr;</div>
+<div class="electure-next" data-nextid="5-1" title="Go to the next slide 5-1">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-5-1" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Coin Change example solves the <a href="https://en.wikipedia.org/wiki/Change-making_problem" target="_blank"><u>Coin Change problem</u></a>: Given a list of coin values in a1, what is the minimum number of coins needed to get the value v?</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="5" title="Go to the previous slide 5">&larr;</div>
+<div class="electure-next" data-nextid="5-2" title="Go to the next slide 5-2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-5-2" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Longest Increasing Subsequence example solves the <a href="https://en.wikipedia.org/wiki/Longest_increasing_subsequence" target="_blank"><u>Longest Increasing Subsequence</u></a> problem: Given an array a1, how long is the Longest Increasing Subsequnce of the array?</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="5-1" title="Go to the previous slide 5-1">&larr;</div>
+<div class="electure-next" data-nextid="5-3" title="Go to the next slide 5-3">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-5-3" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Traveling Salesman example solves the <a href="https://en.wikipedia.org/wiki/Travelling_salesman_problem"><u>Traveling Salesman Problem</u></a> on small graph: How long is the shortest path that goes from city 0, passes through every city once, and goes back again to 0? The distance between city i and city j is denoted by a1[i][j].</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="5-2" title="Go to the previous slide 5-2">&larr;</div>
+<div class="electure-next" data-nextid="5-4" title="Go to the next slide 5-4">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-5-4" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The Graph Matching problem computes the maximum number of <a href="https://en.wikipedia.org/wiki/Matching_(graph_theory)"><u>matching</u></a> on a <b>small</b> graph, which is given in the adjacency matrix a1.</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="5-3" title="Go to the previous slide 5-3">&larr;</div>
+<div class="electure-next" data-nextid="6" title="Go to the next slide 6">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>In the next sub-sections, instead of visualizing the Recursion Tree of a recursive algorithm, we visualize the recursion tree of the recurrence (equation) of the time complexity of certain Divide and Conquer (D&amp;C) algorithms.</p><br><p>The value computed by <samp>f(n)</samp> <span style="color: red;">(the red label underneath each vertex that signifies the return value of that recursive function/that subproblem)</span> is thus the <b>total</b> number of operations taken by that recursive algorithm when its problem size is <samp>n</samp> (the value drawn inside each vertex). Most textbooks will say the function name of this recurrence as <samp>T(n)</samp>, but we choose not to change our default <samp>f(n)</samp> function name that is used in all other recursive algorithm visualizations. Some other textbooks (e.g., CLRS) also put the cost of each vertex only, not the cost of the entire subproblem.</p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> the current visualization manually.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="5-4" title="Go to the previous slide 5-4">&larr;</div>
+<div class="electure-next" data-nextid="6-1" title="Go to the next slide 6-1">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-1" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>In <a href="sorting60ee.html?slide=11-8"><u>Sorting</u></a> visualization, we learn about merge sort. It&#39;s time complexity recurrences are:</p><br><samp>f(n) = &Theta;(1) (if n &lt; n<sub>0</sub></samp>) &mdash; we usually assume that the base cases are &Theta;(1)<br><samp>f(n) = f(n/2) + f(n/2) + c*n (otherwise)</samp><br><br><p>Please ensure that you see the recursion tree of the default example (n = 16). Click <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> to be sure, then you can leave the background picture as it is for the next few sub-slides. You should see the initial problem size of <samp>n = 16</samp> written inside the root vertex and its return value (total amount of work done by <samp>f(16)</samp> is <samp>32+32+1*16 = 80</samp>). This value of <samp>f(n)</samp> is consistent throughout the recursion tree, e.g., <samp>f(8) = f(4)+f(4)+c*4 = 12+12+1*8 = 32</samp>.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6" title="Go to the previous slide 6">&larr;</div>
+<div class="electure-next" data-nextid="6-2" title="Go to the next slide 6-2">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-2" class="electure-dialog" style="top:100px;left:50%;margin-left:-500px;width:200px;">
+<p>We see that<br>the height of<br>this recursion tree<br>is log<sub>2</sub> n<br>as we keep<br>halving n by 2<br>until we reach<br>the base case<br>of size 1.</p><br><p>For n = 16, we have<br>16-><br>8-><br>4-><br>2-><br>1 (log<sub>2</sub> 16 = 4 steps).</p><br><p>PS: height of tree =<br>the number of edges<br>from root to<br>the deepest leaf.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-1" title="Go to the previous slide 6-1">&larr;</div>
+<div class="electure-next" data-nextid="6-3" title="Go to the next slide 6-3">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-3" class="electure-dialog" style="top:200px;left:60px;width:500px;">
+<p>As the effort done in the recursive step per subproblem of size n is c*n (the divide (trivial, &Theta;(1)) and the conquer (merge) operation, the &Theta;(n)), we will perform exactly c*n operations per each recursion level of <b>this</b> specific recursion tree.</p><br><p>The root of size (n) does c*n operations during the merge step.<br>The two children of the root of size (n/2) both do c*n/2, and 2*c*n/2 = c*n too.<br>The grandchildren level is 4*c*n/4 = c*n too.<br>And so on until the last level (the leaves).</p><br><p>As the <span style="color: red;">red label underneath each vertex in this visualization</span> reports the value of the entire subproblem (including the subtrees below), these identical costs per level are not easily seen, e.g., from root to leaf, we see 80, 2x32 = 64, 4x12 = 48, 8x4 = 32, 16x1 = 16 and may get different conclusion... However, if we discounted the values of its subproblems, we will get the same conclusion, e.g., for the root, we do 80-2x32 = 16 operations, for the children of the root, we do 2x(32-2x12) = 2x8 = 16 operations too, etc.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-2" title="Go to the previous slide 6-2">&larr;</div>
+<div class="electure-next" data-nextid="6-4" title="Go to the next slide 6-4">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-4" class="electure-dialog" style="bottom:70px;left:50%;margin-left:-250px;width:500px;">
+<p>The number of <span style="color: green;">green</span> leaves is 2<sup>log<sub>2</sub> n</sup> = n<sup>log<sub>2</sub> 2</sup> = n.</p><br><p>Each of these leaf does &Theta;(1) step, thus the total work of the last (leaf) level is also &Theta;(n).</p><br><p>The total work done by Merge sort is thus c*n per level, multiplied by the height of the recursion tree (log<sub>2</sub> n + 1 more for the leaves), or &Theta;(n log n).</p><br><p>For this example, <samp>f(16) = 80</samp> from 1x16 x (log<sub>2</sub> 16 + 1) = 16 x (4 + 1) = 16 x 5 = 80.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-3" title="Go to the previous slide 6-3">&larr;</div>
+<div class="electure-next" data-nextid="6-5" title="Go to the next slide 6-5">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-5" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>In <a href="sorting86af.html?slide=12-12"><u>Sorting</u></a> visualization, we also learn about the non-random(ized) quick sort.</p><br><p>It may have a worst case behavior of O(n<sup>2</sup>) on certain kind of (trivial) instances of (nearly-) sorted input and it may have the following time complexity recurrence (with <samp>a = 1</samp>):</p><br><samp>f(n) = Θ(1) (if n &lt; n<sub>0</sub>)</samp> &mdash; we usually assume that the base cases are &Theta;(1)<br><samp>f(n) = f(n-a) + f(a) + c*n (otherwise)</samp><br><br><p>Note that writing the recurrence in the other direction does not matter much asymptotically, other than the recursion tree will be mirrored.</p><br><p>Click <span class="slide-actions" onclick="doButtonAction144()">Redraw</span> to ensure that the explanation in the next few slides makes sense.<br>We want to show that this recursion tree has f(n) = O(n<sup>2</sup>).</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-4" title="Go to the previous slide 6-4">&larr;</div>
+<div class="electure-next" data-nextid="6-6" title="Go to the next slide 6-6">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-6" class="electure-dialog" style="top:100px;left:50%;margin-left:-400px;width:200px;">
+<p>We see that<br>the height of<br>this recursion tree<br>is rather tall, i.e., <samp>n/a-1</samp><br>as we only reduces <samp>n</samp><br>by <samp>a</samp> per level.<br>Thus, we need <samp>n/a-1</samp> steps<br>to reach the base case<br>(<samp>n = 1</samp>).</p><br><p>For <samp>n = 16, a = 1</samp>, we have<br>16-><br>15-><br>14-><br>...-><br>2-><br>1 (16/1 - 1 = 15 steps).</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-5" title="Go to the previous slide 6-5">&larr;</div>
+<div class="electure-next" data-nextid="6-7" title="Go to the next slide 6-7">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-7" class="electure-dialog" style="top:200px;left:60px;width:500px;">
+<p>As the effort done in the recursive step per subproblem of size <samp>n</samp> is <samp>c*n</samp> (divide (the partition) operation in &Theta;(n); the conquer step is trivial &mdash; &Theta;(1)), we will perform exactly c*n operations per each recursion level.</p><br><p>The root of size (n) does c*n operations during the partition step.<br>The children of the root of size (n-a) does c*(n-1) and the other does f(a).<br>The grandchildren level does c*(n-2) and the other does f(a).<br>And so on until the last level (the leaves both does f(a)).</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-6" title="Go to the previous slide 6-6">&larr;</div>
+<div class="electure-next" data-nextid="6-8" title="Go to the next slide 6-8">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-8" class="electure-dialog" style="bottom:200px;left:50%;margin-left:-250px;width:500px;">
+<p>The total work done by Quick sort on this worst-case input is the sum of arithmetic progression series of <samp>1+2+...+n</samp> plus a few other constant factor operations (all the <samp>f(a)</samp> are &Theta;(1)). This simplifies to <samp>f(n) = &Theta;(n<sup>2</sup>)</samp>.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-7" title="Go to the previous slide 6-7">&larr;</div>
+<div class="electure-next" data-nextid="6-9" title="Go to the next slide 6-9">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-9" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>For recurrences of the form:</p><samp>f(n) = a*f(n/b) + g(n)</samp><br><p>where a &ge; 1, b &gt; 1, and g(n) is asymptotically positive,<br>we maybe able to apply the master method/theorem.<br>PS: In this visualization, we have to rename CLRS function names to our convention:<br><samp>f(n) &rightarrow; g(n)</samp> and <samp>T(n) &rightarrow; f(n)</samp>.</p><br><p>We compare the driving function <samp>g(n)</samp> (the amount of divide and conquer work in each recursive step of size <samp>n</samp>) with <samp>n<sup>log<sub>b</sub>a</sup></samp> (the watershed function &mdash; also the asymptotic number of leaves of the recursion tree), if <samp>g(n) = O(n<sup>log<sub>b</sub>a-&epsilon;</sup>)</samp> for &epsilon; &gt; 0, it means that the driving function <samp>g(n)</samp> grows polynomially slower than the watershed function n<sup>log<sub>b</sub>a</sup> (by a factor of <samp>n<sup>&epsilon;</sup></samp>), thus the watershed function n<sup>log<sub>b</sub>a</sup> will dominate and the solution of the recurrence is <samp>f(n) = &theta;(n<sup>log<sub>b</sub>a</sup>)</samp>.</p><br><p>Visually, if you see the recursion tree (<span class="slide-actions" onclick="doButtonAction144()">Redraw</span> to ensure that you see the correct picture) for recurrence that falls into case 1 category, the cost per level grows exponentially from root level to the leaves (in this picture, 1*4*4 = 16, 7*2*2 = 28, 49*1*1 = 49, ..., 16+28+49 = 93), and the total cost of the leaves dominates the total cost of all internal vertices.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-8" title="Go to the previous slide 6-8">&larr;</div>
+<div class="electure-next" data-nextid="6-10" title="Go to the next slide 6-10">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-10" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The most popular example is <a href="https://en.wikipedia.org/wiki/Strassen_algorithm" target-"_blank"><u>Strassen&#39;s algorithm for matrix multiplication</u></a> where case 1 of master theorem is applicable. The recurrence is: <samp>f(n) = 7*f(n/2) + c*n*n</samp>.</p><br>Thus <samp>a = 7</samp>, <samp>b = 2</samp>, watershed = <samp>n<sup>log<sub>2</sub> 7</sup> = n<sup>2.807</sup></samp>, driving = <samp>f(n) = &Theta;(n<sup>2</sup>)</samp>.</p><br><p><samp>n<sup>2</sup> = O(n<sup>2.807-&epsilon;</sup>) for &epsilon; = 0.807...</samp> &mdash; case 1 &mdash; Thus <samp>f(n) = &Theta;(n<sup>2.807</sup>)</samp><br></samp><br><p>Exercise: You can try changing the demo code by setting <samp>a = 8</samp> and set <samp>g(n)</samp> from <samp>c*n*n</samp> to <samp>c*1</samp> to change the recurrence of Strassen&#39;s algorithm to the recurrence of the simple recursive matrix multiplication algorithm. For this one, <samp>f(n) = &Theta;(n<sup>3</sup>)</samp>.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-9" title="Go to the previous slide 6-9">&larr;</div>
+<div class="electure-next" data-nextid="6-11" title="Go to the next slide 6-11">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-11" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>The detailed analysis of the Merge sort algorithm from a few slides earlier can be simplified using master theorem, but case 2, e.g., <samp>f(n) = 2*f(n/2) + n</samp>.</p><br><p><samp>Thus <samp>a = 2</samp>, <samp>b = 2</samp>, watershed = <samp>n<sup>log<sub>2</sub> 2</sup> = n</samp>, driving = <samp>f(n) = &Theta;(n)</samp>.</p><br><p><samp>n = &Theta;(n log<sup>k</sup> n)</samp> for <samp>k = 0</samp> &mdash; case 2 &mdash; Thus <samp>f(n) = &Theta;(n log n)</samp>.</p><br><p>Visually, if you see the recursion tree (<span class="slide-actions" onclick="doButtonAction144()">Redraw</span> to ensure that you see the correct picture) for recurrence that falls into case 2 category, the cost per level is roughly the same, i.e., &Theta;(<samp>n<sup>log<sub>b</sub>a</sup> log<sup>k</sup> n</samp>) and there are about <samp>log<sub>b</sub> n</samp> levels. Most of the time, k = 0, i.e., the watershed and the driving functions have the same asymptotic growth and we claim that the solution is <samp>f(n) = &Theta;(n<sup>log<sub>b</sub>a</sup> log<sup>k+1</sup> n)</samp>. That&#39;s it, the solution of the recurrence that falls under case 2 is to add an extra log factor to <samp>g(n)</samp>.</p><br><p>Exercise: You can try changing the demo code by setting <samp>a = 1</samp> and set <samp>g(n)</samp> from <samp>c*n</samp> to <samp>c*1</samp> to change the recurrence of Merge sort algorithm to the recurrence of the binary search algorithm. For this one, <samp>f(n) = &Theta;(log n)</samp>.</p>
+<div class="electure-addition">
+</div>
+<div class="electure-prev" data-nextid="6-10" title="Go to the previous slide 6-10">&larr;</div>
+<div class="electure-next" data-nextid="6-12" title="Go to the next slide 6-12">&rarr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="electure-6-12" class="electure-dialog" style="bottom:290px;left:60px;width:500px;">
+<p>Case 3 is the opposite of Case 1, where the driving function <samp>g(n)</samp> grows polynomially faster than the watershed function <samp>n<sup>log<sub>b</sub>a</sup></samp>. Thus the bulk of the operations is done by the driving function at the root level (but check the regularity condition too, to be elaborated below). This case 3 is actually rarely appear in real algorithms so we use an example recurrence: <samp>f(n) = 4*f(n/2) + n^3</samp>.</p><br><p>Thus <samp>a = 4</samp>, <samp>b = 2</samp>, watershed = <samp>n<sup>log<sub>2</sub> 4</sup> = n<sup>2</sup>, driving = <samp>f(n) = &Theta;(n<sup>3</sup>)</samp>.</p><br><p><samp>n^3 = &Omega;(n<sup>2+&epsilon;</sup>) for &epsilon; = 1</samp> and<br><samp>4*(n/2)<sup>2</sup> &le; c*n<sup>3</sup></samp> (regularity condition) for <samp>c = 1/2</samp> &mdash; case 3 &mdash; Thus <samp>f(n) = &Theta;(n<sup>3</sup>)</samp>.</p><br><p>Visually, if you see the recursion tree (<span class="slide-actions" onclick="doButtonAction144()">Redraw</span> to ensure that you see the correct picture) for recurrence that falls into case 3 category, the cost per level <b>drops</b> exponentially from root level to the leaves (in this picture, 1*4*4*4 = 64, 4*2*2*2 = 32, 16*1*1*1 = 16, ..., 64+32+16 = 112), and the total cost of the root dominates the total cost of all other internal vertices (including the (many) leaves).</p>
+<div class="electure-addition">
+<hr>
+<p>You have reached the last slide. Return to 'Exploration Mode' to start exploring!</p>
+<p>Note that if you notice any bug in this visualization or if you want to request for a new visualization feature, do not hesitate to drop an email to the project leader: Dr Steven Halim via his email address: stevenhalim at gmail dot com.</p>
+</div>
+<div class="electure-prev" data-nextid="6-11" title="Go to the previous slide 6-11">&larr;</div>
+<div class="electure-read-status" title="Spend some more time reading this slide">&#128337;</div>
+</div>
+<div id="popup" hidden>
+<div id="popup-content"></div>
+<span id="hide-popup" hidden>X <u>Close</u></span>
+</div>
+<div id="rotateDeviceOverlay" style="display: none;">
+<div id="rotateDeviceText" style="font-size: 45px; font-weight: bold; text-align: center">Please rotate your device to landscape mode for a better user experience</div>
+<div id="widenDeviceText" style="font-size: 45px; font-weight: bold; text-align: center">Please make the window wider for a better user experience</div>
+</div>
+<div id="error"></div>
+<div id="actions" class="panel">
+
+<div id="code-area">
+function f(<input type="text" id="arguments_textBox" size="9">){
+<select id="codeExample">
+
+<option id="Factorial" value="Factorial">Factorial Numbers</option>
+<option id="BinarySearch" value="BinarySearch">Binary Search</option>
+<option id="ModuloPower" value="ModuloPower">Modulo Power</option>
+<option id="GCD" value="GCD">GCD(a, b)</option>
+<option id="MaxRS" value="MaxRS">Max Range Sum</option> 
+<option id="Catalan" value="Catalan">Catalan Numbers</option>
+<option id="Fibonacci" value="Fibonacci" selected="selected">Fibonacci Numbers</option>
+<option id="Cnk" value="Cnk">C(n, k)</option> 
+<option id="LCS" value="LCS">LCS</option>
+<option id="Knapsack" value="Knapsack">0-1 Knapsack</option>
+<option id="CC" value="CC">Coin Change</option>
+<option id="LIS" value="LIS">LIS</option> 
+<option id="TSP" value="TSP">TSP</option> 
+<option id="Matching" value="Matching">Matching</option>
+<option id="MergeSort" value="MergeSort">Merge Sort Analysis</option>
+<option id="QuickSort" value="QuickSort">Quick Sort Analysis</option>
+<option id="RandQSort" value="RandQSort">Rand Q Sort Analysis</option>
+<option id="MT2" value="MT2">Master T, Case 2</option>
+<option id="MT1" value="MT1">Master T, Case 1</option>
+<option id="MT3" value="MT3">Master T, Case 3</option>
+<option id="CustomCode" value="CustomCode">Custom Code</option>
+
+
+</select>
+<div id="run" onclick="go()"> Run</div>
+<br>
+<textarea id="code" rows="9" cols="45"></textarea>}
+</div>
+<div id="array-area">
+var a1 = <input type="text" id="variable1_textBox" size="39" value>
+<br>
+var a2 = <input type="text" id="variable2_textBox" size="39" value>
+</div>
+<br>
+</div>
+<div id="actions-hide" class="panel-hide"><img src="../img/arrow_white_right.png" alt=">" title="show/hide actions panel" /></div>
+<div id="actions-extras">
+<div class="run action-menu-pullout">
+
+<div id="run-go" class="execAction coloured-menu-option" onclick="go()"><p>GO</p></div>
+</div>
+</div>
+</div>
+
+<div id="bottom-bar">
+<a id="scale" style="display: none;">1.0x</a>
+<a id="trigger-about">About</a>
+<a id="trigger-team">Team</a>
+<a id="trigger-terms">Terms of use</a>
+<a id="trigger-privacy">Privacy Policy</a>
+</div>
+<div id="about" class="overlays">
+<h4>About</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>Initially conceived in 2011 by Associate Professor Steven Halim, VisuAlgo aimed to facilitate a deeper understanding of data structures and algorithms for his students by providing a self-paced, interactive learning platform.</p><p>Featuring numerous advanced algorithms discussed in Dr. Steven Halim&#39;s book, &#39;Competitive Programming&#39; — co-authored with Dr. Felix Halim and Dr. Suhendry Effendy — VisuAlgo remains the exclusive platform for visualizing and animating several of these complex algorithms even after a decade.</p><p>While primarily designed for National University of Singapore (NUS) students enrolled in various data structure and algorithm courses (e.g., CS1010/equivalent, CS2040/equivalent (including IT5003), CS3230, CS3233, and CS4234), VisuAlgo also serves as a valuable resource for inquisitive minds worldwide, promoting online learning.</p><p>Initially, VisuAlgo was not designed for small touch screens like smartphones, as intricate algorithm visualizations required substantial pixel space and click-and-drag interactions. For an optimal user experience, a minimum screen resolution of 1366x768 is recommended. However, since April 2022, a mobile (lite) version of VisuAlgo has been made available, making it possible to use a subset of VisuAlgo features on smartphone screens.</p><p>VisuAlgo remains a work in progress, with the ongoing development of more complex visualizations. At present, the platform features 24 visualization modules.</p><p>Equipped with a built-in question generator and answer verifier, VisuAlgo&#39;s "online quiz system" enables students to test their knowledge of basic data structures and algorithms. Questions are randomly generated based on specific rules, and students&#39; answers are automatically graded upon submission to our grading server. As more CS instructors adopt this online quiz system worldwide, it could effectively eliminate manual basic data structure and algorithm questions from standard Computer Science exams in many universities. By assigning a small (but non-zero) weight to passing the online quiz, CS instructors can significantly enhance their students&#39; mastery of these basic concepts, as they have access to an almost unlimited number of practice questions that can be instantly verified before taking the online quiz. Each VisuAlgo visualization module now includes its own online quiz component.</p><p>VisuAlgo has been translated into three primary languages: English, Chinese, and Indonesian. Additionally, we have authored public notes about VisuAlgo in various languages, including Indonesian, Korean, Vietnamese, and Thai:</p>
+<a href="https://www.facebook.com/notes/steven-halim/httpidvisualgonet-visualisasi-struktur-data-dan-algoritma-dengan-animasi/10153236934439689" target="_blank"><u>id</u></a>,
+<a href="http://blog.naver.com/visualgo_nus" target="_blank"><u>kr</u></a>,
+<a href="https://www.facebook.com/groups/163215593699283/permalink/824003417620494/" target="_blank"><u>vn</u></a>,
+<a href="http://pantip.com/topic/32736343" target="_blank"><u>th</u></a>.
+</div>
+</div>
+<div id="team" class="overlays">
+<h4>Team</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>
+<strong><span style="line-height: 150%;">Project Leader &amp; Advisor (Jul 2011-present)</span></strong><br>
+<a href="https://www.comp.nus.edu.sg/~stevenha/" target="_blank">Associate Professor Steven Halim</a>, School of Computing (SoC), National University of Singapore (NUS)<br>
+<a href="https://www.linkedin.com/in/felixhalim/" target="_blank">Dr Felix Halim</a>, Senior Software Engineer, Google (Mountain View)
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 1</span></strong><br>
+<b>CDTL TEG 1: Jul 2011-Apr 2012</b>: Koh Zi Chun, Victor Loh Bo Huai
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 1</span></strong><br>
+<b>Jul 2012-Dec 2013</b>: Phan Thi Quynh Trang, Peter Phandi, Albert Millardo Tjindradinata, Nguyen Hoang Duy<br>
+<b>Jun 2013-Apr 2014</b> <a href="https://www.rosemarietan.com/" target="_blank">Rose Marie Tan Zhao Yun</a>, Ivan Reinaldo
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 2</span></strong><br>
+<b>CDTL TEG 2: May 2014-Jul 2014</b>: Jonathan Irvin Gunawan, Nathan Azaria, Ian Leow Tze Wei, Nguyen Viet Dung, Nguyen Khac Tung, Steven Kester Yuwono, Cao Shengze, Mohan Jishnu
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 2</span></strong><br>
+<b>Jun 2014-Apr 2015</b>: Erin Teo Yi Ling, Wang Zi<br>
+<b>Jun 2016-Dec 2017</b>: Truong Ngoc Khanh, John Kevin Tjahjadi, Gabriella Michelle, Muhammad Rais Fathin Mudzakir<br>
+<b>Aug 2021-Apr 2023</b>: Liu Guangyuan, Manas Vegi, Sha Long, Vuong Hoang Long, Ting Xiao, Lim Dewen Aloysius<br>
+</p>
+<p>
+<strong><span style="line-height: 150%;">Undergraduate Student Researchers 3</span></strong><br>
+<b>Optiver: Aug 2023-Oct 2023</b>: Bui Hong Duc, Oleh Naver, Tay Ngan Lin<br>
+</p>
+<p>
+<strong><span style="line-height: 150%;">Final Year Project/UROP students 3</span></strong><br>
+<b>Aug 2023-Apr 2024</b>: Xiong Jingya, Radian Krisno, Ng Wee Han<br>
+</p>
+<p>
+List of translators who have contributed &ge; 100 translations can be found at <a href="https://visualgo.net/statistics">statistics</a> page.
+</p>
+<p>
+<strong><span style="line-height: 150%;">Acknowledgements</span></strong><br>
+NUS <a href="https://nus.edu.sg/cdtl" target="_blank"><u>CDTL</u></a> gave Teaching Enhancement Grant to kickstart this project.<div>For Academic Year 2023/24, a generous donation from Optiver will be used to further develop VisuAlgo.</div>
+</p>
+</div>
+</div>
+<div id="termsofuse" class="overlays">
+<h4>Terms of use</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p>VisuAlgo is generously offered at no cost to the global Computer Science community. If you appreciate VisuAlgo, we kindly request that you <b>spread the word about its existence to fellow Computer Science students and instructors</b>. You can share VisuAlgo through social media platforms (e.g., Facebook, YouTube, Instagram, TikTok, Twitter, etc), course webpages, blog reviews, emails, and more.</p><p>Data Structures and Algorithms (DSA) students and instructors are welcome to use this website directly for their classes. If you capture screenshots or videos from this site, feel free to use them elsewhere, provided that you cite the URL of this website (<a href="https://visualgo.net/">https://visualgo.net</a>) and/or the list of publications below as references. However, please refrain from downloading VisuAlgo&#39;s client-side files and hosting them on your website, as this constitutes plagiarism. At this time, we do not permit others to fork this project or create VisuAlgo variants. Personal use of an offline copy of the client-side VisuAlgo is acceptable.</p><p>Please note that VisuAlgo&#39;s online quiz component has a substantial server-side element, and it is not easy to save server-side scripts and databases locally. Currently, the general public can access the online quiz system only through the &#39;training mode.&#39; The &#39;test mode&#39; offers a more controlled environment for using randomly generated questions and automatic verification in real examinations at NUS.</p><p><strong><span style="line-height: 200%;">List of Publications</span></strong></p> <p>This work has been presented at the CLI Workshop at the ICPC World Finals 2012 (Poland, Warsaw) and at the IOI Conference at IOI 2012 (Sirmione-Montichiari, Italy). You can click <a href="https://ioinformatics.org/journal/INFOL099.pdf" target="_blank">this link</a> to read our 2012 paper about this system (it was not yet called VisuAlgo back in 2012) and <a href="https://ioinformatics.org/journal/v9_2015_243_245.pdf" target="_blank">this link</a> for the short update in 2015 (to link VisuAlgo name with the previous project).</p><p><strong><span style="line-height: 200%;">Bug Reports or Request for New Features</span></strong></p> <p>VisuAlgo is not a finished project. Associate Professor Steven Halim is still actively improving VisuAlgo. If you are using VisuAlgo and spot a bug in any of our visualization page/online quiz tool or if you want to request for new features, please contact Associate Professor Steven Halim. His contact is the concatenation of his name and add gmail dot com.</p>
+</div>
+</div>
+<div id="privacy-policy" class="overlays">
+<h4>Privacy Policy</h4><span class="close-overlay">&#x2715;</span>
+<div class="content">
+<p><b>Version 1.2 (Updated Fri, 18 Aug 2023).</b></p><p>Since Fri, 18 Aug 2023, we no longer use Google Analytics. Thus, all cookies that we use now are solely for the operations of this website. The annoying cookie-consent popup is now turned off even for first-time visitors.</p><p>Since Fri, 07 Jun 2023, thanks to a generous donation by Optiver, anyone in the world can self-create a VisuAlgo account to store a few customization settings (e.g., layout mode, default language, playback speed, etc).</p><p>Additionally, for NUS students, by using a VisuAlgo account (a tuple of NUS official email address, student name as in the class roster, and a password that is encrypted on the server side — no other personal data is stored), you are giving a consent for your course lecturer to keep track of your e-lecture slides reading and online quiz training progresses that is needed to run the course smoothly. Your VisuAlgo account will also be needed for taking NUS official VisuAlgo Online Quizzes and thus passing your account credentials to another person to do the Online Quiz on your behalf constitutes an academic offense. Your user account will be purged after the conclusion of the course unless you choose to keep your account (OPT-IN). Access to the full VisuAlgo database (with encrypted passwords) is limited to Prof Halim himself.</p><p>For other CS lecturers worldwide who have written to Steven, a VisuAlgo account (your (non-NUS) email address, you can use any display name, and encrypted password) is needed to distinguish your online credential versus the rest of the world. Your account will have CS lecturer specific features, namely the ability to see the hidden slides that contain (interesting) answers to the questions presented in the preceding slides before the hidden slides. You can also access Hard setting of the VisuAlgo Online Quizzes. You can freely use the material to enhance your data structures and algorithm classes. Note that there can be other CS lecturer specific features in the future.<br></p><p>For anyone with VisuAlgo account, you can remove your own account by yourself should you wish to no longer be associated with VisuAlgo tool.</p>
+</div>
+</div>
+</div>
+
+
+<script src="../../code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+<script src="../../cdn.jsdelivr.net/npm/bootstrap%405.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="../../unpkg.com/d3-force-boundary%400.0.1/dist/d3-force-boundary.min.js"></script>
+<script>
+  $(function () {
+    // overlays stuffs
+    $('#trigger-about').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#about').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-team').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#team').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-terms').click(function() {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#termsofuse').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    });
+
+    $('#trigger-privacy').click(function () {
+      if ($(window).width() > 600) {
+        $('#dark-overlay').fadeIn(function() {
+          $('#privacy-policy').fadeIn();
+        });
+      }
+      else
+        alert('Sorry, this dialog is too big. Please load it on bigger screen');
+    })
+
+    $('.close-overlay').click(function() {
+      $('.overlays').fadeOut(function() {
+        $('#dark-overlay').fadeOut();
+      });
+    });
+
+    $('#dark-overlay').click(function() {
+      $('.overlays').fadeOut();
+      $('#dark-overlay').fadeOut();
+      if (typeof GeometryWidget !== 'undefined') {
+        GeometryWidget.stopLoop();
+      }
+    });
+  })
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1566631-4"></script>
+<script>
+      $.ajaxSetup({
+        headers: {
+          'X-CSRF-TOKEN': "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H"
+        }
+      });
+
+      // handles account dropdown menu
+      $(function () {
+        $('#language-dropdown-btn').click(function (e) {
+          $('#language-dropdown-menu').css('display', 'block');
+          $('#account-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function () {
+          $('#language-dropdown-menu').css('display', 'none')
+        })
+      })
+
+      $(function () {
+        $('#account-dropdown-btn').click(function (e) {
+          $('#account-dropdown-menu').css('display', 'block')
+          $('#language-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function (e) {
+          $('#account-dropdown-menu').css('display', 'none')
+        })
+      })
+
+      // surprise colour!
+      // Referenced to in  home.js and viz.js also
+      var colourArray = ["#52bc69", "#d65775"/*"#ed5a7d"*/, "#2ebbd1", "#d9513c", "#fec515", "#4b65ba", "#ff8a27", "#a7d41e"]; // green, pink, blue, red, yellow, indigo, orange, lime
+
+      function disableScroll() { $('html').css('overflow', 'hidden'); }
+
+      function enableScroll() { $('html').css('overflow', 'visible'); }
+
+      function replaceAll(find, replace, str) { return str.replace(new RegExp(find, 'g'), replace); }
+
+      function getColours() {
+        var generatedColours = new Array();
+        while (generatedColours.length < 4) {
+          var n = (Math.floor(Math.random() * colourArray.length));
+          if ($.inArray(n, generatedColours) == -1)
+            generatedColours.push(n);
+        }
+        return generatedColours;
+      }
+
+      function isOn(value, position) {
+        return (value>>position) & 1 === 1;
+      }
+
+      function customAlert(msg) {
+        $('#custom-alert p').html(msg);
+        var m = -1 * ($('#custom-alert').outerHeight()/2);
+        $('#custom-alert').css('margin-top', m+'px');
+        $('#dark-overlay').fadeIn(function() {
+          $('#custom-alert').fadeIn(function() {
+            setTimeout(function() {
+              $('#custom-alert').fadeOut(function() {
+                $('#dark-overlay').fadeOut();
+              });
+            }, 1000);
+          });
+        });
+      }
+
+      function showLoadingScreen() {
+        $('#loading-overlay').show();
+        $('#loading-message').show();
+      }
+
+      function hideLoadingScreen() {
+        $('#loading-overlay').hide();
+      }
+
+      function commonAction(retval, msg) {
+        if (retval) {
+          $('#current-action').show();
+          $('#current-action').html(mode == "exploration" ? msg : ("e-Lecture Example (auto play until done)<br>" + msg));
+          $('#progress-bar').slider("option", "max", gw.getTotalIteration()-1);
+          triggerRightPanels();
+          isPlaying = true;
+        }
+      }
+
+      function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; ++i) {
+          var pair = vars[i].split('=');
+          if (decodeURIComponent(pair[0]) == variable)
+            return decodeURIComponent(pair[1]);
+        }
+        return "";
+      }
+
+      const MOBILE_WIDTH = 1000;
+      const matchMediaMobile = window.matchMedia(`only screen and (max-width: ${MOBILE_WIDTH}px)`);
+      const matchMediaNarrow = window.matchMedia(`only screen and (max-width: 500px)`);
+      function isMobile() {
+        return matchMediaMobile.matches;
+      }
+      //To fix the issue of a narrow desktop window being asked to rotate, I am now checking for it based on the navigator.userAgent to see if its mobile or not.
+      //This may change in the future if browsers decide to change the naming of userAgent for mobile browsers so may need to keep an eye on this.
+      function isMobileOS() {
+        return /Mobi/i.test(navigator.userAgent) && !/ipad/i.test(navigator.userAgent);
+      }
+      let portraitMatcher = window.matchMedia("(orientation:portrait)");
+      function isPortrait() {
+        return portraitMatcher.matches;
+      }
+
+      var generatedColours = getColours();
+      var surpriseColour = colourArray[generatedColours[0]];
+      var colourTheSecond = colourArray[generatedColours[1]];
+      var colourTheThird = colourArray[generatedColours[2]];
+      var colourTheFourth = colourArray[generatedColours[3]];
+
+      $(function() {
+        $('.links').css('background', surpriseColour);
+        $('.colour').css("color", surpriseColour);
+        $('h4').css("background-color", surpriseColour); // about, contact us etc. button background
+
+        // title
+        $('#title a').click(function() {
+          $('#title a').removeClass('selected-viz');
+          $(this).addClass('selected-viz');
+        });
+      });
+
+/*
+      // GA dropped 26 Jun 2023 and then made official on 18 Aug 2023
+/*
+      // the sunset-ed GA, commented on 26 Jun 2023, and Prof Halim doesn't bother to use anymore
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+*/
+
+      // function setCookie(cname, cvalue, exdays) {
+      //   const d = new Date();
+      //   d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      //   let expires = "expires="+ d.toUTCString();
+      //   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+      // }
+
+//       //         $(function() {
+//           $('#gdpr-accept').click(function () {
+// /*
+//             // added on 26 Jun 2023
+//             window.dataLayer = window.dataLayer || [];
+//             function gtag(){dataLayer.push(arguments);}
+//             gtag('js', new Date());
+
+//             gtag('config', 'UA-1566631-4');
+// */
+// //            ga('create', 'UA-1566631-4', 'auto');
+// //            ga('send', 'pageview');
+//             setCookie('use_google_analytics', 'true', 365)
+//             $('#gdpr-popup').hide()
+//           });
+//           $('#gdpr-reject').click(function () {
+//             setCookie('use_google_analytics', 'false', 365)
+//             $('#gdpr-popup').hide()
+//           });
+//         });
+//       
+      $('#gdpr-privacy-policy').click(function () {
+        if ($(window).width() > 600) {
+          $('#dark-overlay').fadeIn(function() {
+            $('#privacy-policy').fadeIn();
+          });
+        }
+        else
+          alert('Sorry, this dialog is too big. Please load it on bigger screen');
+      })
+    </script>
+
+<script src="../js/jquery-ui.min.js"></script>
+
+<script src="../js/d3.min.js"></script>
+<script src="../js/viz-1.0.10.js"></script>
+
+<script src="../js/graph_library/constant.js"></script>
+<script src="../js/graph_library/drawgraph.js"></script>
+<script src="../js/graph_library/GraphEdgeWidget.js"></script>
+<script src="../js/graph_library/GraphPolygonWidget.js"></script>
+<script src="../js/graph_library/GraphVertexWidget.js"></script>
+<script src="../js/graph_library/GraphWidget.js"></script>
+<script src="../js/graph_library/helperObjects89db.js?refresh22aug9pm"></script> 
+<script src="../js/graph_library/misc.js"></script>
+<script src="../js/graph_library/properties.js"></script>
+<script src="../js/graph_library/Widget.js"></script>
+<script src="../js/graph_library/force_directed_library.js"></script>
+
+<script>
+      $(function () {
+        let defaultPlaybackSpeed = 1;
+                createPlaybackSpeedSlider(defaultPlaybackSpeed);
+
+
+        $('#account-dropdown-btn').click(function (e) {
+          $('#account-dropdown-menu').css('display', 'block')
+          $('#language-dropdown-menu').css('display', 'none')
+          e.stopPropagation()
+        })
+        $(document).click(function (e) {
+          $('#account-dropdown-menu').css('display', 'none')
+        });
+        //Mobile Design Related DOM Manipulations
+        if (isMobile()) {
+          $("#status").css({
+            "bottom": "10%",
+            "height": "12%",
+            "max-height": "54px"
+          });
+          $("#current-action").css("bottom", "22%");
+          $('#status-hide').remove();
+          $('#left-bar').remove();
+          $('#right-bar').remove();
+          $("#mode-menu").remove();
+          $("#codetrace").css("z-index", 1);
+          $("#bottom-bar a").hide();
+          $("#bottom-bar").css("height", $("#topbar").css("height"));
+          $(".speed-dropup-btn").show();
+          $("#go-to-beginning").remove();
+          $("#go-to-end").remove();
+          $("#pause").remove();
+          $("#play").remove();
+          $("#previous").remove();
+          $("#next").remove();
+
+          //make progress bar longer
+          $("#progress-bar").css({
+            left: "30%",
+            width: "60%",
+            'margin-left': 0
+          })
+        }
+      })
+
+      let mobilePlaybackOverlayTimeout;
+      $(function() {
+        $("#viz").on("click", () => {
+          if (isMobile()) {
+            if ($("#mobile-playback-overlay").is(":hidden") && isPlaying) {
+              $("#mobile-playback-overlay").fadeIn();
+              hideMobilePlaybackOverlay(6000);
+            } else {
+              $("#mobile-playback-overlay").fadeOut();
+            }
+          }
+        });
+        $("#mobile-playback-overlay").on("click", (event) => {
+          if (event.target === event.currentTarget) //to ensure clicks on the controls dont fade the overlay
+            $("#mobile-playback-overlay").fadeOut();
+          else
+            hideMobilePlaybackOverlay(5000);
+        })
+      });
+      function hideMobilePlaybackOverlay(timeOut) {
+        if (mobilePlaybackOverlayTimeout)
+          clearTimeout(mobilePlaybackOverlayTimeout);
+        mobilePlaybackOverlayTimeout = setTimeout(() => {
+            $("#mobile-playback-overlay").fadeOut();
+        }, timeOut);
+      }
+      function mobilePlaybackPauseOrPlay() {
+        if ($("#mobile-playback-overlay").hasClass("playing")) {
+          pause();
+          hideMobilePlaybackOverlay(5000);
+        } else {
+          play();
+          hideMobilePlaybackOverlay(3000);
+        }
+      }
+      let rewindLabelTimeout, forwardLabelTimeout;
+      function mobilePlaybackRewind() {
+        $("#mobile-playback-rewind-label").css("opacity", 1);
+        if (rewindLabelTimeout)
+          clearTimeout(rewindLabelTimeout);
+        rewindLabelTimeout = setTimeout(() => {
+          $("#mobile-playback-rewind-label").css("opacity", 0);
+        }, 800);
+        stepBackward(7);
+      }
+      function mobilePlaybackForward() {
+        $("#mobile-playback-forward-label").css("opacity", 1);
+        if (forwardLabelTimeout)
+          clearTimeout(forwardLabelTimeout);
+        forwardLabelTimeout = setTimeout(() => {
+          $("#mobile-playback-forward-label").css("opacity", 0);
+        }, 800);
+        stepForward(7);
+      }
+
+      //let eLectureSessionHistory = {};
+      const sectorColors = ['#05a4d0', '#f1c706', '#fa0202'];
+      function setSlideTimelineColor(slideNo) {
+        const sectionNo = slideNo.split('-')[0];
+        $(`[slideNo="${slideNo}"]`).css('background', sectorColors[(parseInt(sectionNo) % 3)]);
+      }
+
+      let currSlideTimer = null; //global so that we can clear the timeout when required
+
+      const lectureIds = [{"id":20,"category":"recursion","order":1,"top":"70px","right":"","bottom":"","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-01-12 13:29:32","updated_at":"2023-01-20 11:33:20","section":-1,"code":"$('#codeExample').val('Fibonacci');\nfibonacci();","section_order":-1,"value":"1","text":"<p>This visualization can visualize the recursion tree of a recursive algorithm or the recursion tree of a Divide and Conquer (D&amp;C) algorithm recurrence.<\/p><br><p>You can also visualize the Directed Acyclic Graph (DAG) of a Dynamic Programming (DP) algorithm.<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Visualization"},{"id":21,"category":"recursion","order":2,"top":"","right":"","bottom":"60px","left":"50%","marginLeft":"-250px","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-01-12 13:30:42","updated_at":"2023-01-20 11:33:59","section":-1,"code":"$('#codeExample').val('Fibonacci');\nfibonacci();","section_order":-1,"value":"2","text":"<p>This is the Recursion Tree and Recursion Directed Acyclic Graph (DAG) visualization area. The Recursion Tree\/DAG are drawn\/animated as per how a real computer program that implements this recursion works, i.e., \"depth-first\".<\/p><br><p>The current parameter value is shown inside each vertex (comma-separated for recursion with two or more parameters). Active vertices will be colored <span style=\"color: orange;\">orange<\/span>. Vertices that are no longer calling any other recursive problem (the base cases) will be colored <span style=\"color: green;\">green<\/span>. Vertices (subproblems) that are repeated will be colored <span style=\"color: lightblue;\">lightblue<\/span> for the second occurrence onwards. The return value of each recursive call is written as a <span style=\"color: red;\">red<\/span> text below the vertex.<\/p><br><p>Note that due to combinatorial explosion, it will be very hard to visualize the Recursion Tree for large instances.<\/p><br><p>For the Recursion DAG, it will also very hard to minimize the number of edge crossings in the event of overlapping subproblems.<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Recursion Tree and DAG"},{"id":22,"category":"recursion","order":3,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2017-01-12 13:32:16","updated_at":"2023-01-20 11:33:13","section":-1,"code":"$('#codeExample').val('Factorial');\nfactorial();","section_order":-1,"value":"3","text":"<p>Select one of the example recursive algorithms or write your own recursive code \u2014 in JavaScript. Note that the visualization can run <i>any<\/i> JavaScript code, including malicious code, so please be careful (it will only affect your own web browser, don&#39;t worry).<\/p><br><p>Click the &#39;Run&#39; button at the top right corner of the action box to start the visualization after you have selected (or written) a valid JavaScript code!<\/p><br><p>In the next sub-sections, we start with example recursive algorithms with just one sub-problem, i.e., not branching. For these one-subproblem examples, their recursion trees and recursion DAGs are 100% identical (they looked like Singly Linked Lists from the root (initial call) to the leaf (base case). As there is no overlapping subproblem for the examples in this category, you will not see any <span style=\"color: lightblue;\">lightblue<\/span>-colored vertex and only one <span style=\"color: green;\">green<\/span>-colored vertex (the base case).<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Example Recursion - One Subproblem"},{"id":821,"category":"recursion","order":1,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:04:41","updated_at":"2023-01-20 11:33:08","section":22,"code":"$('#codeExample').val('Factorial');\nfactorial();","section_order":3,"value":"3-1","text":"<p>The Factorial Numbers example computes the factorial of an integer <b>N<\/b>.<\/p><br><samp>f(n) = 1 (if n == 0);<br>f(n) = n*f(n-1) otherwise<\/samp><br><br><p>It is one of the simplest (tail) recursive function that can be easily rewritten into an iterative version. It&#39;s time complexity is also simply O(n).<\/p><br><p>The value of Factorial f(n) grows very fast, thus try only the small values of n &le; 10.<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Factorial Numbers"},{"id":822,"category":"recursion","order":2,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:09:12","updated_at":"2023-01-20 11:36:20","section":22,"code":"$('#codeExample').val('GCD');\ngcd();","section_order":3,"value":"3-2","text":"<p>The Greatest Common Divisor (GCD) example computes the GCD of two integers <samp>a<\/samp> and <samp>b<\/samp>.<\/p><br><samp>f(a, b) = a (if b == 0);<br>f(a, b) = f(b, a%b) otherwise<\/samp><br><br><p>This is the classic Euclid&#39;s algorithm that runs in O(log min(a, b)).<\/p><br><p>Due to its low time complexity, it should be OK to try <samp>0 &le; a, b &le; 99<\/samp>.<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Greatest Common Divisor (GCD)"},{"id":823,"category":"recursion","order":3,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:23:56","updated_at":"2023-01-20 11:33:03","section":22,"code":"$('#codeExample').val('MaxRS');\nmaxrs();","section_order":3,"value":"3-3","text":"<p>The Max Range Sum example computes the value of the subarray with the maximum total sum inside the given array <samp>ai<\/samp> with <samp>n<\/samp> integers (the first textbox below the code editor textbox). The value of <samp>ai<\/samp> can be positive integers, zeroes, or negative integers (without any negative integer, the answer will obviously the sum of the entire integers in <samp>ai<\/samp>).<\/p><br><p>Formally, let&#39;s define <samp>RSQ(i, j) = a1[i] + a1[i+1] + ... + a1[j]<\/samp>, where <samp>0 &le; i &le; j &le; n-1<\/samp> (RSQ stands for Range Sum Query). Max Range Sum problem seeks to find the optimal <samp>i<\/samp> and <samp>j<\/samp> such that <samp>RSQ(i, j)<\/samp> is the maximum.<\/p><br><samp>f(i) = max(ai[0], 0) (if i == 0, as ai[0] can be negative);<br>f(i) = max(f(i-1) + ai[i], 0) otherwise<\/samp><br><br><p>We call <samp>f(n-1)<\/samp>. The largest value of <samp>f(i)<\/samp> is the answer.<\/p><br><p>This is the classic Kadane&#39;s algorithm that runs in O(n).<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Max Range Sum"},{"id":831,"category":"recursion","order":4,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 15:09:15","updated_at":"2023-01-20 11:33:00","section":22,"code":"$('#codeExample').val('Catalan');\ncatalan();","section_order":3,"value":"3-4","text":"<p>The Catalan example computes the <b>N<\/b>-th catalan number recursively.<\/p><br><p>[This slide is a stub and will be expanded later].<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Catalan Numbers"},{"id":824,"category":"recursion","order":4,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:25:53","updated_at":"2023-01-20 11:32:57","section":-1,"code":"$('#codeExample').val('Fibonacci');\nfibonacci();","section_order":-1,"value":"4","text":"<p>In the next sub-sections, we will see example recursive algorithms that have exactly two sub-problems, i.e., branching. The sizes of the subproblems can be identical or vary. For these one-subproblem examples, their recursion trees will usually be much bigger that their recursion DAGs (especially if there are (many) overlapping sub-problems, indicated with the <span style=\"color: lightblue;\">lightblue<\/span> vertices on the recursion tree drawing).<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Example Recursion - Two Subproblems"},{"id":825,"category":"recursion","order":1,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:26:15","updated_at":"2023-01-20 11:37:42","section":824,"code":"$('#codeExample').val('Fibonacci');\nfibonacci();","section_order":4,"value":"4-1","text":"<p>The Fibonacci Numbers example computes the <b>N<\/b>-th Fibonacci number.<\/p><br><samp>f(n) = n (if n <= 1); \/\/ i.e., 0 if n == 0 or 1 if n == 1<br>f(n) = f(n-1) + f(n-2) otherwise<\/samp><br><br><p>Unlike Factorial example, this time each recursive step recurses to two other smaller sub-problems (if we call f(n-1) first before f(n-2), then the left side of the recursion tree will be taller than the right side &mdash; try swapping the two sub-problems). It can still be written in iterative fashion after one understands the concept of Dynamic Programming. Fibonacci recursion tree (and DAG) are frequently used to showcase the basic idea of recursion, its inefficiency, and the linkage to Dynamic Programming topic.<\/p><br><p>The value of Fibonacci(n) grows very fast and the Recursion Tree also grows exponentially, i.e., at least &Omega;(2<sup>n\/2<\/sup>), thus try only the small values of n &le; 7 (to avoid crashing your web browser). It&#39;s Recursion DAG only contains O(n) vertices and thus can go to a larger n &le; 20 (to still looks nice in this visualization).<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Fibonacci Numbers"},{"id":830,"category":"recursion","order":2,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 14:46:06","updated_at":"2023-01-20 11:43:47","section":824,"code":"$('#codeExample').val('Cnk');\nchoosenk();","section_order":4,"value":"4-2","text":"<p>The C(n, k) example computes the binomial coefficient C(n, k).<\/p><br><samp>f(n, k) = 1 (if k == 0); \/\/ 1 way to take nothing out of n items<br>f(n, k) = 1 (if k == n); \/\/ 1 way to take everything out of n items<br>otherwise take the last item or skip it<br>f(n, k) = f(n-1, k-1) + f(n-1, k)<\/samp><br><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Binomial Coefficient C(n, k)"},{"id":826,"category":"recursion","order":3,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:30:20","updated_at":"2023-01-20 11:32:46","section":824,"code":"$('#codeExample').val('Knapsack');\nknapsack();","section_order":4,"value":"4-3","text":"<p>The 0-1 Knapsack example solves the <a href=\"http:\/\/en.wikipedia.org\/wiki\/Knapsack_problem#0.2F1_knapsack_problem\" target=\"_blank\"><u>0\/1 Knapsack Problem<\/u><\/a>: What is the maximum value that we can get, given a knapsack that can hold a maximum weight of w, where the value of the i-th item is a1[i], the weight of the i-th item is a2[i]?<\/p><br><p>[This slide is a stub and will be expanded later].<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"0-1 Knapsack"},{"id":832,"category":"recursion","order":5,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 15:44:46","updated_at":"2023-01-20 11:32:43","section":-1,"code":"$('#codeExample').val('CC');\ncc();","section_order":-1,"value":"5","text":"<p>In the next sub-sections, we will see example recursive algorithms that have many sub-problems (1, 2, 3, ..., a certain limit). For many of these examples, the sizes of their Recursion Trees are exponential and we will need to use Dynamic Programming to compute its Recursion DAGs instead.<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Example Recursion - Many Subproblems"},{"id":833,"category":"recursion","order":1,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 15:45:03","updated_at":"2023-01-20 11:32:40","section":832,"code":"$('#codeExample').val('CC');\ncc();","section_order":5,"value":"5-1","text":"<p>The Coin Change example solves the <a href=\"http:\/\/en.wikipedia.org\/wiki\/Change-making_problem\" target=\"_blank\"><u>Coin Change problem<\/u><\/a>: Given a list of coin values in a1, what is the minimum number of coins needed to get the value v?<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Coin Change"},{"id":834,"category":"recursion","order":2,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 16:22:43","updated_at":"2023-01-20 11:32:37","section":832,"code":"$('#codeExample').val('LIS');\nlis();","section_order":5,"value":"5-2","text":"<p>The Longest Increasing Subsequence example solves the <a href=\"http:\/\/en.wikipedia.org\/wiki\/Longest_increasing_subsequence\" target=\"_blank\"><u>Longest Increasing Subsequence<\/u><\/a> problem: Given an array a1, how long is the Longest Increasing Subsequnce of the array?<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Longest Increasing Subsequence (LIS)"},{"id":835,"category":"recursion","order":3,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 16:24:54","updated_at":"2023-01-20 11:32:34","section":832,"code":"$('#codeExample').val('TSP');\ntsp();","section_order":5,"value":"5-3","text":"<p>The Traveling Salesman example solves the <a href=\"http:\/\/en.wikipedia.org\/wiki\/Travelling_salesman_problem\"><u>Traveling Salesman Problem<\/u><\/a> on small graph: How long is the shortest path that goes from city 0, passes through every city once, and goes back again to 0? The distance between city i and city j is denoted by a1[i][j].<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Traveling Salesman Problem (TSP)"},{"id":836,"category":"recursion","order":4,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 16:25:25","updated_at":"2023-01-20 11:32:30","section":832,"code":"$('#codeExample').val('Matching');\nmatching();","section_order":5,"value":"5-4","text":"<p>The Graph Matching problem computes the maximum number of <a href=\"http:\/\/en.wikipedia.org\/wiki\/Matching_(graph_theory)\"><u>matching<\/u><\/a> on a <b>small<\/b> graph, which is given in the adjacency matrix a1.<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Graph Matching"},{"id":828,"category":"recursion","order":6,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:46:30","updated_at":"2023-01-30 02:55:31","section":-1,"code":"$('#codeExample').val('MergeSort');\nmergesort();","section_order":-1,"value":"6","text":"<p>In the next sub-sections, instead of visualizing the Recursion Tree of a recursive algorithm, we visualize the recursion tree of the recurrence (equation) of the time complexity of certain Divide and Conquer (D&amp;C) algorithms.<\/p><br><p>The value computed by <samp>f(n)<\/samp> <span style=\"color: red;\">(the red label underneath each vertex that signifies the return value of that recursive function\/that subproblem)<\/span> is thus the <b>total<\/b> number of operations taken by that recursive algorithm when its problem size is <samp>n<\/samp> (the value drawn inside each vertex). Most textbooks will say the function name of this recurrence as <samp>T(n)<\/samp>, but we choose not to change our default <samp>f(n)<\/samp> function name that is used in all other recursive algorithm visualizations. Some other textbooks (e.g., CLRS) also put the cost of each vertex only, not the cost of the entire subproblem.<\/p><br><p>PS: there is a silly sync bug whenever you switch e-Lecture slides, so <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> the current visualization manually.<\/p>","title":"Example Recurrences"},{"id":829,"category":"recursion","order":1,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 13:46:58","updated_at":"2023-01-30 03:00:47","section":828,"code":"$('#codeExample').val('MergeSort');\nmergesort();","section_order":6,"value":"6-1","text":"<p>In <a href=\".\/sorting?slide=11-8\"><u>Sorting<\/u><\/a> visualization, we learn about merge sort. It&#39;s time complexity recurrences are:<\/p><br><samp>f(n) = &Theta;(1) (if n &lt; n<sub>0<\/sub><\/samp>) &mdash; we usually assume that the base cases are &Theta;(1)<br><samp>f(n) = f(n\/2) + f(n\/2) + c*n (otherwise)<\/samp><br><br><p>Please ensure that you see the recursion tree of the default example (n = 16). Click <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> to be sure, then you can leave the background picture as it is for the next few sub-slides. You should see the initial problem size of <samp>n = 16<\/samp> written inside the root vertex and its return value (total amount of work done by <samp>f(16)<\/samp> is <samp>32+32+1*16 = 80<\/samp>). This value of <samp>f(n)<\/samp> is consistent throughout the recursion tree, e.g., <samp>f(8) = f(4)+f(4)+c*4 = 12+12+1*8 = 32<\/samp>.<\/p>","title":"Merge Sort Analysis (1)"},{"id":841,"category":"recursion","order":2,"top":"100px","right":"","bottom":"","left":"50%","marginLeft":"-500px","width":"200px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 12:02:24","updated_at":"2023-01-30 03:08:51","section":828,"code":"","section_order":6,"value":"6-2","text":"<p>We see that<br>the height of<br>this recursion tree<br>is log<sub>2<\/sub> n<br>as we keep<br>halving n by 2<br>until we reach<br>the base case<br>of size 1.<\/p><br><p>For n = 16, we have<br>16-><br>8-><br>4-><br>2-><br>1 (log<sub>2<\/sub> 16 = 4 steps).<\/p><br><p>PS: height of tree =<br>the number of edges<br>from root to<br>the deepest leaf.<\/p>","title":"Analysis (2)"},{"id":843,"category":"recursion","order":3,"top":"200px","right":"","bottom":"","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 12:14:07","updated_at":"2023-01-30 03:19:07","section":828,"code":"","section_order":6,"value":"6-3","text":"<p>As the effort done in the recursive step per subproblem of size n is c*n (the divide (trivial, &Theta;(1)) and the conquer (merge) operation, the &Theta;(n)), we will perform exactly c*n operations per each recursion level of <b>this<\/b> specific recursion tree.<\/p><br><p>The root of size (n) does c*n operations during the merge step.<br>The two children of the root of size (n\/2) both do c*n\/2, and 2*c*n\/2 = c*n too.<br>The grandchildren level is 4*c*n\/4 = c*n too.<br>And so on until the last level (the leaves).<\/p><br><p>As the <span style=\"color: red;\">red label underneath each vertex in this visualization<\/span> reports the value of the entire subproblem (including the subtrees below), these identical costs per level are not easily seen, e.g., from root to leaf, we see 80, 2x32 = 64, 4x12 = 48, 8x4 = 32, 16x1 = 16 and may get different conclusion... However, if we discounted the values of its subproblems, we will get the same conclusion, e.g., for the root, we do 80-2x32 = 16 operations, for the children of the root, we do 2x(32-2x12) = 2x8 = 16 operations too, etc.<\/p>","title":"Analysis (3)"},{"id":842,"category":"recursion","order":4,"top":"","right":"","bottom":"70px","left":"50%","marginLeft":"-250px","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 12:03:35","updated_at":"2023-01-30 03:34:53","section":828,"code":"","section_order":6,"value":"6-4","text":"<p>The number of <span style=\"color: green;\">green<\/span> leaves is 2<sup>log<sub>2<\/sub> n<\/sup> = n<sup>log<sub>2<\/sub> 2<\/sup> = n.<\/p><br><p>Each of these leaf does &Theta;(1) step, thus the total work of the last (leaf) level is also &Theta;(n).<\/p><br><p>The total work done by Merge sort is thus c*n per level, multiplied by the height of the recursion tree (log<sub>2<\/sub> n + 1 more for the leaves), or &Theta;(n log n).<\/p><br><p>For this example, <samp>f(16) = 80<\/samp> from 1x16 x (log<sub>2<\/sub> 16 + 1) = 16 x (4 + 1) = 16 x 5 = 80.<\/p>","title":"Analysis (4)"},{"id":840,"category":"recursion","order":5,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 09:11:24","updated_at":"2023-01-30 03:37:15","section":828,"code":"$('#codeExample').val('QuickSort');\nquicksort();","section_order":6,"value":"6-5","text":"<p>In <a href=\".\/sorting?slide=12-12\"><u>Sorting<\/u><\/a> visualization, we also learn about the non-random(ized) quick sort.<\/p><br><p>It may have a worst case behavior of O(n<sup>2<\/sup>) on certain kind of (trivial) instances of (nearly-) sorted input and it may have the following time complexity recurrence (with <samp>a = 1<\/samp>):<\/p><br><samp>f(n) = \u0398(1) (if n &lt; n<sub>0<\/sub>)<\/samp> &mdash; we usually assume that the base cases are &Theta;(1)<br><samp>f(n) = f(n-a) + f(a) + c*n (otherwise)<\/samp><br><br><p>Note that writing the recurrence in the other direction does not matter much asymptotically, other than the recursion tree will be mirrored.<\/p><br><p>Click <span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> to ensure that the explanation in the next few slides makes sense.<br>We want to show that this recursion tree has f(n) = O(n<sup>2<\/sup>).<\/p>","title":"(Non-Randomized) Quick Sort Analysis"},{"id":844,"category":"recursion","order":6,"top":"100px","right":"","bottom":"","left":"50%","marginLeft":"-400px","width":"200px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 13:12:26","updated_at":"2023-01-30 03:41:19","section":828,"code":"","section_order":6,"value":"6-6","text":"<p>We see that<br>the height of<br>this recursion tree<br>is rather tall, i.e., <samp>n\/a-1<\/samp><br>as we only reduces <samp>n<\/samp><br>by <samp>a<\/samp> per level.<br>Thus, we need <samp>n\/a-1<\/samp> steps<br>to reach the base case<br>(<samp>n = 1<\/samp>).<\/p><br><p>For <samp>n = 16, a = 1<\/samp>, we have<br>16-><br>15-><br>14-><br>...-><br>2-><br>1 (16\/1 - 1 = 15 steps).<\/p>","title":"Analysis (2)"},{"id":845,"category":"recursion","order":7,"top":"200px","right":"","bottom":"","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 13:15:26","updated_at":"2023-01-30 03:42:12","section":828,"code":"","section_order":6,"value":"6-7","text":"<p>As the effort done in the recursive step per subproblem of size <samp>n<\/samp> is <samp>c*n<\/samp> (divide (the partition) operation in &Theta;(n); the conquer step is trivial &mdash; &Theta;(1)), we will perform exactly c*n operations per each recursion level.<\/p><br><p>The root of size (n) does c*n operations during the partition step.<br>The children of the root of size (n-a) does c*(n-1) and the other does f(a).<br>The grandchildren level does c*(n-2) and the other does f(a).<br>And so on until the last level (the leaves both does f(a)).<\/p>","title":"Analysis (3)"},{"id":846,"category":"recursion","order":8,"top":"","right":"","bottom":"200px","left":"50%","marginLeft":"-250px","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 13:18:38","updated_at":"2023-01-30 03:43:40","section":828,"code":"","section_order":6,"value":"6-8","text":"<p>The total work done by Quick sort on this worst-case input is the sum of arithmetic progression series of <samp>1+2+...+n<\/samp> plus a few other constant factor operations (all the <samp>f(a)<\/samp> are &Theta;(1)). This simplifies to <samp>f(n) = &Theta;(n<sup>2<\/sup>)<\/samp>.<\/p>","title":"Analysis (4)"},{"id":838,"category":"recursion","order":9,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 16:51:26","updated_at":"2023-01-30 03:48:26","section":828,"code":"$('#codeExample').val('MT1');\nmt1();","section_order":6,"value":"6-9","text":"<p>For recurrences of the form:<\/p><samp>f(n) = a*f(n\/b) + g(n)<\/samp><br><p>where a &ge; 1, b &gt; 1, and g(n) is asymptotically positive,<br>we maybe able to apply the master method\/theorem.<br>PS: In this visualization, we have to rename CLRS function names to our convention:<br><samp>f(n) &rightarrow; g(n)<\/samp> and <samp>T(n) &rightarrow; f(n)<\/samp>.<\/p><br><p>We compare the driving function <samp>g(n)<\/samp> (the amount of divide and conquer work in each recursive step of size <samp>n<\/samp>) with <samp>n<sup>log<sub>b<\/sub>a<\/sup><\/samp> (the watershed function &mdash; also the asymptotic number of leaves of the recursion tree), if <samp>g(n) = O(n<sup>log<sub>b<\/sub>a-&epsilon;<\/sup>)<\/samp> for &epsilon; &gt; 0, it means that the driving function <samp>g(n)<\/samp> grows polynomially slower than the watershed function n<sup>log<sub>b<\/sub>a<\/sup> (by a factor of <samp>n<sup>&epsilon;<\/sup><\/samp>), thus the watershed function n<sup>log<sub>b<\/sub>a<\/sup> will dominate and the solution of the recurrence is <samp>f(n) = &theta;(n<sup>log<sub>b<\/sub>a<\/sup>)<\/samp>.<\/p><br><p>Visually, if you see the recursion tree (<span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> to ensure that you see the correct picture) for recurrence that falls into case 1 category, the cost per level grows exponentially from root level to the leaves (in this picture, 1*4*4 = 16, 7*2*2 = 28, 49*1*1 = 49, ..., 16+28+49 = 93), and the total cost of the leaves dominates the total cost of all internal vertices.<\/p>","title":"Master Theorem, Case 1 (1)"},{"id":847,"category":"recursion","order":10,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":0,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-20 13:56:15","updated_at":"2023-01-30 07:58:17","section":828,"code":"","section_order":6,"value":"6-10","text":"<p>The most popular example is <a href=\"https:\/\/en.wikipedia.org\/wiki\/Strassen_algorithm\" target-\"_blank\"><u>Strassen&#39;s algorithm for matrix multiplication<\/u><\/a> where case 1 of master theorem is applicable. The recurrence is: <samp>f(n) = 7*f(n\/2) + c*n*n<\/samp>.<\/p><br>Thus <samp>a = 7<\/samp>, <samp>b = 2<\/samp>, watershed = <samp>n<sup>log<sub>2<\/sub> 7<\/sup> = n<sup>2.807<\/sup><\/samp>, driving = <samp>f(n) = &Theta;(n<sup>2<\/sup>)<\/samp>.<\/p><br><p><samp>n<sup>2<\/sup> = O(n<sup>2.807-&epsilon;<\/sup>) for &epsilon; = 0.807...<\/samp> &mdash; case 1 &mdash; Thus <samp>f(n) = &Theta;(n<sup>2.807<\/sup>)<\/samp><br><\/samp><br><p>Exercise: You can try changing the demo code by setting <samp>a = 8<\/samp> and set <samp>g(n)<\/samp> from <samp>c*n*n<\/samp> to <samp>c*1<\/samp> to change the recurrence of Strassen&#39;s algorithm to the recurrence of the simple recursive matrix multiplication algorithm. For this one, <samp>f(n) = &Theta;(n<sup>3<\/sup>)<\/samp>.<\/p>","title":"Case 1 (2)"},{"id":837,"category":"recursion","order":11,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 16:41:25","updated_at":"2023-01-30 08:02:21","section":828,"code":"$('#codeExample').val('MT2');\nmt2();","section_order":6,"value":"6-11","text":"<p>The detailed analysis of the Merge sort algorithm from a few slides earlier can be simplified using master theorem, but case 2, e.g., <samp>f(n) = 2*f(n\/2) + n<\/samp>.<\/p><br><p><samp>Thus <samp>a = 2<\/samp>, <samp>b = 2<\/samp>, watershed = <samp>n<sup>log<sub>2<\/sub> 2<\/sup> = n<\/samp>, driving = <samp>f(n) = &Theta;(n)<\/samp>.<\/p><br><p><samp>n = &Theta;(n log<sup>k<\/sup> n)<\/samp> for <samp>k = 0<\/samp> &mdash; case 2 &mdash; Thus <samp>f(n) = &Theta;(n log n)<\/samp>.<\/p><br><p>Visually, if you see the recursion tree (<span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> to ensure that you see the correct picture) for recurrence that falls into case 2 category, the cost per level is roughly the same, i.e., &Theta;(<samp>n<sup>log<sub>b<\/sub>a<\/sup> log<sup>k<\/sup> n<\/samp>) and there are about <samp>log<sub>b<\/sub> n<\/samp> levels. Most of the time, k = 0, i.e., the watershed and the driving functions have the same asymptotic growth and we claim that the solution is <samp>f(n) = &Theta;(n<sup>log<sub>b<\/sub>a<\/sup> log<sup>k+1<\/sup> n)<\/samp>. That&#39;s it, the solution of the recurrence that falls under case 2 is to add an extra log factor to <samp>g(n)<\/samp>.<\/p><br><p>Exercise: You can try changing the demo code by setting <samp>a = 1<\/samp> and set <samp>g(n)<\/samp> from <samp>c*n<\/samp> to <samp>c*1<\/samp> to change the recurrence of Merge sort algorithm to the recurrence of the binary search algorithm. For this one, <samp>f(n) = &Theta;(log n)<\/samp>.<\/p>","title":"Master Theorem, Case 2"},{"id":839,"category":"recursion","order":12,"top":"","right":"","bottom":"290px","left":"60px","marginLeft":"","width":"500px","showActionsPanel":1,"showStatusPanel":0,"showCodetracePanel":0,"created_at":"2023-01-19 16:55:32","updated_at":"2023-01-30 08:07:42","section":828,"code":"$('#codeExample').val('MT3');\nmt3();","section_order":6,"value":"6-12","text":"<p>Case 3 is the opposite of Case 1, where the driving function <samp>g(n)<\/samp> grows polynomially faster than the watershed function <samp>n<sup>log<sub>b<\/sub>a<\/sup><\/samp>. Thus the bulk of the operations is done by the driving function at the root level (but check the regularity condition too, to be elaborated below). This case 3 is actually rarely appear in real algorithms so we use an example recurrence: <samp>f(n) = 4*f(n\/2) + n^3<\/samp>.<\/p><br><p>Thus <samp>a = 4<\/samp>, <samp>b = 2<\/samp>, watershed = <samp>n<sup>log<sub>2<\/sub> 4<\/sup> = n<sup>2<\/sup>, driving = <samp>f(n) = &Theta;(n<sup>3<\/sup>)<\/samp>.<\/p><br><p><samp>n^3 = &Omega;(n<sup>2+&epsilon;<\/sup>) for &epsilon; = 1<\/samp> and<br><samp>4*(n\/2)<sup>2<\/sup> &le; c*n<sup>3<\/sup><\/samp> (regularity condition) for <samp>c = 1\/2<\/samp> &mdash; case 3 &mdash; Thus <samp>f(n) = &Theta;(n<sup>3<\/sup>)<\/samp>.<\/p><br><p>Visually, if you see the recursion tree (<span class=\"slide-actions\" onclick=\"doButtonAction144()\">Redraw<\/span> to ensure that you see the correct picture) for recurrence that falls into case 3 category, the cost per level <b>drops<\/b> exponentially from root level to the leaves (in this picture, 1*4*4*4 = 64, 4*2*2*2 = 32, 16*1*1*1 = 16, ..., 64+32+16 = 112), and the total cost of the root dominates the total cost of all other internal vertices (including the (many) leaves).<\/p>","title":"Master Theorem, Case 3"}];
+      const numSlides = lectureIds.length;
+      var sectorJunction12Section = 0, sectorJunction12Slide = 0;
+      var sectorJunction23Section = 0, sectorJunction23Slide = 0;
+      var sector1Count = 0, sector2Count = 0, sector3Count = 0;
+      const sectorLength = Math.floor(numSlides / 3);
+      function createELectureTimelineDisplay() {
+        for (let j = 0; j < numSlides; ++j) {
+          const currLecture = lectureIds[j].value;
+          if (currLecture.includes('-')) {
+            $('#e-lecture-timeline').append(
+              $(`<div class="e-lecture-timeline-slide" slideNo=${lectureIds[j].value}></div>`)
+            );
+          } else {
+            $('#e-lecture-timeline').append(
+              $(`<div class="e-lecture-timeline-checkpoint" slideNo=${lectureIds[j].value}></div>`)
+            );
+          }
+        }
+      }
+
+      function setSectorJunctionInfo() {
+          //setting the sector junction slide numbers
+          const j12 = sectorLength !== 0 ? (sectorLength - 1): 0;
+          const j23 = sectorLength !== 0 ? (2 * sectorLength - 1) : 0;
+
+          const sectorJunction12 = lectureIds[j12].value.split('-');
+          sectorJunction12Section = parseInt(sectorJunction12[0]);
+          sectorJunction12Slide = sectorJunction12.length > 1 ? parseInt(sectorJunction12[1]) : sectorJunction12Slide;
+
+          const sectorJunction23 = lectureIds[j23].value.split('-');
+          sectorJunction23Section = parseInt(sectorJunction23[0]);
+          sectorJunction23Slide = sectorJunction23.length > 1 ? parseInt(sectorJunction23[1]) : sectorJunction23Slide;
+      }
+
+      function runSlide(slide) { // Steven's patch on 28 Jan 2022: Properly remove slide 99, 99-1, 99-2, 99-3, integrate with the earlier slides
+        if (slide == '1') {
+          $("#e-lecture").html("slide " + slide + " (" + 3 + "%)");
+          $('#codeExample').val('Fibonacci');
+fibonacci();
+        }
+        if (slide == '2') {
+          $("#e-lecture").html("slide " + slide + " (" + 6 + "%)");
+          $('#codeExample').val('Fibonacci');
+fibonacci();
+        }
+        if (slide == '3') {
+          $("#e-lecture").html("slide " + slide + " (" + 10 + "%)");
+          $('#codeExample').val('Factorial');
+factorial();
+        }
+        if (slide == '3-1') {
+          $("#e-lecture").html("slide " + slide + " (" + 13 + "%)");
+          $('#codeExample').val('Factorial');
+factorial();
+        }
+        if (slide == '3-2') {
+          $("#e-lecture").html("slide " + slide + " (" + 17 + "%)");
+          $('#codeExample').val('GCD');
+gcd();
+        }
+        if (slide == '3-3') {
+          $("#e-lecture").html("slide " + slide + " (" + 20 + "%)");
+          $('#codeExample').val('MaxRS');
+maxrs();
+        }
+        if (slide == '3-4') {
+          $("#e-lecture").html("slide " + slide + " (" + 24 + "%)");
+          $('#codeExample').val('Catalan');
+catalan();
+        }
+        if (slide == '4') {
+          $("#e-lecture").html("slide " + slide + " (" + 27 + "%)");
+          $('#codeExample').val('Fibonacci');
+fibonacci();
+        }
+        if (slide == '4-1') {
+          $("#e-lecture").html("slide " + slide + " (" + 31 + "%)");
+          $('#codeExample').val('Fibonacci');
+fibonacci();
+        }
+        if (slide == '4-2') {
+          $("#e-lecture").html("slide " + slide + " (" + 34 + "%)");
+          $('#codeExample').val('Cnk');
+choosenk();
+        }
+        if (slide == '4-3') {
+          $("#e-lecture").html("slide " + slide + " (" + 37 + "%)");
+          $('#codeExample').val('Knapsack');
+knapsack();
+        }
+        if (slide == '5') {
+          $("#e-lecture").html("slide " + slide + " (" + 41 + "%)");
+          $('#codeExample').val('CC');
+cc();
+        }
+        if (slide == '5-1') {
+          $("#e-lecture").html("slide " + slide + " (" + 44 + "%)");
+          $('#codeExample').val('CC');
+cc();
+        }
+        if (slide == '5-2') {
+          $("#e-lecture").html("slide " + slide + " (" + 48 + "%)");
+          $('#codeExample').val('LIS');
+lis();
+        }
+        if (slide == '5-3') {
+          $("#e-lecture").html("slide " + slide + " (" + 51 + "%)");
+          $('#codeExample').val('TSP');
+tsp();
+        }
+        if (slide == '5-4') {
+          $("#e-lecture").html("slide " + slide + " (" + 55 + "%)");
+          $('#codeExample').val('Matching');
+matching();
+        }
+        if (slide == '6') {
+          $("#e-lecture").html("slide " + slide + " (" + 58 + "%)");
+          $('#codeExample').val('MergeSort');
+mergesort();
+        }
+        if (slide == '6-1') {
+          $("#e-lecture").html("slide " + slide + " (" + 62 + "%)");
+          $('#codeExample').val('MergeSort');
+mergesort();
+        }
+        if (slide == '6-2') {
+          $("#e-lecture").html("slide " + slide + " (" + 65 + "%)");
+          
+        }
+        if (slide == '6-3') {
+          $("#e-lecture").html("slide " + slide + " (" + 68 + "%)");
+          
+        }
+        if (slide == '6-4') {
+          $("#e-lecture").html("slide " + slide + " (" + 72 + "%)");
+          
+        }
+        if (slide == '6-5') {
+          $("#e-lecture").html("slide " + slide + " (" + 75 + "%)");
+          $('#codeExample').val('QuickSort');
+quicksort();
+        }
+        if (slide == '6-6') {
+          $("#e-lecture").html("slide " + slide + " (" + 79 + "%)");
+          
+        }
+        if (slide == '6-7') {
+          $("#e-lecture").html("slide " + slide + " (" + 82 + "%)");
+          
+        }
+        if (slide == '6-8') {
+          $("#e-lecture").html("slide " + slide + " (" + 86 + "%)");
+          
+        }
+        if (slide == '6-9') {
+          $("#e-lecture").html("slide " + slide + " (" + 89 + "%)");
+          $('#codeExample').val('MT1');
+mt1();
+        }
+        if (slide == '6-10') {
+          $("#e-lecture").html("slide " + slide + " (" + 93 + "%)");
+          
+        }
+        if (slide == '6-11') {
+          $("#e-lecture").html("slide " + slide + " (" + 96 + "%)");
+          $('#codeExample').val('MT2');
+mt2();
+        }
+        if (slide == '6-12') {
+          $("#e-lecture").html("slide " + slide + " (" + 100 + "%)");
+          $('#codeExample').val('MT3');
+mt3();
+        }
+        clearTimeout(currSlideTimer);
+      }
+
+      window.onpopstate = function(event) {
+        var slide = event.state['slide'];
+        openSlide(slide, function() {
+          runSlide(slide);
+        });
+      };
+
+      function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'), sParameterName, i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] === sParam) return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+      };
+      var slideTimeline = {};
+
+      //reads all visited slides in the slideTimeline and gives them their sector color
+      function setVisitedSlideTimelineColors() {
+        for(const [sectionNo, visitedSlides] of Object.entries(slideTimeline)) {
+          const visitedSlides = slideTimeline[sectionNo];
+          for(const visitedSlideNo of visitedSlides) {
+            setSlideTimelineColor(visitedSlideNo);
+          }
+        }
+      }
+
+      //only called on load if there is nothing in session
+      function setTimelineForCompletedSector(sectorNum) {
+        let len = sectorLength;
+        switch (sectorNum) {
+          case 1 : len = sectorLength; break;
+          case 2 : len = 2 * sectorLength; break;
+          default: len = numSlides;
+        }
+        let i = 0;
+        switch (sectorNum) {
+          case 1 : i = 0; break;
+          case 2 : i = sectorLength; break;
+          default: i = 2 * sectorLength;
+        }
+        for (; i < len; i++) {
+          saveELectureTimeline(lectureIds[i].value, true);
+        }
+      }
+
+      function getUserSectorHistory(callback) {
+        $.ajax({
+          type: 'GET',
+          url: "https://visualgo.net/section-info",
+          data: {
+            _token: "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+            topic: "/recursion".substring(1)
+          }
+        }
+        ).done(function (data) {
+            if (data.data[0] === 1) {
+              setF1SectorColor(1);
+              setTimelineForCompletedSector(1);
+            }
+            if (data.data[1] === 1) {
+              setF1SectorColor(2);
+              setTimelineForCompletedSector(2);
+            }
+            if (data.data[2] === 1) {
+              setF1SectorColor(3);
+              setTimelineForCompletedSector(3);
+            }
+            callback();
+        }).fail(function (data) {
+            console.log('get user sector history failed!');
+        });
+      }
+
+      function getELectureTimelineFromSession() {
+        const page = "/recursion".substring(1);
+        const timelineKey = page + '-slide-timeline';
+        const storedTimeline = window.sessionStorage.getItem(timelineKey);
+        if (storedTimeline) {
+          slideTimeline = JSON.parse(storedTimeline);
+        } else {
+          return false;
+        }
+        let slideInfo = [];
+        for (const [sectionNum, slides] of Object.entries(slideTimeline)) {
+          for (const slide of slides) {
+            indicateSlideCompletedUI(slide);
+            slideInfo = slide.split('-');
+            incrementSectorVisits(parseInt(sectionNum), slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0);
+          }
+        }
+        return true;
+      }
+
+      async function initializeELectureTimeline() {
+        setSectorJunctionInfo();
+        if (!getELectureTimelineFromSession())
+          getUserSectorHistory(sectorBasedModeSelection);
+        else
+          sectorBasedModeSelection();
+
+        createELectureTimelineDisplay();
+        setVisitedSlideTimelineColors();
+      }
+
+      function setF1SectorColor(sectorNum) {
+        $(`[sectorNo="${sectorNum}"]`).css('background', sectorColors[(parseInt(sectorNum) % 3)]);
+      }
+
+      function updateSectorInDB(sectorNum) {
+        $.ajax({
+          type: 'POST',
+          url: "https://visualgo.net/section-info",
+          data: {
+            _token: "dOvHLDgQSeBxDYich7PEZml1cYPqAYZaOAN2Xn3H",
+            section: (sectorNum - 1),
+            topic: "/recursion".substring(1)
+          }
+        }
+        ).done(function (data) {
+            //console.log("Saved the sector " + sectorNum + " as done " + JSON.stringify(data));
+        }).fail(function (data) {
+            console.log("Setting sector done failed new attempt! "+ JSON.stringify(data));
+        });
+      }
+
+      //If 87.5% or more of the slides in sector are done
+      function setF1SectorCompleted(sectorNum, isInitializationCall) {
+        setF1SectorColor(sectorNum);
+        //avoid api call on initialization
+        if (!isInitializationCall) {
+          updateSectorInDB(sectorNum);
+          $(`[sectorNo="${sectorNum}"]`).css("animation", "green-pulse 2s 4");
+          setTimeout(() => {
+            $(`[sectorNo="${sectorNum}"]`).css("animation", "");
+          }, 8000);
+        }
+      }
+
+      function incrementSectorVisits(sectionNum, slideNumWithinSection, isInitializationCall) {
+        //updating sector count
+        if (sectionNum < sectorJunction12Section
+          || (sectionNum === sectorJunction12Section && slideNumWithinSection <= sectorJunction12Slide)) {
+          ++sector1Count;
+          if (sector1Count >= Math.ceil(0.875 * sectorLength))
+            setF1SectorCompleted(1, isInitializationCall);
+        } else if (sectionNum < sectorJunction23Section
+          || (sectionNum === sectorJunction23Section && slideNumWithinSection <= sectorJunction23Slide)) {
+          ++sector2Count;
+          if (sector2Count >= Math.ceil(0.875 * sectorLength))
+            setF1SectorCompleted(2, isInitializationCall);
+        } else {
+          ++sector3Count;
+          if (sector3Count >= Math.ceil(0.875 * (numSlides - 2 * sectorLength)))
+            setF1SectorCompleted(3, isInitializationCall);
+        }
+      }
+
+      function saveELectureTimeline(slideNo, isInitialization) {
+        const slideInfo = slideNo.split('-');
+        const sectionNo = slideInfo[0];
+        const slideNumWithinSection = slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0;
+        if (slideTimeline[sectionNo]) {
+          if (!slideTimeline[sectionNo].includes(slideNo)) {
+            slideTimeline[sectionNo].push(slideNo);
+            const sectionNum = parseInt(sectionNo);
+            incrementSectorVisits(sectionNum, slideNumWithinSection, isInitialization);
+          }
+        } else {
+          slideTimeline[sectionNo] = [];
+          slideTimeline[sectionNo].push(slideNo);
+          const sectionNum = parseInt(sectionNo);
+          incrementSectorVisits(sectionNum, slideNumWithinSection, isInitialization);
+        }
+        setSlideTimelineColor(slideNo);
+        indicateSlideCompletedUI(slideNo);
+      }
+
+      function saveELectureTimelineToSession() {
+        const page = "/recursion".substring(1);
+        const timelineKey = page + '-slide-timeline';
+        window.sessionStorage.setItem(timelineKey, JSON.stringify(slideTimeline));
+      }
+
+      function handleTimelineOnRunSlide(slideValue) {
+        const slideInfo = slideValue.split('-');
+        const sectionNo = slideInfo[0];
+        const slideNumWithinSection = slideInfo.length > 1 ? parseInt(slideInfo[1]) : 0;
+        //start timer only if the slide isnt already done
+        if (!slideTimeline[sectionNo] || !slideTimeline[sectionNo].includes(slideValue)) {
+          const slideTextLength = $('#electure-'+slideValue + " p").text().length + $('#electure-'+slideValue + " li").text().length;
+          const CHARS_READ_PER_MS = 0.05; //when fast, 50 characters a second
+          //setting max reading time as 10 seconds for around 500 character slide
+          const minSlideReadingTime = Math.min(Math.max(2000, (slideTextLength / CHARS_READ_PER_MS) +  + (2000 * $('#electure-'+slideValue + " img").length)), 10000);
+          currSlideTimer = setTimeout(() => {
+            saveELectureTimeline(slideValue);
+          }, minSlideReadingTime);
+        }
+      }
+
+      function indicateSlideCompletedUI(slide) {
+        $('#electure-'+slide).css("box-shadow", "3px 3px 8px green"); //set green shadow for completed slides
+        $('#electure-'+slide + ' .electure-read-status').html("&#10004;");
+        $('#electure-'+slide + ' .electure-read-status').attr("title", "Slide Completed!");
+        $('#electure-'+slide + ' .electure-read-status').css("font-size", "17px");
+      }
+
+      function pushState(slideValue) {
+        var url = '/en/recursion';
+        if (typeof slideValue != 'undefined' && slideValue != null) {
+          url += '?slide=' + slideValue;
+                  }
+        window.history.pushState({slide: slideValue}, "slide " + slideValue, url);
+      }
+
+      function showPopup(callback) {
+        $('#popup').fadeIn(100, callback);
+      }
+
+      function hidePopup(callback) {
+        $('#popup').fadeOut(100, callback);
+      }
+
+      function showOverlay() {
+        $('#overlay').css('opacity', 0.5);
+        $('#overlay').show();
+
+        $("#e-lecture-timeline").show();
+        $("#e-lecture-f1map").show();
+      }
+
+      function hideOverlay() {
+        $('#overlay').hide();
+        $("#e-lecture").html("");
+        $("#e-lecture-timeline").hide();
+        $("#e-lecture-f1map").hide();
+        clearTimeout(currSlideTimer);
+      }
+
+      function makeOverlayTransparent() {
+        $('#overlay').css('opacity', 0);
+      }
+
+      function hideSlide(callback) {
+        isPlaying = true;
+        closeSlide(cur_slide, function() {
+          makeOverlayTransparent();
+          setTimeout(callback, 700); // don't immediately run the animation, wait for 500ms+ first
+        });
+      }
+
+      function showSlide() {
+        isPlaying = false;
+        openSlide(cur_slide);
+        showOverlay();
+      }
+
+      function sectorBasedModeSelection() {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        //check params are empty and then that all sectors are completed or not
+        if (!Object.keys(params).length
+          && sector1Count === sectorLength && sector2Count === sectorLength && sector3Count === (numSlides - 2 * sectorLength)) {
+            hideOverlay();
+        }
+        else
+          $('#mode-menu a').click();
+      }
+
+      $(function() {
+        if (isMobileOS() && portraitMatcher.matches) {
+          $('#rotateDeviceOverlay').show();
+          $('#rotateDeviceText').show();
+          $('#widenDeviceText').hide();
+          $('#topbar').css("z-index", 10001);
+        } else if (matchMediaNarrow.matches) {
+          $('#rotateDeviceOverlay').show();
+          $('#rotateDeviceText').hide();
+          $('#widenDeviceText').show();
+          $('#topbar').css("z-index", 10001);
+        } else {
+          $('#rotateDeviceOverlay').hide();
+          $('#topbar').css("z-index", "");
+        }
+
+        matchMediaNarrow.addEventListener('change', e => {
+          //screws up for square device! NEED RESIZE EVENT
+          if (e.matches) {
+            if ($('#rotateDeviceOverlay').is(":hidden")) {
+              $('#rotateDeviceOverlay').show();
+              $('#rotateDeviceText').hide();
+              $('#widenDeviceText').show();
+              $('#topbar').css("z-index", 10001);
+            }
+          } else {
+            $('#rotateDeviceOverlay').hide();
+            $('#topbar').css("z-index", "");
+          }
+        });
+        portraitMatcher.addEventListener('change', e => {
+          if (e.matches && isMobileOS()) {
+            if ($('#rotateDeviceOverlay').is(":hidden")) {
+              $('#rotateDeviceOverlay').show();
+              $('#rotateDeviceText').show();
+              $('#widenDeviceText').hide();
+              $('#topbar').css("z-index", 10001);
+            }
+          } else {
+            $('#rotateDeviceOverlay').hide();
+            $('#topbar').css("z-index", "");
+          }
+        });
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        let slide = getUrlParameter('slide');
+        if (typeof slide !== undefined && slide != null) {
+          cur_slide = slide;
+        }
+        //do all timeline and slide stuff only if specific params not provided
+        if (!Object.keys(params).length || params["slide"]) {
+          if (!isMobile()) {
+                            $('#mode-menu a').click();
+                      }
+        }
+        $('.mcq-submit').click(function() {
+          var questionId = parseInt($(this).attr('id').split('-')[1]);
+          var answer = $('#mcq-answer-' + questionId).val();
+          var userAnswer = $('input[type=radio][name=mcq-'+questionId+'-choice]:checked').val();
+
+          if (answer === userAnswer) {
+            $('#answer-status-' + questionId).html('<font color="green"><b>Correct!</b></font>');
+          }
+          else {
+            $('#answer-status-' + questionId).html('<font color="red"><b>Wrong Answer! Try again...</b></font>');
+          }
+          $('#answer-status-' + questionId).show();
+          setTimeout(function() {
+            $('#answer-status-' + questionId).fadeOut(1000);
+          }, 1000);
+        });
+
+        $('.msq-submit').click(function() {
+          var questionId = parseInt($(this).attr('id').split('-')[1]);
+          var answer = $('#msq-answer-' + questionId).val();
+
+          var answers = [];
+          $('input[type=checkbox][class=msq-choice]:checked').each(function() {
+            answers.push($(this).attr('id').split('-')[3]);
+          });
+          answers.sort();
+          var userAnswer = answers.join(',');
+
+          if (answer === userAnswer) {
+            $('#answer-status-' + questionId).html('<font color="green">Correct!</font>');
+          }
+          else {
+            $('#answer-status-' + questionId).html('<font color="red">Wrong Answer! Try again...</font>');
+          }
+          $('#answer-status-' + questionId).show();
+          setTimeout(function() {
+            $('#answer-status-' + questionId).fadeOut(1000);
+          }, 1000);
+        });
+
+        $('select.lecture-dropdown').change(function() {
+          var nextSlide = $(this).val();
+          openSlide(nextSlide, function() {
+            runSlide(nextSlide);
+            pushState(nextSlide);
+          });
+        });
+
+        $('#hide-popup').click(function() {
+          hidePopup();
+        });
+
+        $('#popup').hover(function() {
+          $('#hide-popup').show();
+        }, function() {
+          $('#hide-popup').hide();
+        });
+
+        $('#electure-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('2');
+          pushState('2');
+        });
+        $('#electure-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('3');
+          pushState('3');
+        });
+        $('#electure-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('1');
+          pushState('1');
+        });
+        $('#electure-3 .electure-next').click(function() {
+          hidePopup();
+          runSlide('3-1');
+          pushState('3-1');
+        });
+        $('#electure-3 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('2');
+          pushState('2');
+        });
+        $('#electure-3-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('3-2');
+          pushState('3-2');
+        });
+        $('#electure-3-1 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('3');
+          pushState('3');
+        });
+        $('#electure-3-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('3-3');
+          pushState('3-3');
+        });
+        $('#electure-3-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('3-1');
+          pushState('3-1');
+        });
+        $('#electure-3-3 .electure-next').click(function() {
+          hidePopup();
+          runSlide('3-4');
+          pushState('3-4');
+        });
+        $('#electure-3-3 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('3-2');
+          pushState('3-2');
+        });
+        $('#electure-3-4 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4');
+          pushState('4');
+        });
+        $('#electure-3-4 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('3-3');
+          pushState('3-3');
+        });
+        $('#electure-4 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4-1');
+          pushState('4-1');
+        });
+        $('#electure-4 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('3-4');
+          pushState('3-4');
+        });
+        $('#electure-4-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4-2');
+          pushState('4-2');
+        });
+        $('#electure-4-1 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4');
+          pushState('4');
+        });
+        $('#electure-4-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('4-3');
+          pushState('4-3');
+        });
+        $('#electure-4-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4-1');
+          pushState('4-1');
+        });
+        $('#electure-4-3 .electure-next').click(function() {
+          hidePopup();
+          runSlide('5');
+          pushState('5');
+        });
+        $('#electure-4-3 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4-2');
+          pushState('4-2');
+        });
+        $('#electure-5 .electure-next').click(function() {
+          hidePopup();
+          runSlide('5-1');
+          pushState('5-1');
+        });
+        $('#electure-5 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('4-3');
+          pushState('4-3');
+        });
+        $('#electure-5-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('5-2');
+          pushState('5-2');
+        });
+        $('#electure-5-1 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('5');
+          pushState('5');
+        });
+        $('#electure-5-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('5-3');
+          pushState('5-3');
+        });
+        $('#electure-5-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('5-1');
+          pushState('5-1');
+        });
+        $('#electure-5-3 .electure-next').click(function() {
+          hidePopup();
+          runSlide('5-4');
+          pushState('5-4');
+        });
+        $('#electure-5-3 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('5-2');
+          pushState('5-2');
+        });
+        $('#electure-5-4 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6');
+          pushState('6');
+        });
+        $('#electure-5-4 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('5-3');
+          pushState('5-3');
+        });
+        $('#electure-6 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-1');
+          pushState('6-1');
+        });
+        $('#electure-6 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('5-4');
+          pushState('5-4');
+        });
+        $('#electure-6-1 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-2');
+          pushState('6-2');
+        });
+        $('#electure-6-1 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6');
+          pushState('6');
+        });
+        $('#electure-6-2 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-3');
+          pushState('6-3');
+        });
+        $('#electure-6-2 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-1');
+          pushState('6-1');
+        });
+        $('#electure-6-3 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-4');
+          pushState('6-4');
+        });
+        $('#electure-6-3 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-2');
+          pushState('6-2');
+        });
+        $('#electure-6-4 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-5');
+          pushState('6-5');
+        });
+        $('#electure-6-4 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-3');
+          pushState('6-3');
+        });
+        $('#electure-6-5 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-6');
+          pushState('6-6');
+        });
+        $('#electure-6-5 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-4');
+          pushState('6-4');
+        });
+        $('#electure-6-6 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-7');
+          pushState('6-7');
+        });
+        $('#electure-6-6 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-5');
+          pushState('6-5');
+        });
+        $('#electure-6-7 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-8');
+          pushState('6-8');
+        });
+        $('#electure-6-7 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-6');
+          pushState('6-6');
+        });
+        $('#electure-6-8 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-9');
+          pushState('6-9');
+        });
+        $('#electure-6-8 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-7');
+          pushState('6-7');
+        });
+        $('#electure-6-9 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-10');
+          pushState('6-10');
+        });
+        $('#electure-6-9 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-8');
+          pushState('6-8');
+        });
+        $('#electure-6-10 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-11');
+          pushState('6-11');
+        });
+        $('#electure-6-10 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-9');
+          pushState('6-9');
+        });
+        $('#electure-6-11 .electure-next').click(function() {
+          hidePopup();
+          runSlide('6-12');
+          pushState('6-12');
+        });
+        $('#electure-6-11 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-10');
+          pushState('6-10');
+        });
+        $('#electure-6-12 .electure-prev').click(function() {
+          hidePopup();
+          runSlide('6-11');
+          pushState('6-11');
+        });
+      });
+
+      function doButtonAction144() {
+        go(true);
+stop();
+      }
+
+      $('.electure-print').click(() => {
+        window.open(`/en/recursion/print`);
+      });
+      function adjustPopupToImageSize() {
+        var width = $('#popup-image').prop('width');
+        var height = $('#popup-image').prop('height');
+        $('#popup').width(width + 20);
+        $('#popup').height(height + 20);
+        if (width == 0 && height == 0) {
+          setTimeout(adjustPopupToImageSize, 200);
+        } else {
+          showPopup();
+        }
+      }
+
+      function POPUP_IMAGE(url) {
+        $('#popup-content').html('<img id="popup-image" src="' + url + '">');
+        adjustPopupToImageSize();
+      }
+
+      function URL(url.html) {
+        window.open(url, '_blank');
+      }
+
+      // Implement these functions in each visualisation
+      // This function will be called before entering e-Lecture Mode
+      function ENTER_LECTURE_MODE() {}
+
+      // This function will be called before returning to Explore Mode
+      function ENTER_EXPLORE_MODE() {}
+
+      // Lecture action functions
+      function CUSTOM_ACTION(action, data, mode) {}
+
+      // This function will be called everytime 1.0x is changed to 0.5x or vice versa
+      function redraw() {}
+
+      $(document).ready(function () {
+        setTimeout(function () {
+          $('#change-lang-popup').fadeOut('slow')
+        }, 5000)
+      })
+    </script>
+<script src="../js/recursion_lib/misc.js"></script>
+<script src="../js/recursion_lib/map.js"></script>
+<script src="../js/recursion_lib/showCodes.js"></script>
+<script type="text/javascript">
+// Recursion Widget
+// original author: Phan Thi Quynh Trang, then significantly upgraded by Nathan Azaria
+
+function RecursionException(message) {
+  this.name = "RecursionException";
+  this.message = message;
+}
+
+var scale = false;
+function RecursionWidget() {
+  var isDP = false;
+
+  var self = this;
+  var graphWidget = new GraphWidget(false, true);
+
+  var recursionStack = [];
+  var memoNumber = new Map();
+  var memoValue = new Map();
+  var memoColor = new Map();
+
+  var vertexCount = 0;
+  var vertexList = [];
+  var edgeCount = 0;
+
+  var a;
+  var f;
+  var userFunction; //used to store user-defined function
+  var modifiedFunction = function() {
+    //Create a new vertex
+    var newVertex = {
+      cx : 0,
+      cy : 0,
+      adj : [],
+      edgeNumber : [],
+      index : vertexCount,
+      arguments : arguments,
+      parent : -1
+    }
+    vertexList.push(newVertex);
+    ++vertexCount;
+
+    if (vertexCount > 5000)
+      throw new RecursionException('Too many vertices');
+
+    if (recursionStack.length > 0) {
+      vertexList[recursionStack[recursionStack.length-1]].adj.push(newVertex.index);
+      vertexList[recursionStack[recursionStack.length-1]].edgeNumber.push(edgeCount);
+      ++edgeCount;
+      newVertex.parent = recursionStack[recursionStack.length-1];
+    }
+    recursionStack.push(newVertex.index);
+
+    var returnValue = userFunction.apply(self, arguments);
+    newVertex.result = returnValue;
+
+    recursionStack.pop();
+    return returnValue;
+  }
+
+  var modifiedFunctionDP = function() {
+    // console.log(arguments);
+    var prev = null;
+    if (recursionStack.length > 0) {
+      prev = recursionStack[recursionStack.length-1];
+    }
+    //check in memo
+    if (memoNumber.get(arguments) != null) {
+      var currentVertex = memoNumber.get(arguments);
+      if (prev != null) {
+        vertexList[prev].adj.push(currentVertex);
+        vertexList[prev].edgeNumber.push(edgeCount);
+        ++edgeCount;
+      }
+
+      var returnValue = vertexList[currentVertex].result;
+      return returnValue;
+    }
+    else {
+      var newVertex = {
+        cx : 0,
+        cy : 0,
+        adj : [],
+        edgeNumber : [],
+        index : vertexCount,
+        arguments : arguments,
+        parent : -1
+      };
+      vertexList.push(newVertex);
+      ++vertexCount;
+
+      if (vertexCount > 5000)
+        throw new RecursionException('Too many vertices');
+
+      if (prev != null) {
+        vertexList[prev].adj.push(newVertex.index);
+        vertexList[prev].edgeNumber.push(edgeCount);
+        newVertex.parent = prev;
+        ++edgeCount;
+      }
+
+      recursionStack.push(newVertex.index);
+
+      var returnValue = userFunction.apply(self, arguments);
+      newVertex.result = returnValue;
+      memoNumber.put(arguments, newVertex.index);
+
+      recursionStack.pop();
+      return returnValue;
+    }
+  }
+
+  function calcHeight(vertexNumber) {
+    if (vertexList[vertexNumber].parent == -1)
+      return 0;
+    else
+      return calcHeight(vertexList[vertexNumber].parent) + 1;
+  }
+
+  function recalculatePosition() {
+    var numLeaf = 0;
+    var maxHeight = 0;
+    for (var i = 0; i < vertexCount; i++) {
+      if (vertexList[i].adj.length == 0)
+        ++numLeaf;
+      maxHeight = Math.max(maxHeight, calcHeight(i));
+    }
+    var leafProcessed = 0;
+
+    // console.log(numLeaf);
+    calcPosition(0);
+
+    function calcPosition(vertexNumber) {
+                  if (maxHeight == 0) {
+        vertexList[vertexNumber].cy = 1/2 * (MAIN_SVG_HEIGHT - 100) + 50;
+      } else {
+        vertexList[vertexNumber].cy = (calcHeight(vertexNumber)/maxHeight)*(MAIN_SVG_HEIGHT-100) + 50;
+      }
+      var adjSize = vertexList[vertexNumber].adj.length;
+      if (adjSize == 0) {
+        vertexList[vertexNumber].cx = ((leafProcessed+1)/(numLeaf+1))*(MAIN_SVG_WIDTH-100)+50;
+        ++leafProcessed;
+        return {
+          sumx : vertexList[vertexNumber].cx,
+          num : 1
+        };
+      }
+      var sumx = 0;
+      var num = 0;
+      for (var i = 0; i < adjSize; i++) {
+        var nextVertex = vertexList[vertexNumber].adj[i];
+        var returnValue = calcPosition(nextVertex);
+        sumx += vertexList[nextVertex].cx;
+        num += 1;
+      }
+      vertexList[vertexNumber].cx = sumx / num;
+      return {
+        sumx : sumx,
+        num : num
+      }
+    /*
+      vertexList[vertexNumber].cy = calcHeight(vertexNumber) * 75 + 50;
+      vertexList[vertexNumber].cx = (left + right) / 2;
+      var adjSize = vertexList[vertexNumber].adj.length;
+      for (var i = 0; i < adjSize; i++) {
+        var nextVertex = vertexList[vertexNumber].adj[i];
+        var nextLeft = (i * right + (adjSize - i) * left) / adjSize;
+        var nextRight = ((i+1) * right + (adjSize - i - 1) * left) / adjSize;
+        calcPosition(nextVertex, nextLeft, nextRight);
+      }*/
+    }
+  }
+
+  function recalculatePositionDP() {
+    var g = new dagre.Digraph();
+    for (var i = 0; i < vertexCount; i++)
+      g.addNode(i, {label : "", width : 0, height: 0});
+    for (var i = 0; i < vertexCount; i++)
+      for (var j = vertexList[i].adj.length - 1; j >= 0; j--) {
+        g.addEdge(-vertexList[i].edgeNumber[j], i, vertexList[i].adj[j]);
+      }
+    var layout = dagre.layout().run(g);
+    var outputGraph = layout.graph();
+    //console.log(outputGraph);
+    layout.eachNode(function(u, value) {
+      if (outputGraph.width == 0)
+        vertexList[u].cx = MAIN_SVG_WIDTH/2;
+      else
+        vertexList[u].cx = (value.x * (MAIN_SVG_WIDTH-100)/outputGraph.width) + 50;
+      vertexList[u].cy = (value.y * (MAIN_SVG_HEIGHT-100)/outputGraph.height) + 50;
+    });
+    // layout.eachEdge(function(e, u, v, value) {
+    //   console.log(e + "  " + u + "->" + v + " " + JSON.stringify(value));
+    // });
+    // console.log(vertexList);
+  }
+
+  function clear() {
+    while (vertexList.length > 0)
+      vertexList.pop();
+    while (recursionStack.length > 0)
+      recursionStack.pop();
+    memoNumber.clear();
+    memoValue.clear();
+    memoColor.clear();
+    vertexCount = 0;
+    edgeCount = 0;
+  }
+
+  this.getGraphWidget = function() {
+    return graphWidget;
+  }
+
+  this.setUserFunction = function(argumentList, body) { // this eval is very powerful
+    var func = "function (" + argumentList + "){" + body + "}";
+    userFunction = eval("_f = " + func);
+  }
+
+  this.init = function() {
+    recursionStack = [];
+    memoNumber = new Map();
+    memoColor = new Map();
+  }
+
+  // Create the tree
+  this.createTree = function() {
+    f = modifiedFunction;
+    modifiedFunction.apply(self, arguments);
+  }
+
+  this.createTreeDP = function() {
+    f = modifiedFunctionDP;
+    modifiedFunctionDP.apply(self, arguments);
+  }
+
+  this.createAnimation = function(showlastframe) {
+    recalculatePosition();
+    var state = {
+      vl : {},
+      el : {},
+    }
+    var stateList = [];
+    for (var i = 0; i < vertexCount; i++) {
+      var newVertex = {
+        cx : vertexList[i].cx,
+        cy : vertexList[i].cy,
+        text : argToString(vertexList[i].arguments),
+        state : OBJ_HIDDEN,
+        extratext : ""
+      }
+      state.vl[i] = newVertex;
+    }
+    for (var i = 0; i < vertexCount; i++) {
+      for (var j = 0; j < vertexList[i].adj.length; j++) {
+        var newEdge = {
+          vertexA : i,
+          vertexB : vertexList[i].adj[j],
+          type : EDGE_TYPE_DE,
+          weight : 1,
+          state : OBJ_HIDDEN,
+          animateHighlighted : false
+        }
+        state.el[vertexList[i].edgeNumber[j]] = newEdge;
+      }
+    }
+    stateList.push(deepCopy(state));
+    traverse(0);
+    graphWidget.startAnimation(stateList);
+    // console.log(stateList);
+    function traverse(vertexNumber) {
+      state.vl[vertexNumber].state = VERTEX_HIGHLIGHTED;
+      if (showlastframe)
+        stateList[0] = deepCopy(state); // overwrite the only state 0, effectively only retain the final state
+      else
+        stateList.push(deepCopy(state)); // append to the back
+
+      for (var i = 0; i < vertexList[vertexNumber].adj.length; ++i) {
+        var nextVertex = vertexList[vertexNumber].adj[i];
+        var nextEdge = vertexList[vertexNumber].edgeNumber[i];
+        state.el[nextEdge].state = EDGE_HIGHLIGHTED;
+        state.el[nextEdge].animateHighlighted = true;
+
+        if (showlastframe)
+          stateList[0] = deepCopy(state); // overwrite the only state 0, effectively only retain the final state
+        else
+          stateList.push(deepCopy(state)); // append to the back
+
+        state.el[nextEdge].animateHighlighted = false;
+        traverse(nextVertex);
+        state.el[nextEdge].state = EDGE_DEFAULT;
+      }
+      state.vl[vertexNumber].extratext = vertexList[vertexNumber].result;
+      if (vertexList[vertexNumber].adj.length == 0)
+        state.vl[vertexNumber].state = VERTEX_GREEN_FILL;
+      else if (memoColor.get(vertexList[vertexNumber].arguments) == null) {
+        state.vl[vertexNumber].state = VERTEX_DEFAULT;
+        memoColor.put(vertexList[vertexNumber].arguments, 1);
+      }
+      else
+        state.vl[vertexNumber].state = VERTEX_BLUE_FILL;
+
+      if (showlastframe)
+        stateList[0] = deepCopy(state); // overwrite the only state 0, effectively only retain the final state
+      else
+        stateList.push(deepCopy(state)); // append to the back
+    }
+  }
+
+  this.createAnimationDP = function(showlastframe) {
+    recalculatePositionDP();
+    var state = {
+      vl : {},
+      el : {},
+    }
+    var stateList = [];
+    for (var i = 0; i < vertexCount; ++i) {
+      var newVertex = {
+        cx : vertexList[i].cx,
+        cy : vertexList[i].cy,
+        text : argToString(vertexList[i].arguments),
+        state : OBJ_HIDDEN,
+        extratext : ""
+      }
+      state.vl[i] = newVertex;
+    }
+    for (var i = 0; i < vertexCount; ++i) {
+      for (var j = 0; j < vertexList[i].adj.length; ++j) {
+        var newEdge = {
+          vertexA : i,
+          vertexB : vertexList[i].adj[j],
+          type : EDGE_TYPE_DE,
+          weight : 1,
+          state : OBJ_HIDDEN,
+          animateHighlighted : false
+        }
+        state.el[vertexList[i].edgeNumber[j]] = newEdge;
+        //console.log(vertexList[i].edgeNumber[j]);
+      }
+    }
+    stateList.push(deepCopy(state));
+    traverse(0);
+    graphWidget.startAnimation(stateList);
+    //console.log(stateList);
+    function traverse(vertexNumber) {
+      if (state.vl[vertexNumber].state == OBJ_HIDDEN) {
+        state.vl[vertexNumber].state = VERTEX_HIGHLIGHTED;
+        if (showlastframe)
+          stateList[0] = deepCopy(state); // overwrite the only state 0, effectively only retain the final state
+        else
+          stateList.push(deepCopy(state)); // append to the back
+
+        for (var i = 0; i < vertexList[vertexNumber].adj.length; ++i) {
+          var nextVertex = vertexList[vertexNumber].adj[i];
+          var nextEdge = vertexList[vertexNumber].edgeNumber[i];
+          state.el[nextEdge].state = EDGE_HIGHLIGHTED;
+          state.el[nextEdge].animateHighlighted = true;
+
+          if (showlastframe)
+            stateList[0] = deepCopy(state); // overwrite the only state 0, effectively only retain the final state
+          else
+            stateList.push(deepCopy(state)); // append to the back
+          state.el[nextEdge].animateHighlighted = false;
+          traverse(nextVertex);
+          state.el[nextEdge].state = EDGE_DEFAULT;
+        }
+        state.vl[vertexNumber].extratext = vertexList[vertexNumber].result;
+        if (vertexList[vertexNumber].adj.length == 0)
+          state.vl[vertexNumber].state = VERTEX_GREEN_FILL;
+        else
+          state.vl[vertexNumber].state = VERTEX_DEFAULT;
+
+        if (showlastframe)
+          stateList[0] = deepCopy(state); // overwrite the only state 0, effectively only retain the final state
+        else
+          stateList.push(deepCopy(state)); // append to the back
+      }
+    }
+  }
+
+  // Visualize the recursion, given the argument as a string
+  this.visualize = function(argumentList, code, argument, otherVar1, otherVar2, showlastframe) {
+    console.log("HERE");
+    clear();
+    console.log("HERE2");
+    recursionWidget.setUserFunction(argumentList, code);
+    a1 = eval(otherVar1);
+    a2 = eval(otherVar2);
+    //console.log(a1);
+    if (!isDP) {
+      eval("this.createTree(" + argument + ")");
+      //console.log(vertexList);
+      this.createAnimation(showlastframe);
+    }
+    else {
+      eval("this.createTreeDP(" + argument + ")");
+      //console.log(vertexList);
+      this.createAnimationDP(showlastframe);
+    }
+  }
+
+  this.isDP = function(bool) {
+    if (typeof bool != 'boolean') return;
+
+    if (bool != isDP){
+      var emptyState = {
+        vl : {},
+        el : {}
+      }
+      clear();
+      isDP = bool;
+    }
+  }
+}
+
+
+
+// Recursion action
+// actions panel stuff
+var actionsWidth = 355;
+// var statusCodetraceWidth = 420;
+var isRunOpen = false;
+
+function openRun() {
+  if (!isRunOpen) {
+    $('.run').fadeIn('fast');
+    isRunOpen = true;
+  }
+}
+
+function closeRun() {
+  if (isRunOpen) {
+    $('.run').fadeOut('fast');
+    $('#run-err').html("");
+    isRunOpen = false;
+  }
+}
+
+function hideEntireActionsPanel() {
+  closeRun();
+  hideActionsPanel();
+}
+
+var oldCode = "";
+$('#code').on("change keyup keydown", function() {
+  var newCode = $('#code').val();
+  if (newCode != oldCode)
+    $('#codeExample').val('CustomCode');
+  oldCode = newCode;
+});
+
+$("#codeExample").change(function() {
+  choice = $(this).val();
+  switch (choice) {
+    case "Factorial":
+      factorial();
+      break;
+    case "BinarySearch":
+      binarysearch();
+      break;
+    case "ModuloPower":
+      modulopower();
+      break;
+    case "GCD":
+      gcd();
+      break;
+    case "MaxRS":
+      maxrs();
+      break;
+    case "Catalan":
+      catalan();
+      break;
+
+    case "Fibonacci":
+      fibonacci();
+      break;
+    case "Cnk":
+      choosenk();
+      break;
+    case "LCS":
+      lcs();
+      break;
+    case "Knapsack":
+      knapsack();
+      break;
+
+    case "CC":
+      cc();
+      break;
+    case "LIS":
+      lis();
+      break;
+    case "TSP":
+      tsp();
+      break;
+    case "Matching":
+      matching();
+      break;
+
+    case "MergeSort":
+      mergesort();
+      break;
+    case "QuickSort":
+      quicksort();
+      break;
+    case "RandQSort":
+      randqsort();
+      break;
+    case "MT2":
+      mt2();
+      break;
+    case "MT1":
+      mt1();
+      break;
+    case "MT3":
+      mt3();
+      break;
+    default:
+      break;
+
+/*
+    case "FlightPlanner":
+      flightPlanner();
+      break;
+    case "UVa10702":
+      UVa10702();
+      break;
+*/
+  }
+
+  go(true); // immediately show the last frame
+});
+
+$('#play').hide();
+
+$('#title-recursion').click(function() {
+  if (isPlaying) stop();
+  showActionsPanel();
+/*
+  hideStatusPanel();
+  hideCodetracePanel();
+*/
+  recursionWidget.isDP(false);
+  if ($('#code').val() != '') go(true);
+});
+
+$('#title-dp').click(function() {
+  if (isPlaying) stop();
+  showActionsPanel();
+/*
+  hideStatusPanel();
+  hideCodetracePanel();
+*/
+  recursionWidget.isDP(true);
+  if ($('#code').val() != '') go(true);
+});
+
+var recursionWidget = new RecursionWidget();
+var gw = recursionWidget.getGraphWidget();
+
+$(function() {
+  gw.setAnimationDuration(700 / speedVal);
+  var actionsHeight = 210;
+  $('#actions').css('height', actionsHeight);
+  $('#actions').css('width', actionsWidth);
+  var actionsHideTop = Math.floor((actionsHeight - 16) / 2);
+  var actionsHideBottom = (actionsHeight - 16) - actionsHideTop;
+  $('#actions-hide').css('padding-top', actionsHideTop);
+  $('#actions-hide').css('padding-bottom', actionsHideBottom);
+
+  var codeExample = getQueryVariable("example");
+  if (codeExample.length == 0)
+    codeExample = "Fibonacci"; // the default if there is no specific parameter
+  if (codeExample.length > 0) {
+    $('#codeExample').val(codeExample);
+    $('#codeExample').trigger('change');
+    go(true); // only show last frame
+  }
+
+  /* QUESTION: how to use this url parameter 'arguments'? */
+  var arguments = getQueryVariable("arguments");
+  if (arguments.length > 0) {
+    arguments = JSON.parse(arguments);
+    var functionArguments = "";
+    for (var key in arguments)
+      functionArguments += key + "=" + arguments[key] + ","
+    functionArguments = functionArguments.replace(/(^,)|(,$)/g, ""); // trim trailing comma
+    $('#arguments_textBox').val(functionArguments);
+  }
+});
+
+function go(showlastframe = false) {
+  if (isPlaying) stop();
+  setTimeout(function() {
+    var arguments = $('#arguments_textBox').val();
+
+    var arrayOfPairs = arguments.split(",");
+    for (var i = 0; i < arrayOfPairs.length; ++i)
+      arrayOfPairs[i] = arrayOfPairs[i].split("=");
+
+    var arguments = "";
+    for (var i = 0; i < arrayOfPairs.length; ++i) {
+      if (i > 0) arguments += ", ";
+      arguments += arrayOfPairs[i][0];
+    }
+
+   var parameters = "";
+    for (var i = 0; i < arrayOfPairs.length; ++i) {
+      if (i > 0) parameters += ", ";
+      for (var j = 1; j < arrayOfPairs[i].length; ++j) {
+        if (j > 1) parameters += "=";
+        parameters += arrayOfPairs[i][j];
+      }
+    }
+
+    try {
+      recursionWidget.visualize(arguments,
+          $('#code').val(),
+          parameters,
+          $('#variable1_textBox').val(),
+          $('#variable2_textBox').val(),
+          showlastframe);
+    }
+    catch (e) {
+      $('#error').html(e.message);
+      $('#error').show();
+      $('#error').fadeOut(3000);
+      return;
+    }
+    $('#progress-bar').slider("option", "max", gw.getTotalIteration()-1);
+    isPlaying = true;
+  }, 500);
+}
+
+function trigger_redraw() {
+  // end_eLecture();
+  // $('#mode-menu a').click(); // remove overlay
+  go(true); // redraw
+  // hideOverlay();
+  // showOverlay();
+  // start_eLecture();
+  // $('#other-modes a').click();
+  // setTimeout(function() { $('#mode-menu a').click() }, 2000); // put back after 2s
+}
+
+var emptyString = ""; // to save some lines
+
+
+/* One Subproblem */
+
+var factorialArgument = "n = 6";
+var factorialCode = "\
+if (n == 0) /* base case */\n\
+  return 1;\n\
+else /* recursive case */\n\
+  return n*f(n-1);\n";
+
+function factorial() {
+  $('#arguments_textBox').val(factorialArgument);
+  $('#code').val(factorialCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var binarySearchArgument = "a=0,b=6,x=7";
+var binarySearchCode = "\
+if (a > b) /* base case */\n\
+  return -1; /* not found */\n\
+else { /* recursive caseS */\n\
+  var mid = Math.floor((a+b) / 2);\n\
+  if (x == a1[mid]) return mid;\n\
+  if (x < a1[mid]) return f(a, mid-1, x);\n\
+  else return f(mid+1, b, x);\n\
+}";
+var binarySearchArray = "[1, 3, 4, 5, 7, 8, 9]";
+
+function binarysearch() {
+  $('#arguments_textBox').val(binarySearchArgument);
+  $('#code').val(binarySearchCode);
+  $('#variable1_textBox').val(binarySearchArray);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var moduloPowerArgument = "b=2,p=9,m=97";
+var moduloPowerCode = "\
+if (p == 0) return 1;\n\
+var ans = f(b, Math.floor(p/2), m); /* log */\n\
+ans = ans*ans % m;\n\
+if (p%2 == 1) ans = (ans*b)%m; /* p is odd */\n\
+return ans; /* ans in [0..m-1] */";
+
+function modulopower() {
+  $('#arguments_textBox').val(moduloPowerArgument);
+  $('#code').val(moduloPowerCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var gcdArgument = "a = 98, b = 36";
+var gcdCode = "\
+if (b == 0) /* base case */\n\
+  return a;\n\
+else /* recursive case */\n\
+  return f(b, a%b);"
+
+function gcd() {
+  $('#arguments_textBox').val(gcdArgument);
+  $('#code').val(gcdCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var maxRangeSumArgument = "i = 6";
+var maxRangeSumCode = "\
+if (i == 0) /* base case */\n\
+  return Math.max(a1[i], 0);\n\
+else /* recursive case */\n\
+  return Math.max(f(i-1) + a1[i], 0);";
+var maxRangeSumArray = "[4, -5, 4, -3, 0, 4, -5]";
+
+function maxrs() {
+  $('#arguments_textBox').val(maxRangeSumArgument);
+  $('#code').val(maxRangeSumCode);
+  $('#variable1_textBox').val(maxRangeSumArray);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var catalanArgument = "n = 6";
+var catalanCode = "\
+if (n == 0) /* base case */\n\
+  return 1;\n\
+else /* recursive case */\n\
+  return f(n-1)*2*n*(2*n-1)/(n+1)/n;"
+
+function catalan() {
+  $('#arguments_textBox').val(catalanArgument);
+  $('#code').val(catalanCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+
+/* Two Subproblems */
+
+var fibonacciArgument = "n = 5";
+var fibonacciCode = "\
+if (n <= 1) /* base case */\n\
+  return n;\n\
+else /* recursive caseS */\n\
+  return f(n-1) + f(n-2);";
+
+function fibonacci() {
+  $('#arguments_textBox').val(fibonacciArgument);
+  $('#code').val(fibonacciCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var choosenkArgument = "n = 5, k = 2";
+var choosenkCode = "\
+if (k == 0 || k == n) /* base caseS */\n\
+  return 1;\n\
+else /* recursive caseS */\n\
+  return f(n-1, k-1) + /* take */ \n\
+         f(n-1, k); /* not take */";
+
+function choosenk() {
+  $('#arguments_textBox').val(choosenkArgument);
+  $('#code').val(choosenkCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var lcsArgument = "n = 3, m = 2";
+var lcsCode = "\
+/* base caseS */\n\
+if (n < 0 || m < 0) return 0;\n\
+var ans = 0;\n\
+if (a1[n] == a2[m]) ans = 1+f(n-1, m-1);\n\
+ans = Math.max(ans, f(n-1, m));\n\
+ans = Math.max(ans, f(n, m-1));\n\
+return ans;";
+// var lcsDefault = "3, 12";
+var lcsArray1 = "\'even\'";
+var lcsArray2 = "\'eve\'";
+
+function lcs() {
+  $('#arguments_textBox').val(lcsArgument);
+  $('#code').val(lcsCode);
+  $('#variable1_textBox').val(lcsArray1);
+  $('#variable2_textBox').val(lcsArray2);
+  oldCode = $('#code').val();
+}
+
+var knapsackArgument = "i = 3, w = 12";
+var knapsackCode = "\
+/* base caseS */\n\
+if (w == 0 || i < 0) return 0;\n\
+else if (a2[i] > w) return f(i-1, w);\n\
+/* recursive caseS */\n\
+return Math.max(\n\
+  a1[i] + f(i-1, w-a2[i]), /* take */\n\
+          f(i-1, w)); /* not take */";
+var knapsackDefault = "3, 12";
+var knapsackArray1 = "[100, 70, 50, 10]";
+var knapsackArray2 = "[10, 4, 6, 12]";
+
+function knapsack() {
+  $('#arguments_textBox').val(knapsackArgument);
+  $('#code').val(knapsackCode);
+  $('#variable1_textBox').val(knapsackArray1);
+  $('#variable2_textBox').val(knapsackArray2);
+  oldCode = $('#code').val();
+}
+
+
+/* Many Subproblems */
+
+var CCArgument = "v = 7";
+var CCCode = "\
+if (v == 0) return 0; /* base case */\n\
+/* recursive caseS */\n\
+var ans = 99;\n\
+for (var i = 0; i < a1.length; ++i)\n\
+  if (v-a1[i] >= 0)\n\
+    ans = Math.min(ans, 1 + f(v-a1[i]));\n\
+return ans;";
+var CCArray1 = "[1, 3, 4, 5]";
+
+function cc() {
+  $('#arguments_textBox').val(CCArgument);
+  $('#code').val(CCCode);
+  $('#variable1_textBox').val(CCArray1);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var LISArgument = "i = 8";
+var LISCode = "\
+if (i == 0) return 1; /* base case */\n\
+/* recursive caseS */\n\
+var ans = 1;\n\
+for (var j = 0; j < i; j++)\n\
+  if (a1[j] < a1[i])\n\
+    ans = Math.max(ans, f(j)+1);\n\
+return ans;";
+var LISArray1 = "[-7,10,9,2,3,8,8,1,99]";
+
+function lis() {
+  $('#arguments_textBox').val(LISArgument);
+  $('#code').val(LISCode);
+  $('#variable1_textBox').val(LISArray1);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var TSPArgument = "u = 0, m = 1";
+var TSPCode = "\
+if (m == (1<<a1.length)-1) return a1[u][0];\n\
+var ans = 99; /* recursive caseS */\n\
+for (var v = 0; v < a1.length; v++)\n\
+  if (v != u && ((m & (1<<v)) == 0))\n\
+    ans = Math.min(ans,\n\
+      a1[u][v] + f(v, m | (1<<v)));\n\
+return ans;";
+var TSPArray1 = "[[0, 20, 42, 35], [20, 0, 30, 34], [42, 30, 0, 12], [35, 34, 12, 0]]";
+
+function tsp() {
+  $('#arguments_textBox').val(TSPArgument);
+  $('#code').val(TSPCode);
+  $('#variable1_textBox').val(TSPArray1);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+function matching() {
+  showMatchingCode();
+  oldCode = $('#code').val();
+}
+
+var mergesortArgument = "n = 16";
+var mergesortCode = "\
+c = 1; /* merge sort recurrence */\n\
+if (n <= 1) /* base case */\n\
+  return c;\n\
+else /* recursive caseS */\n\
+  return f(n/2) + f(n/2) + c*n;";
+
+function mergesort() {
+  $('#arguments_textBox').val(mergesortArgument);
+  $('#code').val(mergesortCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var quicksortArgument = "n = 16";
+var quicksortCode = "\
+c = 1; /* (non-random) quick sort recurrence */\n\
+if (n <= 1) /* base case */\n\
+  return c;\n\
+else /* recursive caseS */\n\
+  return f(0) + f(n-1) + c*n;";
+
+function quicksort() {
+  $('#arguments_textBox').val(quicksortArgument);
+  $('#code').val(quicksortCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var randqsortArgument = "n = 16";
+var randqsortCode = "\
+c = 1; /* randomized quick sort recurrence */\n\
+if (n <= 1) /* base case */\n\
+  return c;\n\
+else { /* recursive caseS */\n\
+  var i = Math.floor(Math.random()*n);\n\
+  return f(n-i-1) + f(i) + c*n;\n\
+}";
+
+function randqsort() {
+  $('#arguments_textBox').val(randqsortArgument);
+  $('#code').val(randqsortCode);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var mt2Argument = "n = 16";
+var mt2Code = "\
+c = 1; /* master theorem recurrence */\n\
+if (n <= 1) /* base case */\n\
+  return c;\n\
+else { /* recursive caseS */\n\
+  var a = 2, b = 2, split_cost = 0;\n\
+  for (var i = 0; i < a; ++i)\n\
+    split_cost += f(n/b);\n\
+  return split_cost + c*n;\n\
+}";
+
+function mt2() {
+  $('#arguments_textBox').val(mt2Argument);
+  $('#code').val(mt2Code);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var mt1Argument = "n = 4";
+var mt1Code = "\
+c = 1; /* master theorem recurrence */\n\
+if (n <= 1) /* base case */\n\
+  return c;\n\
+else { /* recursive caseS */\n\
+  var a = 7, b = 2, split_cost = 0;\n\
+  for (var i = 0; i < a; ++i)\n\
+    split_cost += f(n/b);\n\
+  return split_cost + c*n*n;\n\
+}";
+
+function mt1() {
+  $('#arguments_textBox').val(mt1Argument);
+  $('#code').val(mt1Code);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+var mt3Argument = "n = 4";
+var mt3Code = "\
+c = 1; /* master theorem recurrence */\n\
+if (n <= 1) /* base case */\n\
+  return c;\n\
+else { /* recursive caseS */\n\
+  var a = 4, b = 2, split_cost = 0;\n\
+  for (var i = 0; i < a; ++i)\n\
+    split_cost += f(n/b);\n\
+  return split_cost + c*n*n*n;\n\
+}";
+
+function mt3() {
+  $('#arguments_textBox').val(mt3Argument);
+  $('#code').val(mt3Code);
+  $('#variable1_textBox').val(emptyString);
+  $('#variable2_textBox').val(emptyString);
+  oldCode = $('#code').val();
+}
+
+// function flightPlanner() {
+//   showCodetracePanel();
+//   showFlightPlannerCode();
+//   oldCode = $('#code').val();
+// }
+
+// function UVa10702() {
+//   // showCodetracePanel();
+//   showUVa10702Code();
+//   oldCode = $('#code').val();
+// }
+
+// var codeVisible = true;
+</script>
+</body>
+
+<!-- Mirrored from visualgo.net/en/recursion by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 16 Dec 2023 15:17:25 GMT -->
+</html>
