@@ -22,6 +22,8 @@ export default class SceneName extends Phaser.Scene {
     }
 
     create() {
+        this.marksGroup = this.add.group();
+        this.currentMarkIndex = 0;
         let i = this.registry.get('myNumber');
         //this.scene.stop('mus')
         this.scene.remove('guide')
@@ -217,7 +219,25 @@ export default class SceneName extends Phaser.Scene {
 
 
 
+        // Trong hàm update hoặc xử lý di chuyển
         const currentTile = this.base2layer.getTileAtWorldXY(this.player.x, this.player.y);
+
+        const existingMark = this.marksGroup.getChildren().find(mark => {
+            const markTile = this.base2layer.getTileAtWorldXY(mark.x, mark.y);
+            return markTile.x === currentTile.x && markTile.y === currentTile.y;
+        });
+
+        if (!existingMark) {
+            // Nếu tile hiện tại chưa được đánh dấu
+            const markType = ['mark1', 'mark1', 'mark1'][this.currentMarkIndex];
+            const mark = this.add.image(currentTile.getCenterX(), currentTile.getCenterY(), markType).setDepth(3);
+            this.marksGroup.add(mark);
+
+            // Chuyển đổi giữa mark1, mark2, mark2 theo thứ tự
+            this.currentMarkIndex = (this.currentMarkIndex + 1) % 3;
+        }
+
+
     }
 }
 

@@ -3,37 +3,37 @@
 <head>
     {% load static %}
     <meta charset="UTF-8">
-    <title>Trang chủ - BFS Algorithm</title>
+    <title>Trang chủ - BFS & DFS Algorithm</title>
     <link rel="stylesheet" href="{% static 'myapp/css/styles_index.css' %}">
 </head>
 <body>
     <header class="header">
         <div class="header-content">
-            <h1 class="header-title">Welcome to BFS Algorithm</h1>
-            <p class="header-description">Explore the Breadth-First Search Algorithm</p>
+            <h1 class="header-title">Welcome to BFS & DSF Algorithm</h1>
+            <p class="header-description">Explore the BFS & DFS Algorithm</p>
         </div>
     </header>
     <main class="main-content">
         <section class="page-links">
-            <a href="{% url 'theory' %}" class="page-link"target="_blank">
+            <a href="{% url 'sel_theory' %}" class="page-link"target="_blank">
                 <img src="{% static 'myapp/images/homepage/theorys.jpg' %}" alt="Lý thuyết">
                 <h2>Lý Thuyết</h2>
-                <p>Đọc về cơ bản và lý thuyết của thuật toán BFS.</p>
+                <p>Đọc về cơ bản và lý thuyết của thuật toán BFS và DFS.</p>
             </a>
             <a href="{% url 'simulation' %}" class="page-link"target="_blank">
                 <img src="{% static 'myapp/images/homepage/simulationss.gif' %}" alt="Mô phỏng">
                 <h2>Mô Phỏng</h2>
-                <p>Trải nghiệm mô phỏng thực tế của thuật toán BFS.</p>
+                <p>Trải nghiệm mô phỏng thực tế của thuật toán BFS và DFS.</p>
             </a>
             <a href="{% url 'game' %}" class="page-link"target="_blank">
                 <img src="{% static 'myapp/images/homepage/games.jpg' %}" alt="Trò chơi">
                 <h2>Trò Chơi</h2>
-                <p>Thử thách bản thân với trò chơi dựa trên thuật toán BFS.</p>
+                <p>Thử thách bản thân với trò chơi dựa trên thuật toán BFS và DFS.</p>
             </a>
         </section>
     </main>
     <footer class="footer">
-        <p>© 2023 BFS Algorithm Web - Đoàn Huỳnh Thanh Tú - 46.01.103.076 - HCMUE</p>
+        <p>© 2023 BFS & DFS Algorithm Web - Đoàn Huỳnh Thanh Tú - 46.01.103.076 - HCMUE</p>
     </footer>
 </body>
 </html>

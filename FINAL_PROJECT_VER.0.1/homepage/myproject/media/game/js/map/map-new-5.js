@@ -20,8 +20,8 @@ export default class SceneMapNew5 extends Phaser.Scene {
     }
 
     create() {
-        // $('#phaser-game').css('margin-top', '0px')
-        // this.scale.resize(836, 836)
+        this.marksGroup = this.add.group();
+        this.currentMarkIndex = 0;
         let i = this.registry.get('myNumber');
         this.scene.remove('map-new-4')
         this.scene.remove('CR8')
@@ -83,7 +83,7 @@ export default class SceneMapNew5 extends Phaser.Scene {
 
 
         // // Tạo nhân vật
-        this.player = this.physics.add.sprite(50, 790, 'player' + i).setDepth(1);
+        this.player = this.physics.add.sprite(50, 790, 'player' + i).setDepth(5);
         this.player.setScale(0.65)
 
 
@@ -202,7 +202,30 @@ export default class SceneMapNew5 extends Phaser.Scene {
             if (this.player.anims) this.player.anims.stop();
         }
 
-        const currentTile = this.base2layer.getTileAtWorldXY(this.player.x, this.player.y);
+       // Trong hàm update hoặc xử lý di chuyển
+       const currentTile = this.base2layer.getTileAtWorldXY(this.player.x, this.player.y);
+
+       const existingMark = this.marksGroup.getChildren().find(mark => {
+           const markTile = this.base2layer.getTileAtWorldXY(mark.x, mark.y);
+           return markTile.x === currentTile.x && markTile.y === currentTile.y;
+       });
+
+       if (!existingMark) {
+        const markTypes = ['mark1', 'mark2'];
+        const markType = markTypes[this.currentMarkIndex];
+        const mark = this.add.image(currentTile.getCenterX(), currentTile.getCenterY(), markType).setDepth(3);
+        
+        if (markType === 'mark1') {
+            mark.setScale(0.6); // Điều chỉnh kích thước cho mark1
+        } else if (markType === 'mark2') {
+            mark.setScale(0.05); // Điều chỉnh kích thước cho mark2, ví dụ là 70% so với kích thước mặc định
+        }
+        
+        this.marksGroup.add(mark);
+    
+        this.currentMarkIndex = (this.currentMarkIndex + 1) % markTypes.length;
+    }
+    
     }
 }
 

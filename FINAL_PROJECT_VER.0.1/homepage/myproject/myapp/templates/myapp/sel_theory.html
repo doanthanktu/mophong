@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Lý thuyết - BFS & DFS Algorithm</title>
+    <link rel="stylesheet" href="{% static 'myapp/css/styles_index.css' %}">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1 class="header-title">Welcome to BFS & DSF Algorithm</h1>
+            <p class="header-description">Select BFS or DFS Algorithm</p>
+        </div>
+    </header>
+    <main class="main-content">
+        <section class="page-links">
+            <a href="{% url 'theory' %}" class="page-link"target="_blank">
+                <img src="{% static 'myapp/images/homepage/sel_theory_BFS.jpg' %}" alt="Lý thuyết">
+                <h2>Lý Thuyết BFS</h2>
+                <p>Đọc về cơ bản và lý thuyết của thuật toán BFS</p>
+            </a>
+            <a href="{% url 'theory_DFS' %}" class="page-link"target="_blank">
+                <img src="{% static 'myapp/images/homepage/sel_theory_DFS.jpg' %}" alt="Mô phỏng">
+                <h2>Lý Thuyết DFS</h2>
+                <p>Đọc về cơ bản và lý thuyết của thuật toán DFS</p>
+            </a>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>© 2023 BFS & DFS Algorithm Web - Đoàn Huỳnh Thanh Tú - 46.01.103.076 - HCMUE</p>
+    </footer>
+</body>
+</html>

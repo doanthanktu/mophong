@@ -20,9 +20,9 @@ export default class SceneMapNew6 extends Phaser.Scene {
     }
 
     create() {
+        this.marksGroup = this.add.group();
+        this.currentMarkIndex = 0;
         let i = this.registry.get('myNumber');
-        // $('#phaser-game').css('margin-top', '0px')
-        // this.scale.resize(1000, 1000)
         this.scene.remove('map-new-5')
         this.scene.remove('CR9')
         this.scene.remove('Load11')
@@ -84,7 +84,7 @@ export default class SceneMapNew6 extends Phaser.Scene {
 
 
         // // Tạo nhân vật
-        this.player = this.physics.add.sprite(0, 960, 'player' + i).setDepth(1);
+        this.player = this.physics.add.sprite(0, 960, 'player' + i).setDepth(5);
         this.player.setScale(0.75)
 
 
@@ -202,7 +202,29 @@ export default class SceneMapNew6 extends Phaser.Scene {
             if (this.player.anims) this.player.anims.stop();
         }
 
-        const currentTile = this.base2layer.getTileAtWorldXY(this.player.x, this.player.y);
+       // Trong hàm update hoặc xử lý di chuyển
+       const currentTile = this.base2layer.getTileAtWorldXY(this.player.x, this.player.y);
+
+       const existingMark = this.marksGroup.getChildren().find(mark => {
+           const markTile = this.base2layer.getTileAtWorldXY(mark.x, mark.y);
+           return markTile.x === currentTile.x && markTile.y === currentTile.y;
+       });
+
+       if (!existingMark) {
+        const markTypes = ['mark1', 'mark2', 'mark2'];
+        const markType = markTypes[this.currentMarkIndex];
+        const mark = this.add.image(currentTile.getCenterX(), currentTile.getCenterY(), markType).setDepth(3);
+        
+        if (markType === 'mark1') {
+            mark.setScale(0.9); // Điều chỉnh kích thước cho mark1
+        } else if (markType === 'mark2') {
+            mark.setScale(1); // Điều chỉnh kích thước cho mark2, ví dụ là 70% so với kích thước mặc định
+        }
+        
+        this.marksGroup.add(mark);
+    
+        this.currentMarkIndex = (this.currentMarkIndex + 1) % markTypes.length;
+    }
     }
 }
 

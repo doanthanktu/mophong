@@ -26,8 +26,8 @@ export default class SceneMapNew4 extends Phaser.Scene {
     }
 
     create() {
-        // $('#phaser-game').css('margin-top', '10px')
-        // this.scale.resize(886, 886)
+        this.marksGroup = this.add.group();
+        this.currentMarkIndex = 0;
         let i = this.registry.get('myNumber');
         this.scene.remove('map-new-3')
         this.scene.remove('CR7')
@@ -122,7 +122,7 @@ export default class SceneMapNew4 extends Phaser.Scene {
 
 
         // // Tạo nhân vật
-        this.player = this.physics.add.sprite(380, 380, 'player' + i).setDepth(1);
+        this.player = this.physics.add.sprite(380, 380, 'player' + i).setDepth(5);
         this.player.setScale(1)
 
 
@@ -259,7 +259,23 @@ export default class SceneMapNew4 extends Phaser.Scene {
             playerBody.setVelocity(0);
             if (this.player.anims) this.player.anims.stop();
         }
+        // Trong hàm update hoặc xử lý di chuyển
         const currentTile = this.base2layer.getTileAtWorldXY(this.player.x, this.player.y);
+
+        const existingMark = this.marksGroup.getChildren().find(mark => {
+            const markTile = this.base2layer.getTileAtWorldXY(mark.x, mark.y);
+            return markTile.x === currentTile.x && markTile.y === currentTile.y;
+        });
+
+        if (!existingMark) {
+            // Nếu tile hiện tại chưa được đánh dấu
+            const markType = ['mark1', 'mark2'][this.currentMarkIndex];
+            const mark = this.add.image(currentTile.getCenterX(), currentTile.getCenterY(), markType).setDepth(3);
+            this.marksGroup.add(mark);
+
+            // Chuyển đổi giữa mark1, mark2, mark2 theo thứ tự
+            this.currentMarkIndex = (this.currentMarkIndex + 1) % 2;
+        }
 
     }
 }

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Lý Thuyết - DFS Algorithm</title>
+    <link rel="stylesheet" href="{% static 'myapp/css/styles_theory.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/css/main/style.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/css/main/shThemeDefault.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/css/main/shCore.css' %}">
+    
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .main-content {
+            max-width: 800px;
+            width: 90%;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header-title {
+            color: #9FA8B3; /* Mã màu titan */
+        }
+        .footer {
+          background-color: #333;
+          color: #fff;
+          text-align: center;
+          padding: 15px 0;
+          width: 100%;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+        }
+        
+
+        /* Các phần tử khác có thể cần được điều chỉnh tùy thuộc vào thiết kế của bạn */
+    </style>
+</head>
+    
+<body>
+    <header class="header" style="height:100%; width:100%">
+        <div class="header-content">
+            <h1 class="header-title">DFS Algorithm Theory</h1>
+            <p class="header-description">Understanding DFS Algorithm</p>
+        </div>
+    </header>
+    <main class="main-content">
+      <body class="page-template-default page page-id-3100 page-parent header-full-width full-width-content genesis-breadcrumbs-hidden">
+  
+        <main class="content" style="height: auto !important;">
+          <article class="page type-page status-publish entry" style="height: auto !important;">
+            <header class="entry-header">
+              <div class="ad-content-header" id="ad-content-header-ga"> 
+              <h1 class="entry-title">Giải thuật tìm kiếm theo chiều sâu (Depth First Search)</h1>
+            </header>
+            <div class="entry-content" style="height: auto !important;">
+              <div><hr>
+
+<hr>
+
+<h2 id="goto-h2-1">Giải thuật tìm kiếm theo chiều sâu là gì?</h2>
+<p>Giải thuật tìm kiếm theo chiều sâu (Depth First Search – viết tắt là DFS), còn được gọi là giải thuật tìm kiếm ưu tiên chiều sâu, là giải thuật duyệt hoặc tìm kiếm trên một cây hoặc một đồ thị và sử dụng stack (ngăn xếp) để ghi nhớ đỉnh liền kề để bắt đầu việc tìm kiếm khi không gặp được đỉnh liền kề trong bất kỳ vòng lặp nào. Giải thuật tiếp tục cho tới khi gặp được đỉnh cần tìm hoặc tới một nút không có con. Khi đó giải thuật quay lui về đỉnh vừa mới tìm kiếm ở bước trước.</p>
+<img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu">
+<p>Trong hình minh họa trên, giải thuật tìm kiếm theo chiều sâu đầu tiên duyệt từ các đỉnh <b>A</b> tới <b>B</b> tới <b>C</b> tới <b>D</b> sau đó tới <b>E</b>, sau đó tới <b>F</b> và cuối cùng tới <b>G</b>. Giải thuật này tuân theo qui tắc sau:</p>
+<ul>
+<li><p><b>Qui tắc 1</b>: Duyệt tiếp tới đỉnh liền kề mà chưa được duyệt. Đánh dấu đỉnh mà đã được duyệt. Hiển thị đỉnh đó và đẩy vào trong một ngăn xếp (stack).</p></li>
+<li><p><b>Qui tắc 2</b>: Nếu không tìm thấy đỉnh liền kề, thì lấy một đỉnh từ trong ngăn xếp (thao tác pop up). (Giải thuật sẽ lấy tất cả các đỉnh từ trong ngăn xếp mà không có các đỉnh liền kề nào)</p></li>
+<li><p><b>Qui tắc 3</b>: Lặp lại các qui tắc 1 và qui tắc 2 cho tới khi ngăn xếp là trống.</p></li>
+</ul>
+<p>Bảng dưới đây minh họa các qui tắc với hình ví dụ trên:</p>
+<table class="alt">
+<tbody><tr>
+<th>Bước</th>
+<th>Duyệt</th>
+<th>Mô tả</th>
+</tr>
+<tr>
+<td width="5%">1.</td>
+<td width="50%"><img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau-1.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu"></td>
+<td>Khởi tạo ngăn xếp (stack)</td>
+</tr>
+<tr>
+<td width="5%">2.</td>
+<td width="50%"><img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau-2.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu"></td>
+<td>Đánh dấu đỉnh <b>S</b> là <b>đã duyệt</b> và đặt đỉnh này vào trong ngăn xếp. Tìm kiếm bất kỳ đỉnh liền kề nào mà chưa được duyệt từ đỉnh <b>S</b>. Chúng ta có 3 đỉnh và chúng ta có thể lấy bất kỳ đỉnh nào trong số chúng. Ví dụ, chúng ta lấy đỉnh <b>A</b> theo thứ tự chữ cái.</td>
+</tr>
+<tr>
+<td width="5%">3.</td>
+<td width="50%"><img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau-3.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu"></td>
+<td>Đánh dấu đỉnh <b>A</b> là đã duyệt và đặt vào trong ngăn xếp. Tìm kiếm bất kỳ đỉnh liền kề nào với đỉnh <b>A</b>. Cả <b>S</b> và <b>D</b> đều là hai đỉnh liền kề <b>A</b> nhưng chúng ta chỉ quan tâm về đỉnh chưa được duyệt.</td>
+</tr>
+<tr>
+<td width="5%">4.</td>
+<td width="50%"><img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau-4.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu"></td>
+<td>Duyệt đỉnh <b>D</b>, đánh dấu đỉnh này là đã duyệt và đặt vào trong ngăn xếp. Ở đây, chúng ta có <b>B</b> và <b>C</b> là hai đỉnh kề với <b>D</b> và cả hai đều là chưa được duyệt. Chúng ta sẽ chọn theo thứ tự chữ cái một lần nữa.</td>
+</tr>
+<tr>
+<td width="5%">5.</td>
+<td width="50%"><img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau-5.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu"></td>
+<td>Chọn <b>B</b>, đánh dấu là đã duyệt và đặt vào trong ngăn xếp. Ở đây <b>B</b> không có bất kỳ đỉnh liền kề nào mà chưa được duyệt. Vì thế chúng ta lấy <b>B</b> ra khỏi ngăn xếp.</td>
+</tr>
+<tr>
+<td width="5%">6.</td>
+<td width="50%"><img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau-6.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu"></td>
+<td>Kiểm tra phần tử trên cùng của ngăn xếp để trở về nút đã duyệt trước đó và kiểm tra xem đỉnh này có đỉnh nào liền kề mà chưa được duyệt hay không. Ở đây, chúng ta tìm thấy đỉnh <b>D</b> nằm ở trên cùng của ngăn xếp.</td>
+</tr>
+<tr>
+<td width="5%">7.</td>
+<td width="50%"><img src="{% static 'myapp/images/theory/main_theory/giai-thuat-tim-kiem-theo-chieu-sau-7.png' %}" alt="Giải thuật tìm kiếm theo chiều sâu"></td>
+<td>Chỉ có một đỉnh liền kề với <b>D</b> mà chưa được duyệt, đó là đỉnh <b>C</b>. Chúng ta duyệt <b>C</b>, đánh dấu là đã duyệt và đặt vào trong ngăn xếp.</td>
+</tr>
+</tbody></table>
+<p>Vì <b>C</b> không có bất kỳ đỉnh nào liền kề mà chưa được duyệt, chúng ta tiếp tục lấy các đỉnh từ trong ngăn xếp để tìm xem có còn bất kỳ đỉnh nào liền kề mà chưa được duyệt hay không. Trong ví dụ này là không có, và chúng ta vẫn tiếp tục cho tới khi ngăn xếp là trống.</p>
+</body>
+
+        <hr>
+            <div class="links">
+                <h4>Các nguồn tài liệu đọc thêm, video và bài tập vận dụng:</h4>
+            </div>
+        </div>
+        <section class="page-links" target="_blank">
+            <a href="{% url 'tailieu_DFS' %}" class="page-link" target="_blank">
+                <img src="{% static 'myapp/images/theory/link4_image.jpg' %}" alt="Link 4">
+                <h2>Tài liệu</h2>
+                <p>Đọc thêm kiến thức liên quan</p>
+            </a>
+            <a href="{% url 'video_DFS' %}" class="page-link" target="_blank">
+                <img src="{% static 'myapp/images/theory/link5_image.jpg' %}" alt="Link 5">
+                <h2>Video</h2>
+                <p>Trực quan hóa <br>lý thuyết</p>
+            </a>
+            <a href="{% url 'baitap_DFS' %}" class="page-link" target="_blank">
+                <img src="{% static 'myapp/images/theory/link6_image.jpg' %}" alt="Link 6">
+                <h2>Bài tập</h2>
+                <p>Vận dụng kiến thức đã học</p>
+            </a>
+            
+        </section>
+        
+    </main>
+    
+    <footer class="footer">
+        <p>© 2023 DFS Algorithm Web - Đoàn Huỳnh Thanh Tú - 46.01.103.076 - HCMUE</p>
+    </footer>
+</body>
+</html>

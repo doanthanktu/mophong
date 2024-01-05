@@ -13,6 +13,8 @@ export default class GuideScene extends Phaser.Scene {
         this.load.audio('music5', 'assets/audio/nghenhutinhyeu.mp3');
         this.load.audio('music6', 'assets/audio/khongthesay.mp3');
         this.load.audio('music7', 'assets/audio/rhyder.mp3');
+        this.load.audio('footstep', 'assets/audio/footsteps.wav');
+        
 
 
         this.load.spritesheet('hd1', 'assets/images/guide-IMG/png/hd1.png', {
@@ -55,8 +57,9 @@ export default class GuideScene extends Phaser.Scene {
     }
 
     create() {
-        //this.sound.stopByKey('mp3_winner');
-        //super.create();
+        
+        this.marksGroup = this.add.group();
+        this.currentMarkIndex = 0;
        
         if (window.isMusicPlaying) {
             this.sound.stopByKey('music_start');
@@ -125,8 +128,9 @@ export default class GuideScene extends Phaser.Scene {
 
 
         // // Tạo nhân vật
-        this.player = this.physics.add.sprite(20, 280, 'player' + i).setDepth(1);
-        this.player.setScale(1.7)
+        this.player = this.physics.add.sprite(20, 280, 'player' + i).setDepth(5);
+        this.player.setScale(1.5)
+        
 
 
         this.player.body.collideWorldBounds = true;
@@ -152,10 +156,6 @@ export default class GuideScene extends Phaser.Scene {
             }
         });
         this.cursors = this.input.keyboard.createCursorKeys();
-
-
-
-
     }
 
     update() {
@@ -202,7 +202,25 @@ export default class GuideScene extends Phaser.Scene {
             playerBody.setVelocity(0);
             if (this.player.anims) this.player.anims.stop();
         }
+
+        // Trong hàm update hoặc xử lý di chuyển
         const currentTile = this.base2layer.getTileAtWorldXY(this.player.x, this.player.y);
+
+        const existingMark = this.marksGroup.getChildren().find(mark => {
+            const markTile = this.base2layer.getTileAtWorldXY(mark.x, mark.y);
+            return markTile.x === currentTile.x && markTile.y === currentTile.y;
+        });
+
+        if (!existingMark) {
+            // Nếu tile hiện tại chưa được đánh dấu
+            const markType = ['mark1', 'mark2', 'mark2'][this.currentMarkIndex];
+            const mark = this.add.image(currentTile.getCenterX(), currentTile.getCenterY(), markType).setDepth(3);
+            this.marksGroup.add(mark);
+
+            // Chuyển đổi giữa mark1, mark2, mark2 theo thứ tự
+            this.currentMarkIndex = (this.currentMarkIndex + 1) % 3;
+        }
+
     }
 }
 

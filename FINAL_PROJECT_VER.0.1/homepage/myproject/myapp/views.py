@@ -31,3 +31,20 @@ def tailieu(request):
 
 def video(request):
     return render(request, 'myapp/video.html')
+
+def sel_theory(request):
+    return render(request, 'myapp/sel_theory.html')
+
+def theory_DFS(request):
+    return render(request, 'myapp/theory_DFS.html')
+
+def baitap_DFS(request):
+    return render(request, 'myapp/baitap_DFS.html')
+
+
+def tailieu_DFS(request):
+    return render(request, 'myapp/tailieu_DFS.html')
+
+
+def video_DFS(request):
+    return render(request, 'myapp/video_DFS.html')

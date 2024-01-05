@@ -8,6 +8,7 @@ export default class DATA extends Phaser.Scene {
     preload() {
 
         //width: 960px, height: 720px, frames: 86,
+        
 
         this.load.spritesheet('Sce_Player', 'assets/images/player-IMG/PLAYER/Scene_Player.png', {
             frameWidth: 960,

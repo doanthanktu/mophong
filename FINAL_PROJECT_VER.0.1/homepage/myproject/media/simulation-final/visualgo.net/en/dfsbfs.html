@@ -1457,6 +1457,9 @@
         <p id="bfs">Tìm kiếm theo chiều rộng</p>
         <p></p>
         <p></p>
+        <p id="dfs">Tìm kiếm theo chiều sâu</p>
+        <p></p>
+        <p></p>
         <!-- <p id="topo">Topological Sort</p>
         <p id="bipartite">Bipartite Graph Check</p>
         <p class="execAction" id="bridge" onClick="bridge()">Cut Vertex & Bridge</p>
@@ -1510,12 +1513,12 @@
           <div id="examples-err" class="err" style="float: left;"></div>
         </div>
 
-        <div class="dfs action-menu-pullout">
+        <div class="dfs action-menu-pullout" style="font-size: 30px;">
           <div id="dfs-input" class="new-menu-option">
-            s = <input id="dfs-v" type="number" title="Enter the source vertex" autocomplete="off" min="0" max="99"
-              value="0"> </div>
+            <b>Nhập đỉnh khởi đầu S (source) =</b><input id="dfs-v" type="number" title="Enter the source vertex" autocomplete="off" min="0" max="99"
+              value="0"style="font-size: 30px;"> </div>
           <div id="dfs-go" class="execAction new-menu-option coloured-menu-option" onClick="dfs()">
-            <p>Go</p>
+            <p>Bắt đầu</p>
           </div>
           <div id="dfs-err" class="err" style="float: left;"></div>
         </div>
@@ -3833,7 +3836,7 @@
             // on 18 Oct, after the bidirectional edges are given offset, do NOT do the reverse
             // for (var key in iEL) if (iEL[key]["u"] == v && iEL[key]["v"] == u) edgeHighlighted[key] = true;
             cs = createState(iVL, iEL, vertexHighlighted, edgeHighlighted, vertexTraversed, vertexTraversing, treeEdge, backEdge, crossEdge, forwardEdge);
-            cs["status"] = 'Try edge {u} → {v}'.replace("{u}", u).replace("{v}", v);
+            cs["status"] = 'Thử cạnh {u} → {v}'.replace("{u}", u).replace("{v}", v);
             cs["lineNo"] = 2;
             cs["el"][j]["animateHighlighted"] = true;
             stateList.push(cs);
@@ -3848,7 +3851,7 @@
               // for (var key in iEL) if (iEL[key]["u"] == v && iEL[key]["v"] == u) treeEdge[key] = true;
               cs = createState(iVL, iEL, vertexHighlighted, edgeHighlighted, vertexTraversed, vertexTraversing, treeEdge, backEdge, crossEdge, forwardEdge);
               cs["lineNo"] = [3];
-              cs["status"] = 'Try edge {u} → {v}<br>Vertex {v} is unvisited, we have a <font color="red">tree edge</font>.'.replace("{u}", u).replace("{v}", v).replace("{v}", v);
+              cs["status"] = 'Thử cạnh {u} → {v}<br>Đỉnh {v} chưa được ghé thăm, chúng ta có một <font color="red">cạnh thuộc cây</font>.'.replace("{u}", u).replace("{v}", v).replace("{v}", v);
               stateList.push(cs);
 
               p[v] = u;
@@ -3857,7 +3860,7 @@
               vertexHighlighted[u] = true;
               delete vertexHighlighted[v];
               cs = createState(iVL, iEL, vertexHighlighted, edgeHighlighted, vertexTraversed, vertexTraversing, treeEdge, backEdge, crossEdge, forwardEdge);
-              cs["status"] = 'Finish DFS({v}), backtrack to DFS({u}).'.replace("{u}", u).replace("{v}", v);
+              cs["status"] = 'Hoàn thành DFS({v}), quay lại DFS({u}).'.replace("{u}", u).replace("{v}", v);
               cs["lineNo"] = 1;
               stateList.push(cs);
             }
@@ -3868,11 +3871,11 @@
               // for (var key in iEL) if (iEL[key]["u"] == v && iEL[key]["v"] == u) backEdge[key] = true;
               // }
               cs = createState(iVL, iEL, vertexHighlighted, edgeHighlighted, vertexTraversed, vertexTraversing, treeEdge, backEdge, crossEdge, forwardEdge);
-              var thisStatus = 'Try edge {u} → {v}<br>Vertex {v} is explored, we have a '.replace("{u}", u).replace("{v}", v).replace("{v}", v);
+              var thisStatus = 'Thử cạnh {u} → {v}<br>Đỉnh {v} đã được khám phá, chúng ta có một '.replace("{u}", u).replace("{v}", v).replace("{v}", v);
               if (p[u] == v)
-                thisStatus = thisStatus + '<font color="blue">bidirectional edge</font> (a trivial cycle).';
+                  thisStatus = thisStatus + '<font color="blue">cạnh hai chiều</font> (một chu trình trắc nghiệm).';
               else
-                thisStatus = thisStatus + '<font color="blue">back edge</font> (a true cycle).';
+                  thisStatus = thisStatus + '<font color="blue">cạnh quay lui</font> (một chu trình thực sự).';
               cs["status"] = thisStatus;
               cs["lineNo"] = 4;
               stateList.push(cs);
@@ -3882,7 +3885,7 @@
               // on 18 Oct, after the bidirectional edges are given offset, do NOT do the reverse
               // for (var key in iEL) if (iEL[key]["u"] == v && iEL[key]["v"] == u) forwardEdge[key] = true;
               cs = createState(iVL, iEL, vertexHighlighted, edgeHighlighted, vertexTraversed, vertexTraversing, treeEdge, backEdge, crossEdge, forwardEdge);
-              cs["status"] = 'Try edge {u} → {v}<br>Vertex {v} is visited, we have a <font color="grey">forward/cross edge</font>.'.replace("{u}", u).replace("{v}", v).replace("{v}", v);
+              cs["status"] = 'Thử cạnh {u} → {v}<br>Đỉnh {v} đã được ghé thăm, chúng ta có một <font color="grey">cạnh tiến/cạnh chéo</font>.'.replace("{u}", u).replace("{v}", v).replace("{v}", v);
               cs["lineNo"] = 5;
               stateList.push(cs);
             }
@@ -3894,7 +3897,7 @@
         dfsRecur(sourceVertex);
 
         cs = createState(iVL, iEL, vertexHighlighted, edgeHighlighted, vertexTraversed, vertexTraversing, treeEdge, backEdge, crossEdge, forwardEdge);
-        cs["status"] = 'DFS({sourceVertex}) is completed. <font color="red">Red</font>/<font color="grey">grey</font>/<font color="blue">blue</font> edge is <font color="red">tree</font>/<font color="grey">cross/forward</font>/<font color="blue">back</font> edge of the DFS spanning tree, respectively.'.replace("{sourceVertex}", sourceVertex);
+        cs["status"] = 'DFS({sourceVertex}) đã hoàn thành. Các cạnh màu<font color="red"> Đỏ </font>là cạnh của cây DFS và<font color="grey"> Xám </font>là cạnh chéo/tiến của cây DFS, còn<font color="blue"> Xanh </font> tương ứng là cạnh quay lại của cây DFS.'.replace("{sourceVertex}", sourceVertex);
         cs["lineNo"] = 0;
         stateList.push(cs);
 
@@ -3910,12 +3913,12 @@
 
         // error checks
         if (amountVertex == 0) { // no graph
-          $('#bfs-err').html('There is no graph to run this on. Please select an example graph first');
+          $('#bfs-err').html('Không có đồ thị để chạy. Vui lòng chọn một đồ thị mẫu trước.');
           return false;
         }
 
         if (sourceVertex >= amountVertex || sourceVertex < 0) { // source vertex not in range
-          $('#bfs-err').html('This vertex does not exist in the graph. Please select another source vertex');
+          $('#bfs-err').html('Đỉnh này không tồn tại trong đồ thị. Vui lòng chọn một đỉnh nguồn khác.');
           return false;
         }
 
@@ -4009,7 +4012,7 @@
         for (var key in iEL) delete edgeHighlighted[key];
         vertexHighlighted[sourceVertex] = true;
         cs = createState(iVL, iEL, vertexHighlighted, edgeHighlighted, vertexTraversed, vertexTraversing, treeEdge, backEdge, crossEdge, forwardEdge);
-        cs["status"] = 'BFS({sourceVertex}) đã hoàn thành. <font color="red">Đỏ</font>/<font color="grey">Xám</font> là cạnh <font color="red">thuộc cây</font>/<font color="grey">không thuộc cây</font> của cây bao phủ BFS & SSSP (cho đồ thị không có trọng số).'.replace("{sourceVertex}", sourceVertex);
+        cs["status"] = 'BFS({sourceVertex}) đã hoàn thành. Cạnh màu<font color="red"> Đỏ </font>là cạnh thuộc cây BFS, còn <font color="grey">Xám</font> là cạnh không thuộc cây BFS (cho đồ thị không có trọng số).'.replace("{sourceVertex}", sourceVertex);
         stateList.push(cs);
 
         populatePseudocode(1);

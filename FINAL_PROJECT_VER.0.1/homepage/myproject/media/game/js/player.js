@@ -7,7 +7,7 @@ export default class NHANVAT extends Phaser.Scene {
 
         this.load.image('scene_mus', 'assets/audio/Scene_sound.png')
 
-        this.load.audio('footstep', 'assets/audio/footsteps.wav');
+        
 
 
     }
